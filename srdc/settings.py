@@ -14,8 +14,14 @@ import os
 import sys
 from pathlib import Path
 
+import dj_database_url
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -95,16 +101,28 @@ if 'test' in sys.argv:
         }
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.postgresql'),
-            'NAME': os.environ.get('DB_NAME', 'srdc'),
-            'USER': os.environ.get('DB_USER', 'postgres'),
-            'PASSWORD': os.environ.get('DB_PASSWORD', 'pg@123'),
-            'HOST': os.environ.get('DB_HOST', 'localhost'),
-            'PORT': os.environ.get('DB_PORT', '5432'),
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    if DATABASE_URL:
+        # Supabase / production PostgreSQL via connection string
+        DATABASES = {
+            'default': dj_database_url.parse(
+                DATABASE_URL,
+                conn_max_age=600,
+                conn_health_checks=True,
+            )
         }
-    }
+    else:
+        # Local fallback (individual env vars or SQLite)
+        DATABASES = {
+            'default': {
+                'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3'),
+                'NAME': os.environ.get('DB_NAME', BASE_DIR / 'db.sqlite3'),
+                'USER': os.environ.get('DB_USER', ''),
+                'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+                'HOST': os.environ.get('DB_HOST', ''),
+                'PORT': os.environ.get('DB_PORT', ''),
+            }
+        }
 
 
 # Password validation
