@@ -737,25 +737,8 @@
         }
 
     /* --- Tailwind Utility Overrides for Light Mode --- */
-    body:not(.dark-mode) .text-white { color: var(--text-primary) !important; }
-    body:not(.dark-mode) .text-white\/20 { color: var(--text-muted) !important; }
-    body:not(.dark-mode) .text-white\/30 { color: var(--text-muted) !important; }
-    body:not(.dark-mode) .text-white\/40 { color: var(--text-muted) !important; }
-    body:not(.dark-mode) .text-white\/50 { color: var(--text-secondary) !important; }
-    body:not(.dark-mode) .text-white\/60 { color: var(--text-secondary) !important; }
-    body:not(.dark-mode) .text-white\/80 { color: var(--text-primary) !important; }
     
-    body:not(.dark-mode) .bg-white\/5 { background-color: var(--glass-bg) !important; }
-    body:not(.dark-mode) .bg-white\/10 { background-color: rgba(0, 0, 0, 0.08) !important; }
-    body:not(.dark-mode) .bg-white\/20 { background-color: rgba(0, 0, 0, 0.12) !important; }
-    body:not(.dark-mode) .bg-black\/20 { background-color: rgba(0, 0, 0, 0.03) !important; }
-    body:not(.dark-mode) .bg-white\/\[0\.03\] { background-color: rgba(0, 0, 0, 0.02) !important; }
-    body:not(.dark-mode) .bg-white\/\[0\.02\] { background-color: rgba(0, 0, 0, 0.01) !important; }
-    
-    body:not(.dark-mode) .border-white\/5 { border-color: var(--glass-border) !important; }
-    body:not(.dark-mode) .border-white\/10 { border-color: var(--glass-border) !important; }
-    body:not(.dark-mode) .border-white\/20 { border-color: rgba(0, 0, 0, 0.15) !important; }
-    
+
     body:not(.dark-mode) .glass-panel {
         background: var(--glass-bg);
         border: 1px solid var(--glass-border);
@@ -816,7 +799,7 @@
     body:not(.dark-mode) .border-red-500\/20 { border-color: rgba(239, 68, 68, 0.2) !important; }
 
         /* ═══ LIGHT MODE OVERRIDES ═══ */
-        body:not(.dark-mode) .app-shell .text-white { color: var(--text-primary) !important; }
+        body:not(.dark-mode) .app-shell .text-white:not(.bg-secondary) { color: var(--text-primary) !important; }
         body:not(.dark-mode) .app-shell .text-white\/80 { color: rgba(26,26,46,0.8) !important; }
         body:not(.dark-mode) .app-shell .text-white\/70 { color: rgba(26,26,46,0.7) !important; }
         body:not(.dark-mode) .app-shell .text-white\/60 { color: var(--text-secondary) !important; }
