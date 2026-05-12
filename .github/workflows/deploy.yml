@@ -1,0 +1,38 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/SRDC
+            # Pull the latest changes from GitHub
+            git pull origin main
+            
+            # Activate virtual environment
+            source venv/bin/activate
+            
+            # Install any new dependencies
+            pip install -r requirements.txt
+            
+            # Collect static files and migrate database
+            python manage.py collectstatic --noinput
+            python manage.py migrate --noinput
+            
+            # Restart the application server
+            sudo systemctl restart gunicorn
