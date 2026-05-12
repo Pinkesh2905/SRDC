@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders List Print | SRDC</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            background: #f4f1eb;
+            color: #1f1a17;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            line-height: 1.35;
+        }
+        .toolbar {
+            width: 100%;
+            max-width: 1120px;
+            margin: 18px auto;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .toolbar a,
+        .toolbar button {
+            border: 1px solid #d2c7ba;
+            background: #ffffff;
+            color: #1f1a17;
+            padding: 9px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .toolbar button {
+            background: #7a1f18;
+            border-color: #7a1f18;
+            color: #ffffff;
+        }
+        .sheet {
+            width: 100%;
+            max-width: 1120px;
+            margin: 0 auto 24px;
+            background: #ffffff;
+            border: 1px solid #ddd4c9;
+            padding: 22px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            border-bottom: 2px solid #7a1f18;
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 26px;
+            letter-spacing: -0.03em;
+            color: #7a1f18;
+        }
+        .subtitle {
+            margin-top: 4px;
+            color: #675b51;
+            font-size: 12px;
+        }
+        .meta {
+            text-align: right;
+            color: #3b332d;
+        }
+        .meta strong {
+            display: inline-block;
+            min-width: 92px;
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+            padding: 10px;
+            background: #fbf8f3;
+            border: 1px solid #eadfce;
+        }
+        .filter-label {
+            display: block;
+            color: #7a6d61;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .filter-value {
+            color: #1f1a17;
+            font-weight: 700;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #7a1f18;
+            color: #ffffff;
+            text-align: left;
+            font-size: 10px;
+            padding: 8px 7px;
+            border: 1px solid #7a1f18;
+            text-transform: uppercase;
+        }
+        td {
+            padding: 8px 7px;
+            border: 1px solid #e4dcd3;
+            vertical-align: top;
+        }
+        tbody tr:nth-child(even) td {
+            background: #fcfaf7;
+        }
+        .right {
+            text-align: right;
+        }
+        .center {
+            text-align: center;
+        }
+        .order-id {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .customer {
+            font-weight: 700;
+        }
+        .muted {
+            color: #756b62;
+            font-size: 11px;
+        }
+        .status {
+            display: inline-block;
+            border: 1px solid #d8b66d;
+            background: #fff7dd;
+            color: #6a4b0f;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        tfoot td {
+            background: #fbf8f3;
+            font-weight: 700;
+        }
+        .empty {
+            text-align: center;
+            color: #756b62;
+            padding: 28px;
+            font-style: italic;
+        }
+        @media print {
+            body {
+                background: #ffffff;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .toolbar {
+                display: none;
+            }
+            .sheet {
+                max-width: none;
+                margin: 0;
+                border: none;
+                padding: 0;
+            }
+            tr {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <a href="{% url 'order_list' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}">Back to Orders</a>
+        <button type="button" onclick="window.print()">Print / Save PDF</button>
+    </div>
+
+    <main class="sheet">
+        <header>
+            <div>
+                <h1>Shree Ram Dulha Collection</h1>
+                <div class="subtitle">Filtered Orders & Bills List</div>
+            </div>
+            <div class="meta">
+                <div><strong>Generated:</strong> {{ generated_at|date:"d M Y, h:i A" }}</div>
+                <div><strong>Total Orders:</strong> {{ orders|length }}</div>
+                <div><strong>Total Amount:</strong> Rs {{ total_amount }}</div>
+            </div>
+        </header>
+
+        <section class="filters">
+            <div>
+                <span class="filter-label">Search</span>
+                <span class="filter-value">{{ q|default:"All" }}</span>
+            </div>
+            <div>
+                <span class="filter-label">Status</span>
+                <span class="filter-value">
+                    {% if current_status %}
+                        {% for value,label in statuses %}
+                            {% if current_status == value %}{{ label }}{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        All Statuses
+                    {% endif %}
+                </span>
+            </div>
+            <div>
+                <span class="filter-label">Delivery Date</span>
+                <span class="filter-value">{{ delivery_date|date:"d M Y"|default:"Any" }}</span>
+            </div>
+            <div>
+                <span class="filter-label">Return Date</span>
+                <span class="filter-value">{{ return_date|date:"d M Y"|default:"Any" }}</span>
+            </div>
+            <div>
+                <span class="filter-label">Red Flag</span>
+                <span class="filter-value">{% if red_flag == '1' %}Flagged only{% else %}Any{% endif %}</span>
+            </div>
+        </section>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 44px;">No.</th>
+                    <th style="width: 150px;">Order ID</th>
+                    <th>Customer</th>
+                    <th style="width: 115px;">Phone</th>
+                    <th style="width: 115px;">Delivery Date</th>
+                    <th style="width: 115px;">Return Date</th>
+                    <th style="width: 105px;" class="right">Amount</th>
+                    <th style="width: 120px;" class="center">Status</th>
+                    <th style="width: 70px;" class="center">Flag</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td class="center">{{ forloop.counter }}</td>
+                    <td class="order-id">{{ order.order_number }}</td>
+                    <td>
+                        <div class="customer">{{ order.customer.full_name }}</div>
+                        <div class="muted">{{ order.customer.city|default:"" }}</div>
+                    </td>
+                    <td>{{ order.customer.phone }}</td>
+                    <td>{{ order.delivery_date|date:"d M Y" }}</td>
+                    <td>{{ order.return_date|date:"d M Y"|default:"-" }}</td>
+                    <td class="right">Rs {{ order.grand_total }}</td>
+                    <td class="center"><span class="status">{{ order.get_status_display }}</span></td>
+                    <td class="center">{% if order.is_red_flagged %}Yes{% else %}-{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="empty">No orders found matching the selected filters.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6" class="right">Total</td>
+                    <td class="right">Rs {{ total_amount }}</td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </main>
+</body>
+</html>

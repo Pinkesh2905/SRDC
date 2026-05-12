@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SRDC - Print Invoice {{ order.order_number }}</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#28513f",
+                      "surface-container-low": "#f3eee5",
+                      "on-surface": "#171717",
+                      "primary-fixed": "#efe0c6",
+                      "surface-tint": "#8a6428",
+                      "surface": "#f8f5f0",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#b64a3c",
+                      "error": "#ba1a1a",
+                      "secondary": "#7a1f18",
+                      "primary-container": "#7a1f18",
+                      "primary": "#241f1c",
+                      "tertiary": "#28513f",
+                      "background": "#f8f5f0",
+                      "secondary-fixed": "#ead8d1",
+              },
+              "fontFamily": {
+                      "headline-lg": ["Playfair Display", "serif"],
+                      "label-caps": ["Inter", "ui-sans-serif"],
+                      "headline-md": ["Space Grotesk", "Inter", "ui-sans-serif"],
+                      "body-base": ["Inter", "ui-sans-serif"],
+                      "body-sm": ["Inter", "ui-sans-serif"],
+                      "invoice-accent": ["Space Grotesk", "Inter", "ui-sans-serif"]
+              },
+              "fontSize": {
+                      "headline-lg": ["32px", {"lineHeight": "1.05", "fontWeight": "800"}],
+                      "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.04em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "body-base": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "body-sm": ["14px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                      "invoice-accent": ["18px", {"lineHeight": "1.2", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+    <style>
+        @page {
+            size: A5 portrait;
+            margin: 5mm;
+        }
+        @media print {
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print { display: none !important; }
+            .page-break { page-break-before: always; }
+
+            /* Canvas fills the full A5 page — no forced break after */
+            #invoice-canvas {
+                border: none !important;
+                box-shadow: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                height: 200mm !important;           /* A5 height minus 2×5mm margin */
+                display: flex !important;
+                flex-direction: column !important;
+                margin: 0 !important;
+                overflow: hidden !important;
+                page-break-inside: avoid;
+            }
+            #measurements-canvas {
+                border: none !important;
+                box-shadow: none !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+
+            /* ---- Header ---- */
+            #invoice-canvas header { padding: 6px 10px !important; gap: 8px !important; flex-shrink: 0; }
+            #invoice-canvas header h1 { font-size: 17px !important; line-height: 1.15 !important; margin-bottom: 2px !important; }
+            #invoice-canvas header p { margin: 0 !important; font-size: 8.5px !important; line-height: 1.35 !important; }
+            #invoice-canvas header .p-3 { padding: 4px 6px !important; }
+            #invoice-canvas header .mb-1 { margin-bottom: 1px !important; }
+            #invoice-canvas header .mb-4 { margin-bottom: 4px !important; }
+            #invoice-canvas header .mb-2 { margin-bottom: 2px !important; }
+            .section-title { font-size: 8px !important; }
+
+            /* ---- Customer / Order grid ---- */
+            #invoice-canvas section { padding: 0 !important; flex-shrink: 0; }
+            #invoice-canvas .p-6 { padding: 6px 10px !important; }
+            #invoice-canvas .p-4 { padding: 5px !important; }
+            #invoice-canvas .p-3 { padding: 4px !important; }
+            #invoice-canvas .p-2 { padding: 3px !important; }
+            #invoice-canvas .gap-10 { gap: 8px !important; }
+            #invoice-canvas .mb-4 { margin-bottom: 4px !important; }
+            #invoice-canvas .mb-3 { margin-bottom: 3px !important; }
+            #invoice-canvas .mb-1 { margin-bottom: 1px !important; }
+            #invoice-canvas .space-y-3 > * + * { margin-top: 3px !important; }
+            #invoice-canvas .space-y-1 > * + * { margin-top: 1px !important; }
+            #invoice-canvas .mt-6 { margin-top: 6px !important; }
+            .invoice-topline { height: 5px !important; flex-shrink: 0; }
+            .invoice-field-label { font-size: 8px !important; flex: 0 0 58px !important; }
+            .invoice-field-value { font-size: 9px !important; min-height: 16px !important; padding-bottom: 2px !important; }
+            .invoice-field { gap: 6px !important; }
+
+            /* ---- Items table — grows to fill remaining height ---- */
+            .print-items-section {
+                flex: 1 1 auto !important;
+                min-height: 0 !important;
+                overflow: hidden !important;
+            }
+            #invoice-canvas .grid.grid-cols-12 > div { padding: 3px 4px !important; font-size: 9px !important; }
+
+            /* ---- Totals / Summary ---- */
+            #invoice-canvas .grid.grid-cols-2 .p-2 { padding: 3px 5px !important; font-size: 8.5px !important; }
+            #invoice-canvas .grid.grid-cols-2 .p-3 { padding: 3px 5px !important; font-size: 8.5px !important; }
+            #invoice-canvas .font-headline-md { font-size: 13px !important; }
+            #invoice-canvas .text-\[28px\] { font-size: 14px !important; }
+            #invoice-canvas .col-span-7 .font-body-base { font-size: 9px !important; }
+            #invoice-canvas .col-span-7 .font-label-caps { font-size: 7.5px !important; }
+            #invoice-canvas .rotate-\[-5deg\] { padding: 3px 8px !important; }
+
+            /* ---- Footer ---- */
+            #invoice-canvas footer { padding: 5px 10px !important; flex-shrink: 0; }
+            #invoice-canvas footer .gap-8 { gap: 10px !important; }
+            #invoice-canvas footer .h-12 { height: 22px !important; }
+            #invoice-canvas footer ol { font-size: 7.5px !important; line-height: 1.4 !important; }
+            #invoice-canvas footer h3 { font-size: 7.5px !important; margin-bottom: 2px !important; }
+            #invoice-canvas footer .w-40 { width: 110px !important; }
+            #invoice-canvas footer span.font-body-sm { font-size: 8px !important; }
+            #invoice-canvas footer .font-headline-lg { font-size: 15px !important; }
+        }
+        html {
+            -webkit-font-smoothing: antialiased;
+            text-rendering: geometricPrecision;
+        }
+        
+        .paper-bg {
+            background-color: #fffdfa;
+            background-image: url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M36 8l2 6 6 2-6 2-2 6-2-6-6-2 6-2 2-6z' fill='%237a1f18' fill-opacity='0.025'/%3E%3C/svg%3E");
+        }
+        .invoice-topline {
+            height: 8px;
+            background: linear-gradient(90deg, #7a1f18, #d8b66d, #7a1f18);
+        }
+        .invoice-pill {
+            border: 1px solid rgba(122, 31, 24, 0.18);
+            background: #fbf2e0;
+            border-radius: 999px;
+            padding: 6px 12px;
+        }
+        .invoice-field {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+        .invoice-field-label {
+            color: #71665d;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            flex: 0 0 88px;
+        }
+        .invoice-field-value {
+            flex: 1;
+            min-height: 24px;
+            border-bottom: 1px dotted rgba(122, 31, 24, 0.55);
+            color: #241f1c;
+            font-weight: 600;
+            padding-bottom: 3px;
+        }
+        .section-title {
+            color: #7a1f18;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col items-center py-8">
+
+    <!-- Print Controls (Screen Only) -->
+    <div class="no-print w-full max-w-[560px] flex justify-between mb-4 px-4">
+        <a href="{% url 'order_detail' order.id %}" class="flex items-center gap-2 bg-white text-slate-700 border border-slate-300 px-4 py-2 font-label-caps hover:bg-slate-50 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            BACK TO ORDER
+        </a>
+        <button class="flex items-center gap-2 bg-primary-container text-white border border-primary px-4 py-2 font-label-caps hover:bg-primary transition-colors" onclick="window.print()">
+            <span class="material-symbols-outlined text-[18px]">print</span>
+            PRINT INVOICE
+        </button>
+    </div>
+
+    <!-- PAGE 1: The Invoice Canvas -->
+    <div class="paper-bg w-full max-w-[560px] bg-[#fffdfa] border border-gray-200 mx-auto shadow-md relative overflow-hidden mb-8" id="invoice-canvas">
+        <div class="invoice-topline"></div>
+        <!-- Header Section -->
+        <header class="border-b border-gray-200 p-6 flex justify-between items-start gap-8">
+            <div class="flex-1">
+                <div class="section-title mb-2">Bill</div>
+                <h1 class="font-headline-lg text-[22px] text-primary tracking-tight mb-1">Shree Ram Dulha Collection</h1>
+                <p class="font-body-sm text-primary/70 mb-4">Premium Ethnic Wear &amp; Wedding Attire</p>
+                <div class="font-body-sm text-primary leading-tight bg-white/60 border border-stone-200 p-3">
+                    <p>21/22, Shiv Icon Complex, Opp. BAPS Temple,</p>
+                    <p>Anand Chokdi, Borsad - 388540.</p>
+                    <p>Ph: +91 9727341717</p>
+                </div>
+            </div>
+            <div class="flex-none text-right flex flex-col items-end">
+                <div class="font-body-sm text-primary text-right space-y-1">
+                    <div>
+                        <span class="font-semibold">Bill No:</span> #{{ order.id|stringformat:"03d" }}
+                    </div>
+                    <div>
+                        <span class="font-semibold">Date:</span> {{ order.created_at|date:"d M Y" }}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Customer Details Grid -->
+        <section class="border-b border-gray-200 grid grid-cols-2 gap-10 p-6 bg-white/35">
+            <!-- Left Side: Customer Info -->
+            <div class="bg-white border border-stone-200 p-4">
+                <h2 class="section-title mb-4">Customer Details</h2>
+                <div class="space-y-3">
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Name</span>
+                        <div class="invoice-field-value font-invoice-accent">
+                            {{ order.customer.full_name|title }}
+                        </div>
+                    </div>
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">City</span>
+                        <div class="invoice-field-value font-body-sm">
+                            {{ order.customer.city|title|default:"-" }}
+                        </div>
+                    </div>
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Phone</span>
+                        <div class="invoice-field-value font-body-base">
+                            +91 {{ order.customer.phone|slice:"0:5" }} {{ order.customer.phone|slice:"5:10" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Side: Order Info -->
+            <div class="bg-white border border-stone-200 p-4">
+                <h2 class="section-title mb-4">Order Details</h2>
+                <div class="space-y-3">
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Booking</span>
+                        <div class="invoice-field-value font-body-base">
+                            {{ order.booking_date|date:"d M Y" }}
+                        </div>
+                    </div>
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Delivery</span>
+                        <div class="invoice-field-value font-body-base font-bold text-secondary">
+                            {{ order.delivery_date|date:"d M Y" }}
+                        </div>
+                    </div>
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Return</span>
+                        <div class="invoice-field-value font-body-sm uppercase">
+                            {{ order.return_date|date:"d M Y"|default:"-" }}
+                        </div>
+                    </div>
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Salesperson</span>
+                        <div class="invoice-field-value font-body-sm">
+                            {{ order.salesperson.full_name|default:"-" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Items Table -->
+        <section class="print-items-section border-b border-gray-200 flex flex-col">
+            <!-- Table Header -->
+            <div class="grid grid-cols-12 border-b-2 border-[#9a7320]" style="background:#d8aa3a;">
+                <div class="col-span-1 p-2 font-label-caps text-center" style="color:#3d1f00;">S.No</div>
+                <div class="col-span-5 p-2 font-label-caps" style="color:#3d1f00;">Particulars / Description</div>
+                <div class="col-span-2 p-2 font-label-caps text-right" style="color:#3d1f00;">Qty</div>
+                <div class="col-span-2 p-2 font-label-caps text-right" style="color:#3d1f00;">Rate (₹)</div>
+                <div class="col-span-2 p-2 font-label-caps text-right" style="color:#3d1f00;">Amount (₹)</div>
+            </div>
+            <!-- Table Rows (Filled) -->
+            <div class="flex-1">
+                {% for item in items %}
+                <div class="grid grid-cols-12 border-b border-gray-200">
+                    <div class="col-span-1 p-3 font-body-base text-primary text-center">{{ forloop.counter }}</div>
+                    <div class="col-span-5 p-3">
+                        <div class="font-invoice-accent text-primary">{{ item.description }}</div>
+                        {% if item.measurement and item.measurement.notes %}
+                        <div class="font-body-sm text-primary/70 mt-1 italic pl-3 border-l-2 border-primary/30">- Note: {{ item.measurement.notes }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-span-2 p-3 font-body-base text-primary text-right">{{ item.quantity }}</div>
+                    <div class="col-span-2 p-3 font-body-base text-primary text-right">{{ item.rate }}</div>
+                    <div class="col-span-2 p-3 font-body-base text-primary text-right font-semibold">{{ item.total_amount }}</div>
+                </div>
+                {% empty %}
+                <div class="p-4 text-center italic text-primary/60">No items in this order.</div>
+                {% endfor %}
+                <!-- Empty filler rows -->
+                {% for i in "1234" %}
+                <div class="grid grid-cols-12 border-b border-gray-200">
+                    <div class="col-span-1 p-3 font-body-base text-primary text-center">{{ forloop.counter|add:items.count }}</div>
+                    <div class="col-span-5 p-3">
+                        <div class="font-invoice-accent">&nbsp;</div>
+                        <div class="font-body-sm mt-1">&nbsp;</div>
+                    </div>
+                    <div class="col-span-2 p-3">&nbsp;</div>
+                    <div class="col-span-2 p-3">&nbsp;</div>
+                    <div class="col-span-2 p-3">&nbsp;</div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Summary & Totals -->
+        <section class="grid grid-cols-12 border-b border-gray-200">
+            <!-- Left Side: Amounts in Words & Status -->
+            <div class="col-span-7 p-4 border-r border-gray-200 flex flex-col justify-between">
+                <div>
+                    <span class="font-label-caps text-primary uppercase block mb-3">Amount in Words:</span>
+                    <p class="font-body-base text-primary italic border-b border-gray-300 border-dotted pb-1 inline-block min-w-full">
+                        Rupees {{ amount_in_words }}.
+                    </p>
+                </div>
+                {% if order.advance_paid > 0 %}
+                <div class="mt-6 flex items-center gap-4">
+                    <div class="border-2 border-tertiary px-4 py-2 rotate-[-5deg] inline-block shadow-[2px_2px_0px_0px_rgba(0,49,34,0.2)] bg-[#a6f2d1]">
+                        <span class="font-headline-md text-tertiary uppercase tracking-wider font-bold">Advance Rcvd</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <!-- Right Side: Calculations -->
+            <div class="col-span-5">
+                <div class="grid grid-cols-2 border-b border-gray-200">
+                    <div class="p-2 border-r border-gray-200 text-xs uppercase tracking-wider text-gray-600 flex items-center justify-end">Gross Total:</div>
+                    <div class="p-2 font-body-base text-primary text-right">₹ {{ order.subtotal }}</div>
+                </div>
+                {% if order.is_buy_back %}
+                <div class="grid grid-cols-2 border-b border-gray-200">
+                    <div class="p-2 border-r border-gray-200 text-xs uppercase tracking-wider text-gray-600 flex items-center justify-end">Deposit Amount{% if order.is_deposit_paid %} (Paid){% else %} (Pending){% endif %}:</div>
+                    <div class="p-2 font-body-base text-primary text-right">₹ {{ order.deposit_amount }}</div>
+                </div>
+                {% else %}
+                <div class="grid grid-cols-2 border-b border-gray-200">
+                    <div class="p-2 border-r border-gray-200 text-xs uppercase tracking-wider text-gray-600 flex items-center justify-end">Discount (Fixed):</div>
+                    <div class="p-2 font-body-base text-primary text-right">- ₹ {{ order.discount_amount }}</div>
+                </div>
+                {% endif %}
+                <div class="grid grid-cols-2 border-b border-gray-200 bg-stone-50">
+                    <div class="p-2 border-r border-gray-200 text-xs uppercase tracking-wider text-gray-600 font-bold flex items-center justify-end">NET AMOUNT:</div>
+                    <div class="p-2 font-headline-md text-primary text-right font-bold">₹ {{ order.final_amount }}</div>
+                </div>
+                <div class="grid grid-cols-2 border-b border-gray-200">
+                    <div class="p-2 border-r border-gray-200 text-xs uppercase tracking-wider text-gray-600 flex items-center justify-end">Advance Rcvd:</div>
+                    <div class="p-2 font-body-base text-primary text-right text-tertiary font-bold">₹ {{ order.advance_paid }}</div>
+                </div>
+                <div class="grid grid-cols-2 bg-[#efe0c6]">
+                    <div class="p-3 border-r border-gray-200 text-xs uppercase tracking-wider text-primary font-bold flex items-center justify-end">BALANCE DUE:</div>
+                    <div class="p-3 font-headline-md text-[28px] text-primary text-right font-bold underline decoration-double underline-offset-4">₹ {{ order.grand_total }}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer: Terms & Signatures -->
+        <footer class="p-4 grid grid-cols-2 gap-8">
+            <div class="text-xs">
+                <h3 class="font-label-caps text-primary uppercase mb-2 border-b border-primary/30 pb-1 inline-block">Terms &amp; Conditions</h3>
+                <ol class="list-decimal list-inside font-body-sm text-[11px] text-primary/80 space-y-1 mb-2">
+                    <li>Alterations take minimum 3 working days.</li>
+                    <li>Advance payment is non-refundable.</li>
+                    <li>No guarantee on cotton and linen fabrics or garments.</li>
+                </ol>
+                <div class="font-body-sm text-[11px] text-primary/90 mt-2">
+                    <p><span class="font-semibold">Shop Time:</span> 9:30 AM to 7:30 PM</p>
+                    <p><span class="font-semibold">Order Delivery:</span> 1:00 PM to 7:00 PM</p>
+                    <p class="text-primary/70 italic mt-0.5 text-[10px]">* Order delivery date may have some changes in some cases.</p>
+                </div>
+            </div>
+            <div class="flex justify-end items-end pb-2">
+                <div class="flex flex-col items-center">
+                    <div class="w-40 border-b border-primary border-dotted mb-1 h-12 flex items-end justify-center pb-1">
+                        <span class="font-headline-lg text-[24px] text-primary/40 font-bold italic rotate-[-10deg]">Shree Ram</span>
+                    </div>
+                    <span class="font-body-sm text-primary">For Shree Ram Dulha Collection</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+
+    <!-- PAGE 2: MEASUREMENTS -->
+    {% if measurements %}
+    <div class="page-break w-full"></div>
+    <div class="paper-bg w-full max-w-[560px] bg-[#fffdfa] border border-gray-200 mx-auto shadow-md relative overflow-hidden" id="measurements-canvas">
+        <div class="p-6 space-y-8">
+            {% for m in measurements %}
+            <div class="w-full border border-gray-200 bg-white shadow-sm">
+                <div class="bg-stone-100 text-gray-700 font-invoice-accent p-3 flex justify-between items-center border-b border-gray-200">
+                    <span class="uppercase tracking-wider font-bold">{{ m.category_display }}</span>
+                    <span class="text-xs font-body-sm tracking-normal font-medium">Bill No: {{ order.id|stringformat:"03d" }} | {{ order.customer.full_name|title }}</span>
+                </div>
+                <div class="grid grid-cols-3 gap-y-3 gap-x-4 p-4">
+                    {% for param in m.data %}
+                    <div class="flex flex-col border-b border-gray-200 pb-2">
+                        <span class="font-label-caps text-primary/70 uppercase mb-1 break-words leading-tight">{{ param.label }}</span>
+                        <span class="font-headline-md text-primary font-bold">{{ param.value }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if order.notes %}
+            <div class="mt-8 border border-gray-200 p-4 bg-white">
+                <h3 class="font-label-caps text-primary uppercase mb-2 border-b border-gray-200 pb-1">Special Order Notes:</h3>
+                <p class="font-body-base text-primary italic">{{ order.notes }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% if is_first_setup %}Setup Account{% else %}Add Staff Member{% endif %} | Shree Ram Dulha Collections</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Noto+Serif:wght@500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed":           "#241a00",
+                        "surface-container-low":        "#f6f3f2",
+                        "surface":                      "#fcf9f8",
+                        "outline-variant":              "#e2bfb9",
+                        "outline":                      "#8e706c",
+                        "on-primary-container":         "#ff8371",
+                        "on-primary-fixed":             "#410000",
+                        "background":                   "#fcf9f8",
+                        "tertiary-container":           "#453c20",
+                        "on-background":                "#1b1c1b",
+                        "surface-dim":                  "#dcd9d8",
+                        "inverse-primary":              "#ffb4a8",
+                        "secondary-fixed":              "#ffe088",
+                        "inverse-surface":              "#303030",
+                        "on-surface":                   "#1b1c1b",
+                        "tertiary-fixed-dim":           "#d4c69f",
+                        "primary-fixed-dim":            "#ffb4a8",
+                        "secondary":                    "#735c00",
+                        "on-error-container":           "#93000a",
+                        "on-tertiary":                  "#ffffff",
+                        "on-secondary":                 "#ffffff",
+                        "tertiary-fixed":               "#f0e2ba",
+                        "primary-container":            "#800000",
+                        "on-error":                     "#ffffff",
+                        "surface-tint":                 "#b22b1d",
+                        "surface-container-high":       "#eae7e7",
+                        "primary":                      "#570000",
+                        "on-primary":                   "#ffffff",
+                        "error":                        "#ba1a1a",
+                        "secondary-container":          "#fed65b",
+                        "on-tertiary-container":        "#b4a782",
+                        "secondary-fixed-dim":          "#e9c349",
+                        "surface-container-highest":    "#e4e2e1",
+                        "on-surface-variant":           "#5a413d",
+                        "on-secondary-fixed-variant":   "#574500",
+                        "on-tertiary-fixed-variant":    "#4f4629",
+                        "surface-variant":              "#e4e2e1",
+                        "on-secondary-container":       "#745c00",
+                        "inverse-on-surface":           "#f3f0ef",
+                        "error-container":              "#ffdad6",
+                        "on-primary-fixed-variant":     "#8f0f07",
+                        "tertiary":                     "#2e260c",
+                        "surface-bright":               "#fcf9f8",
+                        "primary-fixed":                "#ffdad4",
+                        "surface-container-lowest":     "#ffffff",
+                        "on-tertiary-fixed":            "#221b03",
+                        "surface-container":            "#f0edec"
+                    },
+                    fontFamily: {
+                        "label-sm":    ["Manrope"],
+                        "display-lg":  ["Noto Serif"],
+                        "headline-md": ["Noto Serif"],
+                        "body-md":     ["Manrope"],
+                        "body-lg":     ["Manrope"],
+                        "label-lg":    ["Manrope"],
+                        "display-md":  ["Noto Serif"],
+                        "headline-lg": ["Noto Serif"]
+                    },
+                    fontSize: {
+                        "label-sm":    ["12px", { lineHeight:"1.2", letterSpacing:"0.05em", fontWeight:"500" }],
+                        "display-lg":  ["64px", { lineHeight:"1.1", letterSpacing:"-0.02em", fontWeight:"700" }],
+                        "headline-md": ["24px", { lineHeight:"1.4", fontWeight:"500" }],
+                        "body-md":     ["16px", { lineHeight:"1.6", fontWeight:"400" }],
+                        "body-lg":     ["18px", { lineHeight:"1.6", letterSpacing:"0.01em", fontWeight:"400" }],
+                        "label-lg":    ["14px", { lineHeight:"1.2", letterSpacing:"0.1em", fontWeight:"600" }],
+                        "display-md":  ["48px", { lineHeight:"1.2", letterSpacing:"-0.01em", fontWeight:"600" }],
+                        "headline-lg": ["32px", { lineHeight:"1.3", letterSpacing:"0.02em", fontWeight:"600" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+        /* Role toggle replaced with premium dropdown */
+        .srdc-dropdown {
+            position: relative;
+            width: 100%;
+            filter: url(#srdc-goo);
+        }
+        .srdc-dropdown__face, .srdc-dropdown__items {
+            background-color: #fff;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 2px solid #e2bfb9;
+        }
+        .srdc-dropdown__face {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: border-color 0.3s;
+        }
+        .srdc-dropdown__face:hover { border-color: #735c00; }
+        .srdc-dropdown__text {
+            font-family: 'Manrope', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1b1c1b;
+        }
+        .srdc-dropdown__arrow {
+            width: 10px; height: 10px;
+            border-right: 2px solid #735c00;
+            border-bottom: 2px solid #735c00;
+            transform: rotate(45deg);
+            margin-top: -5px;
+            transition: transform 0.3s;
+        }
+        .srdc-dropdown__items {
+            position: absolute;
+            top: 100%; left: 0; width: 100%;
+            margin-top: 10px;
+            list-style: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px);
+            transition: all 0.4s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+            z-index: 50;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .srdc-dropdown__item {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-family: 'Manrope', sans-serif;
+            font-size: 14px;
+            color: #5a413d;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .srdc-dropdown__item:hover {
+            background: rgba(115, 92, 0, 0.05);
+            color: #735c00;
+        }
+        input#role-dropdown-check { display: none; }
+        input#role-dropdown-check:checked ~ .srdc-dropdown__items {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        input#role-dropdown-check:checked ~ .srdc-dropdown__face .srdc-dropdown__arrow {
+            transform: rotate(-135deg);
+            margin-top: 2px;
+        }
+    </style>
+    <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true" focusable="false">
+        <filter id="srdc-goo">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+            <feBlend in="SourceGraphic" in2="goo" />
+        </filter>
+    </svg>
+</head>
+
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col font-body-md">
+<main class="flex-grow flex w-full">
+    <div class="flex flex-col md:flex-row w-full min-h-screen">
+
+        <!-- ═══ LEFT: Hero Image ═══ -->
+        <div class="hidden md:flex w-1/2 relative bg-surface-container-low">
+            <img
+                alt="Traditional Indian Wedding Attire — Shree Ram Dulha Collections"
+                class="absolute inset-0 w-full h-full object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnbw7padM4qnEMO9OFUXKd76dbXMXYIXsfpYDKStPg07pAl3ZtLFV8MEMsxeS_yR2ZZVgyV_ZrIhe7rxh9doYUxSqtoz9bCfbuKCDTwpev1csOgVGaGlvayU_6JMtiaYLaUIwos1AwvF48tCAq3Uo6B-0ZkpZaaI1gKkXSdWyNTyLgFTuzuET6kUnxG6NHxEIIsWYiU9ApKpWHJVDirfUd-zaErMG6qwMGd0cpvulA-ISuVgK0FnEpbsg-0-0HKX3K8uMH2bh63KtY"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-primary/60 to-transparent"></div>
+            <div class="relative z-10 flex flex-col justify-end p-16 text-on-primary">
+                <h1 class="font-display-md text-display-md text-on-primary mb-4">Shree Ram Dulha Collections</h1>
+                <p class="font-headline-md text-headline-md text-secondary-fixed opacity-90">
+                    {% if is_first_setup %}Begin Your Journey{% else %}Expand Your Team{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- ═══ RIGHT: Signup Form ═══ -->
+        <div class="w-full md:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-surface overflow-y-auto">
+            <div class="w-full max-w-md py-8">
+
+                <!-- Mobile brand anchor -->
+                <div class="md:hidden text-center mb-10">
+                    <h1 class="font-display-md text-headline-lg text-primary mb-2">Shree Ram Dulha Collections</h1>
+                    <p class="font-body-lg text-body-lg text-on-surface-variant">Create your account</p>
+                </div>
+
+                <!-- Heading -->
+                <div class="mb-10">
+                    <h2 class="font-display-md text-display-md text-on-surface mb-2">
+                        {% if is_first_setup %}Create Your Account{% else %}Add Staff Member{% endif %}
+                    </h2>
+                    <p class="font-body-md text-body-md text-on-surface-variant">
+                        {% if is_first_setup %}Set up the owner account to unlock the platform.{% else %}Grant access to a new team member.{% endif %}
+                    </p>
+                </div>
+
+                <!-- Error summary -->
+                {% if errors %}
+                <div class="mb-8 flex items-start gap-3 border border-error/30 bg-error-container/40 px-4 py-3">
+                    <span class="material-symbols-outlined text-error text-[20px] mt-0.5">error</span>
+                    <div class="font-label-sm text-label-sm text-error uppercase tracking-widest leading-relaxed">
+                        {% for field, msg in errors.items %}<p>{{ msg }}</p>{% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'signup' %}" novalidate class="space-y-8">
+                    {% csrf_token %}
+
+                    <!-- Full Name -->
+                    <div>
+                        <label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-2" for="id_full_name">Full Name</label>
+                        <input
+                            class="block w-full px-0 py-3 bg-transparent border-0 border-b-2 {% if errors.full_name %}border-error{% else %}border-outline{% endif %} focus:outline-none focus:border-secondary font-body-lg text-body-lg text-on-surface transition-colors duration-300 placeholder-on-surface-variant/50"
+                            id="id_full_name" name="full_name"
+                            placeholder="e.g. Ravi Sharma" type="text"
+                            value="{{ form_data.full_name|default:'' }}"
+                            required autofocus
+                        >
+                        {% if errors.full_name %}<p class="mt-1 text-[11px] text-error">{{ errors.full_name }}</p>{% endif %}
+                    </div>
+
+                    <!-- Username -->
+                    <div>
+                        <label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-2" for="id_username">Username</label>
+                        <input
+                            class="block w-full px-0 py-3 bg-transparent border-0 border-b-2 {% if errors.username %}border-error{% else %}border-outline{% endif %} focus:outline-none focus:border-secondary font-body-lg text-body-lg text-on-surface transition-colors duration-300 placeholder-on-surface-variant/50"
+                            id="id_username" name="username"
+                            placeholder="e.g. ravisharma" type="text"
+                            value="{{ form_data.username|default:'' }}"
+                            required autocomplete="username"
+                        >
+                        {% if errors.username %}<p class="mt-1 text-[11px] text-error">{{ errors.username }}</p>{% endif %}
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-2" for="id_phone">Phone <span class="normal-case font-normal" style="letter-spacing:0;">(optional)</span></label>
+                        <input
+                            class="block w-full px-0 py-3 bg-transparent border-0 border-b-2 border-outline focus:outline-none focus:border-secondary font-body-lg text-body-lg text-on-surface transition-colors duration-300 placeholder-on-surface-variant/50"
+                            id="id_phone" name="phone"
+                            placeholder="e.g. 9876543210" type="tel"
+                            value="{{ form_data.phone|default:'' }}"
+                        >
+                    </div>
+
+                    <!-- Role -->
+                    <div>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-3">Role</p>
+                        <div class="srdc-dropdown">
+                            <input type="checkbox" id="role-dropdown-check">
+                            <input type="hidden" name="role" id="id_role" value="{% if is_first_setup or form_data.role == 'owner' %}owner{% else %}staff{% endif %}">
+                            <label class="srdc-dropdown__face" for="role-dropdown-check">
+                                <div class="srdc-dropdown__text">
+                                    {% if is_first_setup or form_data.role == 'owner' %}Owner (Admin Access){% else %}Staff (Standard Access){% endif %}
+                                </div>
+                                <div class="srdc-dropdown__arrow"></div>
+                            </label>
+                            <ul class="srdc-dropdown__items">
+                                <li class="srdc-dropdown__item" data-value="owner">Owner (Admin Access)</li>
+                                <li class="srdc-dropdown__item" data-value="staff">Staff (Standard Access)</li>
+                            </ul>
+                        </div>
+                        <p class="font-label-sm text-[11px] text-on-surface-variant mt-2 italic">
+                            Owners have full administrative control, while staff have restricted operational access.
+                        </p>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-2" for="id_password1">Password</label>
+                        <div class="relative">
+                            <input
+                                class="block w-full px-0 py-3 bg-transparent border-0 border-b-2 {% if errors.password1 %}border-error{% else %}border-outline{% endif %} focus:outline-none focus:border-secondary font-body-lg text-body-lg text-on-surface transition-colors duration-300 pr-8 placeholder-on-surface-variant/50"
+                                id="id_password1" name="password1"
+                                placeholder="Min. 6 characters" type="password"
+                                required autocomplete="new-password"
+                            >
+                            <button type="button" onclick="togglePwd('id_password1','eye1')" class="absolute right-0 bottom-3 text-outline hover:text-on-surface transition-colors">
+                                <span class="material-symbols-outlined text-[20px]" id="eye1">visibility</span>
+                            </button>
+                        </div>
+                        {% if errors.password1 %}<p class="mt-1 text-[11px] text-error">{{ errors.password1 }}</p>{% endif %}
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-2" for="id_password2">Confirm Password</label>
+                        <div class="relative">
+                            <input
+                                class="block w-full px-0 py-3 bg-transparent border-0 border-b-2 {% if errors.password2 %}border-error{% else %}border-outline{% endif %} focus:outline-none focus:border-secondary font-body-lg text-body-lg text-on-surface transition-colors duration-300 pr-8 placeholder-on-surface-variant/50"
+                                id="id_password2" name="password2"
+                                placeholder="Re-enter your password" type="password"
+                                required autocomplete="new-password"
+                            >
+                            <button type="button" onclick="togglePwd('id_password2','eye2')" class="absolute right-0 bottom-3 text-outline hover:text-on-surface transition-colors">
+                                <span class="material-symbols-outlined text-[20px]" id="eye2">visibility</span>
+                            </button>
+                        </div>
+                        {% if errors.password2 %}<p class="mt-1 text-[11px] text-error">{{ errors.password2 }}</p>{% endif %}
+                    </div>
+
+                    <!-- Submit -->
+                    <button
+                        type="submit"
+                        class="w-full py-4 bg-primary text-on-primary font-display-md text-headline-md relative border border-secondary/30 overflow-hidden group transition-all duration-300 hover:bg-primary-container shadow-[0_10px_30px_rgba(128,0,0,0.05)]"
+                    >
+                        <span class="relative z-10">
+                            {% if is_first_setup %}Create Account{% else %}Add Staff Member{% endif %}
+                        </span>
+                        <div class="absolute inset-2 border border-secondary/50 pointer-events-none transition-all duration-300 group-hover:border-secondary"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="mt-10 mb-6 flex items-center justify-center">
+                    <div class="h-px bg-outline/30 w-16"></div>
+                    <span class="mx-4 material-symbols-outlined text-[16px] text-secondary">apparel</span>
+                    <div class="h-px bg-outline/30 w-16"></div>
+                </div>
+
+                <!-- Footer link -->
+                <div class="text-center">
+                    <p class="font-body-md text-body-md text-on-surface-variant">
+                        {% if not is_first_setup %}
+                        <a href="{% url 'dashboard' %}" class="font-label-sm text-label-sm text-primary hover:text-secondary transition-colors duration-300 uppercase tracking-widest border-b border-secondary/50 pb-0.5">← Back to Dashboard</a>
+                        {% else %}
+                        Already have an account?
+                        <a href="{% url 'login' %}" class="font-label-sm text-label-sm text-primary hover:text-secondary transition-colors duration-300 uppercase tracking-widest ml-1 border-b border-secondary/50 pb-0.5">Sign In</a>
+                        {% endif %}
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    function togglePwd(inputId, eyeId) {
+        const input = document.getElementById(inputId);
+        const eye = document.getElementById(eyeId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            eye.textContent = 'visibility_off';
+        } else {
+            input.type = 'password';
+            eye.textContent = 'visibility';
+        }
+    }
+
+    // Auto-generate username from full name (only if not manually touched)
+    const nameInput = document.getElementById('id_full_name');
+    const userInput = document.getElementById('id_username');
+    let touched = !!userInput.value;
+    userInput.addEventListener('input', () => { touched = true; });
+    nameInput.addEventListener('input', () => {
+        if (!touched) {
+            userInput.value = nameInput.value.trim().toLowerCase()
+                .replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+        }
+    });
+
+    // Custom dropdown logic
+    function initCustomDropdowns() {
+        const dropdowns = document.querySelectorAll('.srdc-dropdown');
+        dropdowns.forEach(dropdown => {
+            const items = dropdown.querySelectorAll('.srdc-dropdown__item');
+            const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+            const faceText = dropdown.querySelector('.srdc-dropdown__text');
+            const checkbox = dropdown.querySelector('input[type="checkbox"]');
+            
+            items.forEach(item => {
+                item.addEventListener('click', () => {
+                    const value = item.getAttribute('data-value');
+                    const text = item.textContent.trim();
+                    
+                    if (hiddenInput) hiddenInput.value = value;
+                    if (faceText) faceText.textContent = text;
+                    if (checkbox) checkbox.checked = false;
+
+                    // Update active state visually
+                    items.forEach(i => i.classList.remove('bg-secondary/10', 'font-bold'));
+                    item.classList.add('bg-secondary/10', 'font-bold');
+                });
+            });
+
+            // Set initial active state
+            if (hiddenInput && hiddenInput.value) {
+                const activeItem = Array.from(items).find(i => i.getAttribute('data-value') === hiddenInput.value);
+                if (activeItem) {
+                    activeItem.classList.add('bg-secondary/10', 'font-bold');
+                }
+            }
+        });
+    }
+    document.addEventListener('DOMContentLoaded', initCustomDropdowns);
+</script>
+</body>
+</html>

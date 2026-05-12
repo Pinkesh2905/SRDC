@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+    }
+.mandala-bg {
+    background-image: radial-gradient(circle at center, transparent 0%, transparent 100%), url(https://lh3.googleusercontent.com/aida-public/AB6AXuDoTlCNPPTJrw88_02sioNLhFDhd-MQkpUkrAbu0xTmzpXOipcYBMp6ms7ldZkyL6pR4a5gzt5G3DVB5vAGs1WOiEyC_UmXmk0-7A_UOC1poIMXOgzdxDdHtlnj10NcqDmVPOf68Ib-j4D7RhHyRCyIpM3Sal4zK_y7vfnZWCIdV9aNJosHoeg1lW6iYqXe9_xjXHn6phekje9I8DgAOx-6wFL1a1VYg-T27dYCGiNP5Mq8fyUhGOFmcJBfA_zqi8bcdGW0nbY5EAEV);
+    background-blend-mode: overlay
+    }
+/* Custom ethnic accent */
+.ethnic-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l2.5 7.5L40 10l-7.5 2.5L30 20l-2.5-7.5L20 10l7.5-2.5L30 0z' fill='%23b22b1d' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E")
+    }</style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#c8c6c4",
+                      "surface-container-high": "#eae8e7",
+                      "inverse-primary": "#ffb77a",
+                      "on-secondary-fixed-variant": "#8f0f07",
+                      "on-tertiary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-container-highest": "#e4e2e2",
+                      "outline-variant": "#dbc2b0",
+                      "inverse-on-surface": "#f2f0f0",
+                      "surface-container-low": "#f5f3f3",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed": "#ffdad4",
+                      "on-surface": "#1b1c1c",
+                      "on-secondary-fixed": "#410000",
+                      "secondary-fixed-dim": "#ffb4a8",
+                      "on-primary-fixed": "#2e1500",
+                      "on-error": "#ffffff",
+                      "surface-container": "#efeded",
+                      "primary-fixed": "#ffdcc2",
+                      "outline": "#887364",
+                      "primary-fixed-dim": "#ffb77a",
+                      "on-background": "#1b1c1c",
+                      "on-tertiary-fixed-variant": "#474745",
+                      "tertiary": "#5e5e5c",
+                      "surface-bright": "#fbf9f8",
+                      "inverse-surface": "#303030",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-container": "#693800",
+                      "on-tertiary-container": "#444543",
+                      "on-tertiary-fixed": "#1b1c1a",
+                      "secondary-container": "#fe624e",
+                      "secondary": "#b22b1d",
+                      "primary-container": "#ff9933",
+                      "on-primary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed-variant": "#6d3a00",
+                      "on-secondary-container": "#650000",
+                      "primary": "#8f4e00",
+                      "surface": "#fbf9f8",
+                      "background": "#fbf9f8",
+                      "surface-tint": "#8f4e00",
+                      "tertiary-container": "#b3b2af",
+                      "surface-variant": "#e4e2e2",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#554336",
+                      "surface-dim": "#dbd9d9",
+                      "tertiary-fixed": "#e4e2df"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "64px",
+                      "lg": "40px",
+                      "xs": "4px",
+                      "base": "8px",
+                      "md": "24px",
+                      "container-max": "1440px",
+                      "gutter": "24px",
+                      "sm": "12px"
+              },
+              "fontFamily": {
+                      "h2": ["Noto Serif"],
+                      "label-sm": ["Manrope"],
+                      "h1": ["Noto Serif"],
+                      "body-lg": ["Manrope"],
+                      "h3": ["Noto Serif"],
+                      "body-md": ["Manrope"]
+              },
+              "fontSize": {
+                      "h2": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "label-sm": ["13px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "h1": ["40px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "h3": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background font-body-md text-on-background ethnic-pattern min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-64 z-50 flex flex-col pt-4 pb-8 bg-orange-50/30 border-r border-rose-900/5 dark:bg-slate-900">
+<div class="px-8 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">temple_hindu</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-rose-950 dark:text-rose-300 font-h2">SRD Admin</h1>
+<p class="text-[10px] uppercase tracking-widest text-secondary opacity-70 font-label-sm">Premium Management</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 px-4">
+<!-- Active Tab -->
+<a class="flex items-center gap-3 bg-white dark:bg-slate-800 text-rose-900 dark:text-rose-300 shadow-sm border-l-4 border-orange-500 py-3 px-4 rounded-r-lg cursor-pointer transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-serif text-sm font-medium">Dashboard</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-orange-100/50 dark:hover:bg-slate-800 transition-colors cursor-pointer active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-serif text-sm font-medium">Customers</span>
+</a>
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-orange-100/50 dark:hover:bg-slate-800 transition-colors cursor-pointer active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="straighten">straighten</span>
+<span class="font-serif text-sm font-medium">Measurements</span>
+</a>
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-orange-100/50 dark:hover:bg-slate-800 transition-colors cursor-pointer active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+<span class="font-serif text-sm font-medium">Orders</span>
+</a>
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-orange-100/50 dark:hover:bg-slate-800 transition-colors cursor-pointer active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-serif text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="px-8 mt-auto pt-8 border-t border-rose-900/5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
+<img alt="Manager profile" class="w-full h-full object-cover" data-alt="A professional headshot of a boutique manager wearing a sophisticated Nehru jacket in deep navy blue. The background is a soft-focus interior of a high-end clothing store with warm ambient lighting. The atmosphere is professional, welcoming, and aligns with a luxury retail environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbYZfFbXSXEicbcGQL1yhjb9BIEMd1hxeXQZDkhDSc8imAKGyNq18bEJ_VAxNeRapT50v-jY53R6pM4DWsVtWh5Nt7_0hXKYMOfnSQ7r-7YZsl2w-zzwuYt3EkcLxIZn2bfdTwtRTx1V7qY6_dOH6VkzCyh0iQUQGtKybr7TtDNZxe1K28tCpt6kljjiDdBHkgxtgniZlrGy7VQWBmaNTi1qgqnccQUdlUX3sX1y1T03J9-aNKF7-fsN_HeLSaNgKjtCdjBJNgFJAM"/>
+</div>
+<div class="overflow-hidden">
+<p class="text-xs font-bold text-on-surface truncate">Rajesh Kumar</p>
+<p class="text-[10px] text-slate-500">Store Manager</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-8 h-16 bg-white border-b border-rose-900/5 shadow-sm shadow-rose-900/5 sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm w-80 focus:ring-2 focus:ring-primary-container transition-all" placeholder="Search orders or customers..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-500">
+<span class="material-symbols-outlined cursor-pointer hover:text-orange-600 transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-orange-600 transition-colors" data-icon="help">help</span>
+</div>
+<div class="h-8 w-[1px] bg-rose-900/10"></div>
+<div class="flex items-center gap-2 text-rose-900 font-serif font-bold">
+<span class="text-sm">Shree Ram Dulha Collections</span>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-8 max-w-container-max mx-auto">
+<div class="flex items-end justify-between mb-8">
+<div>
+<h2 class="font-h2 text-h2 text-on-surface">Dashboard Overview</h2>
+<p class="text-slate-500 font-body-md">Welcome back, here's what's happening at the boutique today.</p>
+</div>
+<button class="bg-secondary text-white px-6 py-2 rounded-lg font-label-sm flex items-center gap-2 hover:bg-primary-container transition-colors shadow-lg shadow-secondary/20">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                    NEW ORDER
+                </button>
+</div>
+<!-- Quick Stats Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-xl">
+<!-- Total Customers -->
+<div class="bg-white p-6 rounded-xl border border-rose-900/5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+<span class="material-symbols-outlined text-8xl" data-icon="group">group</span>
+</div>
+<div class="flex items-center justify-between mb-4">
+<div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+</div>
+<span class="text-green-600 text-xs font-bold bg-green-50 px-2 py-1 rounded">+12%</span>
+</div>
+<p class="text-slate-500 font-label-sm uppercase tracking-wider">Total Customers</p>
+<h3 class="text-h1 font-h1 text-on-surface">1,284</h3>
+</div>
+<!-- Pending Orders -->
+<div class="bg-white p-6 rounded-xl border border-rose-900/5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+<span class="material-symbols-outlined text-8xl" data-icon="pending_actions">pending_actions</span>
+</div>
+<div class="flex items-center justify-between mb-4">
+<div class="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="pending_actions" style="font-variation-settings: 'FILL' 1;">pending_actions</span>
+</div>
+<span class="text-orange-600 text-xs font-bold bg-orange-50 px-2 py-1 rounded">Urgent: 5</span>
+</div>
+<p class="text-slate-500 font-label-sm uppercase tracking-wider">Pending Orders</p>
+<h3 class="text-h1 font-h1 text-on-surface">42</h3>
+</div>
+<!-- Today's Orders -->
+<div class="bg-white p-6 rounded-xl border border-rose-900/5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+<span class="material-symbols-outlined text-8xl" data-icon="shopping_cart">shopping_cart</span>
+</div>
+<div class="flex items-center justify-between mb-4">
+<div class="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-600">
+<span class="material-symbols-outlined" data-icon="today" style="font-variation-settings: 'FILL' 1;">today</span>
+</div>
+<span class="text-amber-700 text-xs font-bold bg-amber-100 px-2 py-1 rounded">In Store</span>
+</div>
+<p class="text-slate-500 font-label-sm uppercase tracking-wider">Today's Orders</p>
+<h3 class="text-h1 font-h1 text-on-surface">18</h3>
+</div>
+</div>
+<!-- Recent Orders Section -->
+<div class="bg-white rounded-xl border border-rose-900/5 shadow-sm overflow-hidden">
+<div class="px-8 py-6 border-b border-rose-900/5 flex items-center justify-between bg-white">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="receipt_long">receipt_long</span>
+<h3 class="font-h3 text-h3 text-on-surface">Recent Orders</h3>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-sm font-label-sm text-secondary hover:underline">View All Orders</button>
+<div class="flex items-center border border-outline-variant rounded-lg overflow-hidden">
+<button class="px-3 py-1 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-secondary text-white">
+<th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider">Order ID</th>
+<th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider">Customer Name</th>
+<th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider">Date</th>
+<th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider">Amount</th>
+<th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider">Status</th>
+<th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-rose-900/5">
+<tr class="hover:bg-orange-50/50 transition-colors">
+<td class="px-8 py-5 text-secondary font-bold font-label-sm">#SRD-8942</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center text-[10px] font-bold">AV</div>
+<span class="font-medium text-on-surface">Arjun Varma</span>
+</div>
+</td>
+<td class="px-8 py-5 text-slate-500 text-sm">Oct 24, 2023</td>
+<td class="px-8 py-5 font-bold text-on-surface">₹42,500</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-2"></span>
+                                        Pending
+                                    </span>
+</td>
+<td class="px-8 py-5">
+<button class="text-slate-400 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="bg-primary-fixed/5 hover:bg-orange-50/50 transition-colors">
+<td class="px-8 py-5 text-secondary font-bold font-label-sm">#SRD-8941</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center text-[10px] font-bold">RK</div>
+<span class="font-medium text-on-surface">Rohan Kapoor</span>
+</div>
+</td>
+<td class="px-8 py-5 text-slate-500 text-sm">Oct 23, 2023</td>
+<td class="px-8 py-5 font-bold text-on-surface">₹1,15,000</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                                        In Progress
+                                    </span>
+</td>
+<td class="px-8 py-5">
+<button class="text-slate-400 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-orange-50/50 transition-colors">
+<td class="px-8 py-5 text-secondary font-bold font-label-sm">#SRD-8940</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed text-tertiary flex items-center justify-center text-[10px] font-bold">SM</div>
+<span class="font-medium text-on-surface">Sanjay Mehra</span>
+</div>
+</td>
+<td class="px-8 py-5 text-slate-500 text-sm">Oct 23, 2023</td>
+<td class="px-8 py-5 font-bold text-on-surface">₹86,200</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span>
+                                        Delivered
+                                    </span>
+</td>
+<td class="px-8 py-5">
+<button class="text-slate-400 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="bg-primary-fixed/5 hover:bg-orange-50/50 transition-colors">
+<td class="px-8 py-5 text-secondary font-bold font-label-sm">#SRD-8939</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[10px] font-bold">AS</div>
+<span class="font-medium text-on-surface">Amit Sharma</span>
+</div>
+</td>
+<td class="px-8 py-5 text-slate-500 text-sm">Oct 22, 2023</td>
+<td class="px-8 py-5 font-bold text-on-surface">₹55,000</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span>
+                                        Delivered
+                                    </span>
+</td>
+<td class="px-8 py-5">
+<button class="text-slate-400 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-8 py-4 border-t border-rose-900/5 bg-surface-container-lowest flex items-center justify-between">
+<p class="text-xs text-slate-500 font-label-sm">Showing 1 to 4 of 42 orders</p>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-rose-900/10 text-slate-400 hover:bg-orange-50 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-secondary text-white font-bold text-xs">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-rose-900/10 text-slate-600 hover:bg-orange-50 transition-colors text-xs font-bold">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-rose-900/10 text-slate-600 hover:bg-orange-50 transition-colors text-xs font-bold">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-rose-900/10 text-slate-400 hover:bg-orange-50 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Ethnic Watermark Motif -->
+<div class="fixed bottom-0 right-0 w-64 h-64 opacity-[0.03] pointer-events-none select-none">
+<svg viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<path d="M44.7,-76.4C58.1,-69.2,69.2,-58.1,76.4,-44.7C83.6,-31.3,86.9,-15.7,85.2,-0.9C83.6,13.8,77,27.7,68.6,40.1C60.2,52.5,50,63.5,37.6,71.2C25.2,78.9,10.6,83.3,-4.2,84.1C-19.1,84.8,-38.2,81.9,-53.4,73C-68.5,64.1,-79.8,49.1,-84.9,32.6C-90,16.1,-88.9,-1.9,-84.6,-18.8C-80.4,-35.7,-73,-51.5,-61.2,-59.6C-49.4,-67.7,-33.2,-68,-18.8,-73.4C-4.4,-78.8,8.2,-89.3,23.3,-90.4C38.4,-91.5,56,-83.3,44.7,-76.4Z" fill="#8f4e00" transform="translate(100 100)"></path>
+</svg>
+</div>
+</main>
+<!-- Contextual FAB - Restricted to Dashboard -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-secondary text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-orange-600 transition-all hover:scale-110 active:scale-95 group z-50">
+<span class="material-symbols-outlined text-2xl" data-icon="stylus">stylus</span>
+<span class="absolute right-16 bg-on-surface text-white px-4 py-2 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl">Quick Measurement</span>
+</button>
+</body></html>

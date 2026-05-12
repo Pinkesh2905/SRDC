@@ -1,0 +1,118 @@
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from measurements.models import Measurement, CustomGarmentCategory, CustomGarmentParameter, get_all_garment_categories, get_all_garment_parameters
+from customers.models import Customer
+from customers.utils import normalize_phone
+import urllib.parse
+from django.http import JsonResponse
+import json
+
+@login_required
+def measurement_profile(request):
+    if request.method == 'POST':
+        # 1. Get or Create Customer
+        customer_phone = normalize_phone(request.POST.get('customer_phone'))
+        customer_name = (request.POST.get('customer_name') or '').strip()
+        customer_city = (request.POST.get('customer_city') or '').strip()
+        if not customer_phone or not customer_name:
+            messages.error(request, 'Customer name and phone are required.')
+            return redirect('measurement_profile')
+        
+        customer, created = Customer.objects.get_or_create(
+            phone=customer_phone,
+            defaults={'full_name': customer_name, 'city': customer_city}
+        )
+        if not created:
+            # Update info if changed
+            if customer_name:
+                customer.full_name = customer_name
+            if customer_city:
+                customer.city = customer_city
+            customer.save()
+
+        # 2. Extract selected garments to bill
+        selected_to_bill = request.POST.getlist('bill_garment') # list of block IDs like "1", "2"
+        garments_to_bill = []
+
+        # 3. Process all garment blocks submitted
+        block_ids = request.POST.getlist('garment_block_id')
+        for block_id in block_ids:
+            garment_type = request.POST.get(f'garment_type_{block_id}')
+            if not garment_type:
+                continue
+                
+            all_params = get_all_garment_parameters()
+            parameters = all_params.get(garment_type, [])
+            measure_values = {}
+            import re
+            for param in parameters:
+                param_slug = re.sub(r'[^a-z0-9]', '_', param.lower())
+                val = request.POST.get(f'measure_{block_id}_{param_slug}')
+                if val:
+                    measure_values[param] = val
+                    
+            # Save or Update Measurement
+            if measure_values:
+                measurement, m_created = Measurement.objects.update_or_create(
+                    customer=customer,
+                    garment_category=garment_type,
+                    defaults={
+                        'values': measure_values,
+                        'notes': (request.POST.get(f'notes_{block_id}') or '').strip(),
+                    }
+                )
+                
+            # If this block was selected for billing, add its type
+            if block_id in selected_to_bill:
+                garments_to_bill.append(garment_type)
+
+        # 4. Redirect to Billing or stay on profile
+        if 'save_garment' in request.POST:
+            messages.success(request, 'Measurements saved successfully.')
+            url = reverse('measurement_profile') + f"?phone={urllib.parse.quote(customer.phone)}"
+            return redirect(url)
+
+        # Redirect to Billing
+        # We pass customer_id and selected garments in the query string
+        garments_qs = ",".join(garments_to_bill)
+        url = reverse('order_create') + f"?customer_id={customer.id}&garments={urllib.parse.quote(garments_qs)}"
+        return redirect(url)
+
+    # GET request - render the page
+    initial_phone = normalize_phone(request.GET.get('phone'))
+    context = {
+        'garment_categories': get_all_garment_categories(),
+        'garment_parameters': get_all_garment_parameters(),
+        'initial_phone': initial_phone,
+    }
+    return render(request, 'measurements/measurement_profile.html', context)
+
+@login_required
+def add_custom_category(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            name = data.get('name', '').strip()
+            if name:
+                cat, created = CustomGarmentCategory.objects.get_or_create(name=name)
+                slug = name.lower().replace(' ', '_')
+                return JsonResponse({'success': True, 'slug': slug, 'name': name})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+@login_required
+def add_custom_parameter(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            category_name = data.get('category_name', '').strip()
+            name = data.get('name', '').strip()
+            if category_name and name:
+                param, created = CustomGarmentParameter.objects.get_or_create(category_name=category_name, name=name)
+                return JsonResponse({'success': True, 'category_name': category_name, 'name': name})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request'})

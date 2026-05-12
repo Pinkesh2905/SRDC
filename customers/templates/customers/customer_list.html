@@ -1,0 +1,162 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Customers | SRDC Admin{% endblock %}
+
+{% block content %}
+<div class="p-4 sm:p-8 max-w-[1440px] mx-auto w-full">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <div>
+            <h2 class="font-h2 text-2xl sm:text-3xl font-semibold text-white mb-1 sm:mb-2 drop-shadow-md">Customer Directory</h2>
+            <p class="text-white/60 text-sm sm:text-base font-body-md">Manage your clients and their measurement profiles.</p>
+        </div>
+        <a href="{% url 'measurement_profile' %}" class="btn-premium btn-premium--gold w-full sm:w-auto">
+            <span class="btn-premium__label flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">person_add</span>
+                NEW CUSTOMER
+            </span>
+        </a>
+    </div>
+
+    <!-- Compact Search Bar -->
+    <div class="glass-panel p-3 mb-6">
+        <form method="GET" action="{% url 'customer_list' %}" class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-[18px]">search</span>
+                <input name="q" value="{{ q|default:'' }}" class="w-full h-11 pl-10 pr-4 bg-white/5 border border-white/10 rounded-[12px] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-secondary/50 transition-all" placeholder="Search directory by name or phone..." type="text"/>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="h-11 px-8 bg-secondary text-primary rounded-[12px] font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-secondary/10">Search</button>
+                {% if q %}
+                <a href="{% url 'customer_list' %}" class="h-11 flex items-center justify-center px-4 text-[10px] font-bold text-white/40 hover:text-white border border-white/10 rounded-[12px] uppercase tracking-widest transition-colors">Clear Filter</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Customers Container -->
+    <div class="glass-panel overflow-hidden relative">
+        <!-- Desktop Table View -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-white/10 text-white">
+                        <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider text-left">Customer Name</th>
+                        <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider text-left">Phone Number</th>
+                        <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider text-left">Total Orders</th>
+                        <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider text-left">Registered On</th>
+                        <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    {% for customer in customers %}
+                    <tr class="hover:bg-white/10 transition-colors group cursor-default">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-secondary/20 text-secondary border border-secondary/30 flex items-center justify-center text-[10px] font-bold">
+                                    {{ customer.full_name|slice:":1"|upper }}
+                                </div>
+                                <span class="font-bold text-white">{{ customer.full_name|title }}</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5 text-white/60 text-sm font-medium">{{ customer.phone }}</td>
+                        <td class="px-8 py-5 text-white/60 text-sm font-medium">{{ customer.orders.count }} Orders</td>
+                        <td class="px-8 py-5 text-white/40 text-sm">{{ customer.created_at|date:"M d, Y" }}</td>
+                        <td class="px-8 py-5 text-right">
+                            <div class="flex justify-end gap-3">
+                                <a href="{% url 'customer_detail' customer.id %}" class="text-white/70 hover:text-white transition-colors" title="View Profile">
+                                    <span class="material-symbols-outlined text-xl">visibility</span>
+                                </a>
+                                <a href="{% url 'measurement_profile' %}?phone={{ customer.phone }}" class="text-white/70 hover:text-white transition-colors" title="New Measurement / Order">
+                                    <span class="material-symbols-outlined text-xl">straighten</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-8 py-12 text-center text-white/40 italic">
+                            <span class="material-symbols-outlined text-4xl mb-2 opacity-20">group_off</span>
+                            <p>No customers found matching your criteria.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="md:hidden divide-y divide-white/5">
+            {% for customer in customers %}
+            <div class="p-5 space-y-4 active:bg-white/5 transition-colors">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-secondary/20 text-secondary border border-secondary/30 flex items-center justify-center text-xs font-bold">
+                            {{ customer.full_name|slice:":1"|upper }}
+                        </div>
+                        <div>
+                            <span class="font-bold text-white block">{{ customer.full_name|title }}</span>
+                            <span class="text-white/40 text-xs font-medium">{{ customer.phone }}</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-bold text-white/40 uppercase block tracking-widest">Total Orders</span>
+                        <span class="text-sm font-bold text-secondary">{{ customer.orders.count }}</span>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <div class="text-[11px] text-white/40 font-medium italic">
+                        Registered {{ customer.created_at|date:"M d, Y" }}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="{% url 'customer_detail' customer.id %}" class="p-2 text-white/70 border border-white/10 rounded-[12px] hover:bg-white/5 hover:text-white transition-colors">
+                            <span class="material-symbols-outlined text-xl">visibility</span>
+                        </a>
+                        <a href="{% url 'measurement_profile' %}?phone={{ customer.phone }}" class="btn-premium !py-2 !px-4 text-xs">
+                            <span class="material-symbols-outlined text-[16px]">straighten</span>
+                            Measure
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="p-12 text-center text-white/40 italic text-sm">
+                No customers found matching your criteria.
+            </div>
+            {% endfor %}
+        <!-- Pagination -->
+        {% if customers.has_other_pages %}
+        <div class="p-4 bg-white/[0.02] border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                Showing {{ customers.start_index }}-{{ customers.end_index }} of {{ customers.paginator.count }} Customers
+            </div>
+            <div class="flex items-center gap-2">
+                {% if customers.has_previous %}
+                <a href="?page={{ customers.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="h-9 px-4 flex items-center justify-center bg-white/5 border border-white/10 rounded-lg text-xs font-bold text-white hover:bg-white/10 transition-all">
+                    <span class="material-symbols-outlined text-[18px] mr-1">chevron_left</span> Previous
+                </a>
+                {% else %}
+                <div class="h-9 px-4 flex items-center justify-center bg-white/5 border border-white/5 rounded-lg text-xs font-bold text-white/20 cursor-not-allowed">
+                    <span class="material-symbols-outlined text-[18px] mr-1">chevron_left</span> Previous
+                </div>
+                {% endif %}
+
+                <div class="h-9 px-4 flex items-center justify-center bg-secondary/10 border border-secondary/30 rounded-lg text-xs font-bold text-secondary">
+                    {{ customers.number }}
+                </div>
+
+                {% if customers.has_next %}
+                <a href="?page={{ customers.next_page_number }}{% if q %}&q={{ q }}{% endif %}" class="h-9 px-4 flex items-center justify-center bg-white/5 border border-white/10 rounded-lg text-xs font-bold text-white hover:bg-white/10 transition-all">
+                    Next <span class="material-symbols-outlined text-[18px] ml-1">chevron_right</span>
+                </a>
+                {% else %}
+                <div class="h-9 px-4 flex items-center justify-center bg-white/5 border border-white/5 rounded-lg text-xs font-bold text-white/20 cursor-not-allowed">
+                    Next <span class="material-symbols-outlined text-[18px] ml-1">chevron_right</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

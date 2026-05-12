@@ -1,0 +1,483 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Delivery Schedule | SRDC Admin{% endblock %}
+
+{% block content %}
+<div class="p-4 sm:p-8 max-w-[1440px] mx-auto w-full">
+
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-white/40 text-[10px] sm:text-sm mb-1 uppercase tracking-widest">
+                <a href="{% url 'order_list' %}" class="hover:text-secondary transition-colors">Orders</a>
+                <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                <span class="text-secondary font-bold">Schedule</span>
+            </div>
+            <h2 class="font-h2 text-2xl sm:text-3xl font-semibold text-white drop-shadow-md">Delivery Schedule</h2>
+            <p class="text-white/60 text-xs sm:text-sm mt-1 font-body-md">Orders grouped by their delivery date.</p>
+        </div>
+        <a href="{% url 'order_list' %}" class="btn-premium btn-premium--gold w-full lg:w-auto text-center">
+            <span class="btn-premium__label flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">format_list_bulleted</span>
+                ALL ORDERS
+            </span>
+        </a>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="glass-panel p-5">
+            <p class="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">Total Orders</p>
+            <p class="text-3xl font-bold text-white">{{ total_orders }}</p>
+        </div>
+        <div class="glass-panel p-5 border-amber-500/20">
+            <p class="text-amber-500/60 text-[10px] font-bold uppercase tracking-widest mb-1">Due Today</p>
+            <p class="text-3xl font-bold text-amber-500">{{ due_today_count }}</p>
+        </div>
+        <div class="glass-panel p-5 border-red-500/20">
+            <p class="text-red-500/60 text-[10px] font-bold uppercase tracking-widest mb-1">Overdue</p>
+            <p class="text-3xl font-bold text-red-500">{{ overdue_count }}</p>
+        </div>
+        <div class="glass-panel p-5 border-secondary/20">
+            <p class="text-secondary/60 text-[10px] font-bold uppercase tracking-widest mb-1">Balance Due</p>
+            <p class="text-3xl font-bold text-secondary">₹{{ total_balance }}</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <form method="GET" action="{% url 'delivery_schedule' %}" class="glass-panel p-4 sm:p-6 mb-8 relative z-20">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+            <div class="sm:col-span-2">
+                <label class="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 px-1">Search Directory</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/40">search</span>
+                    <input name="q" value="{{ q|default:'' }}" class="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-[12px] text-sm text-white focus:border-secondary/50 transition-all outline-none" placeholder="Order, name, phone…" type="search">
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 px-1">Exact Date</label>
+                <div class="srdc-datepicker srdc-datepicker--glass">
+                    <input type="hidden" name="date" value="{{ filter_date|default:'' }}">
+                    <div class="srdc-datepicker__face">
+                        <input type="text" class="srdc-datepicker__text" placeholder="dd/mm/yyyy" value="{% if filter_date %}{{ filter_date|date:'d/m/Y' }}{% endif %}">
+                        <span class="material-symbols-outlined text-secondary text-[20px]">calendar_today</span>
+                    </div>
+                    <div class="srdc-datepicker__popup">
+                        <div class="srdc-calendar">
+                            <div class="srdc-calendar__header">
+                                <div class="srdc-calendar__header-info">
+                                    <h3>---</h3>
+                                    <h2>Select Date</h2>
+                                </div>
+                            </div>
+                            <div class="srdc-calendar__nav">
+                                <button type="button" class="prev-month"><span class="material-symbols-outlined">chevron_left</span></button>
+                                <div class="srdc-calendar__nav-title">Month Year</div>
+                                <button type="button" class="next-month"><span class="material-symbols-outlined">chevron_right</span></button>
+                            </div>
+                            <div class="srdc-calendar__body">
+                                <div class="srdc-calendar__days">
+                                    <div class="srdc-calendar__day-name">S</div>
+                                    <div class="srdc-calendar__day-name">M</div>
+                                    <div class="srdc-calendar__day-name">T</div>
+                                    <div class="srdc-calendar__day-name">W</div>
+                                    <div class="srdc-calendar__day-name">T</div>
+                                    <div class="srdc-calendar__day-name">F</div>
+                                    <div class="srdc-calendar__day-name">S</div>
+                                </div>
+                                <div class="srdc-calendar__numbers"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 px-1">From</label>
+                <div class="srdc-datepicker srdc-datepicker--glass">
+                    <input type="hidden" name="from" value="{{ filter_from|default:'' }}">
+                    <div class="srdc-datepicker__face">
+                        <input type="text" class="srdc-datepicker__text" placeholder="dd/mm/yyyy" value="{% if filter_from %}{{ filter_from|date:'d/m/Y' }}{% endif %}">
+                        <span class="material-symbols-outlined text-secondary text-[20px]">calendar_today</span>
+                    </div>
+                    <div class="srdc-datepicker__popup">
+                        <div class="srdc-calendar">
+                            <div class="srdc-calendar__header">
+                                <div class="srdc-calendar__header-info">
+                                    <h3>---</h3>
+                                    <h2>Select Date</h2>
+                                </div>
+                            </div>
+                            <div class="srdc-calendar__nav">
+                                <button type="button" class="prev-month"><span class="material-symbols-outlined">chevron_left</span></button>
+                                <div class="srdc-calendar__nav-title">Month Year</div>
+                                <button type="button" class="next-month"><span class="material-symbols-outlined">chevron_right</span></button>
+                            </div>
+                            <div class="srdc-calendar__body">
+                                <div class="srdc-calendar__days">
+                                    <div class="srdc-calendar__day-name">S</div>
+                                    <div class="srdc-calendar__day-name">M</div>
+                                    <div class="srdc-calendar__day-name">T</div>
+                                    <div class="srdc-calendar__day-name">W</div>
+                                    <div class="srdc-calendar__day-name">T</div>
+                                    <div class="srdc-calendar__day-name">F</div>
+                                    <div class="srdc-calendar__day-name">S</div>
+                                </div>
+                                <div class="srdc-calendar__numbers"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 px-1">To</label>
+                <div class="srdc-datepicker srdc-datepicker--glass">
+                    <input type="hidden" name="to" value="{{ filter_to|default:'' }}">
+                    <div class="srdc-datepicker__face">
+                        <span class="srdc-datepicker__text">{% if filter_to %}{{ filter_to|date:"d/m/Y" }}{% else %}mm/dd/yyyy{% endif %}</span>
+                        <span class="material-symbols-outlined text-secondary text-[20px]">calendar_today</span>
+                    </div>
+                    <div class="srdc-datepicker__popup">
+                        <div class="srdc-calendar">
+                            <div class="srdc-calendar__header">
+                                <div class="srdc-calendar__header-info">
+                                    <h3>---</h3>
+                                    <h2>Select Date</h2>
+                                </div>
+                            </div>
+                            <div class="srdc-calendar__nav">
+                                <button type="button" class="prev-month"><span class="material-symbols-outlined">chevron_left</span></button>
+                                <div class="srdc-calendar__nav-title">Month Year</div>
+                                <button type="button" class="next-month"><span class="material-symbols-outlined">chevron_right</span></button>
+                            </div>
+                            <div class="srdc-calendar__body">
+                                <div class="srdc-calendar__days">
+                                    <div class="srdc-calendar__day-name">S</div>
+                                    <div class="srdc-calendar__day-name">M</div>
+                                    <div class="srdc-calendar__day-name">T</div>
+                                    <div class="srdc-calendar__day-name">W</div>
+                                    <div class="srdc-calendar__day-name">T</div>
+                                    <div class="srdc-calendar__day-name">F</div>
+                                    <div class="srdc-calendar__day-name">S</div>
+                                </div>
+                                <div class="srdc-calendar__numbers"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 px-1">Status</label>
+                <div class="srdc-dropdown srdc-dropdown--glass">
+                    <input type="checkbox" id="status-dropdown">
+                    <input type="hidden" name="status" value="{{ filter_status|default:'' }}">
+                    <label class="srdc-dropdown__face" for="status-dropdown">
+                        <div class="srdc-dropdown__text">
+                            {% if filter_status %}
+                                {% for value, label in statuses %}
+                                    {% if filter_status == value %}{{ label }}{% endif %}
+                                {% endfor %}
+                            {% else %}
+                                All Statuses
+                            {% endif %}
+                        </div>
+                        <div class="srdc-dropdown__arrow"></div>
+                    </label>
+                    <ul class="srdc-dropdown__items">
+                        <li class="srdc-dropdown__item" data-value="">All Statuses</li>
+                        {% for value, label in statuses %}
+                        <li class="srdc-dropdown__item" data-value="{{ value }}">{{ label }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/5">
+            <button type="submit" class="btn-premium px-6 py-2.5 flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">search</span>
+                Apply Filters
+            </button>
+            <a href="{% url 'delivery_schedule' %}" class="flex items-center justify-center px-6 py-2.5 text-sm font-bold text-white/60 hover:text-white border border-white/10 rounded-[12px] transition-all gap-2">
+                <span class="material-symbols-outlined text-sm">restart_alt</span>
+                Reset
+            </a>
+            <a href="?date={{ today|date:'Y-m-d' }}" class="sm:ml-auto flex items-center justify-center px-6 py-2.5 text-sm font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 rounded-[12px] hover:bg-amber-500/20 transition-all gap-2">
+                <span class="material-symbols-outlined text-sm">today</span>
+                Due Today
+            </a>
+        </div>
+    </form>
+
+    <!-- Grouped Order Cards -->
+    {% if grouped_orders %}
+        {% for delivery_date, date_orders in grouped_orders %}
+        <div class="mb-8">
+            <!-- Date Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
+                <div class="flex items-center gap-3">
+                    {% if delivery_date < today %}
+                    <div class="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-1.5 rounded-full font-bold text-[10px] sm:text-xs flex items-center gap-2 whitespace-nowrap uppercase tracking-widest shadow-lg shadow-red-500/5">
+                        <span class="material-symbols-outlined text-xs sm:text-[14px]">warning</span>
+                        OVERDUE · {{ delivery_date|date:"D, d M" }}
+                    </div>
+                    {% elif delivery_date == today %}
+                    <div class="bg-amber-500/10 border border-amber-500/20 text-amber-500 px-4 py-1.5 rounded-full font-bold text-[10px] sm:text-xs flex items-center gap-2 whitespace-nowrap uppercase tracking-widest shadow-lg shadow-amber-500/5">
+                        <span class="material-symbols-outlined text-xs sm:text-[14px]">schedule</span>
+                        TODAY · {{ delivery_date|date:"D, d M" }}
+                    </div>
+                    {% else %}
+                    <div class="bg-white/10 border border-white/10 text-white/80 px-4 py-1.5 rounded-full font-bold text-[10px] sm:text-xs flex items-center gap-2 whitespace-nowrap uppercase tracking-widest shadow-lg shadow-black/20">
+                        <span class="material-symbols-outlined text-xs sm:text-[14px]">calendar_month</span>
+                        {{ delivery_date|date:"D, d M Y" }}
+                    </div>
+                    {% endif %}
+                    <span class="text-white/40 text-[10px] sm:text-xs font-medium">{{ date_orders|length }} Order{{ date_orders|length|pluralize }}</span>
+                </div>
+                <div class="hidden sm:block flex-1 h-px bg-white/5"></div>
+            </div>
+
+            <!-- Orders for this date -->
+            <div class="space-y-3">
+                {% for order in date_orders %}
+                <div class="glass-panel overflow-hidden transition-all duration-300 {% if delivery_date < today %}border-red-500/20{% elif delivery_date == today %}border-amber-500/20{% endif %}" id="order-card-{{ order.id }}">
+                    <!-- Order Summary Row -->
+                    <button type="button" onclick="toggleOrderDetail({{ order.id }})"
+                        class="w-full text-left px-6 py-4 flex items-center gap-4 hover:bg-white/5 transition-colors group">
+
+                        <!-- Avatar -->
+                        <div class="w-10 h-10 rounded-full bg-secondary/20 text-secondary border border-secondary/30 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                            {{ order.customer.full_name|make_list|first|upper }}
+                        </div>
+
+                        <!-- Customer & Order -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-white group-hover:text-secondary transition-colors">{{ order.customer.full_name }}</span>
+                                <span class="text-white/20 text-[10px]">·</span>
+                                <span class="text-secondary text-[10px] font-black tracking-widest uppercase">{{ order.order_number }}</span>
+                                {% if order.is_red_flagged %}
+                                <span class="material-symbols-outlined text-red-400 text-[14px] animate-pulse-slow" title="Outsource Required">flag</span>
+                                {% endif %}
+                                <span class="text-white/20 text-[10px]">·</span>
+                                <span class="text-white/40 text-xs font-medium">{{ order.customer.phone }}</span>
+                            </div>
+                            <div class="flex items-center gap-3 mt-1 flex-wrap">
+                                <!-- Items summary -->
+                                <span class="text-white/40 text-xs font-medium line-clamp-1 italic">
+                                    {% for item in order.items.all %}{{ item.description }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Status badge -->
+                        <div class="flex-shrink-0">
+                            {% if order.status == 'pending' %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase tracking-widest">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span> Pending
+                            </span>
+                            {% elif order.status == 'in_progress' %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-widest">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-400 mr-1.5 animate-pulse"></span> In Progress
+                            </span>
+                            {% elif order.status == 'ready' %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20 uppercase tracking-widest">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-400 mr-1.5"></span> Ready
+                            </span>
+                            {% elif order.status == 'delivered' %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-white/5 text-white/40 border border-white/10 uppercase tracking-widest">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/20 mr-1.5"></span> Delivered
+                            </span>
+                            {% elif order.status == 'cancelled' %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20 uppercase tracking-widest">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-400 mr-1.5"></span> Cancelled
+                            </span>
+                            {% elif order.status == 'returned' %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-widest">
+                                <span class="w-1.5 h-1.5 rounded-full bg-purple-400 mr-1.5"></span> Returned
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Financials -->
+                        <div class="flex-shrink-0 text-right hidden sm:block">
+                            <p class="font-bold text-white">₹{{ order.grand_total }}</p>
+                            {% if order.balance_due > 0 %}
+                            <p class="text-red-500 text-[10px] font-black uppercase tracking-widest">Bal: ₹{{ order.balance_due }}</p>
+                            {% else %}
+                            <p class="text-green-400 text-[10px] font-black uppercase tracking-widest">Paid</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Chevron -->
+                        <span class="material-symbols-outlined text-white/20 group-hover:text-white transition-all flex-shrink-0" id="chevron-{{ order.id }}">expand_more</span>
+                    </button>
+
+                    <!-- Expanded Detail Panel -->
+                    <div id="detail-{{ order.id }}" class="hidden border-t border-white/5 bg-white/[0.02]">
+                        <div class="grid md:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-white/5">
+
+                            <!-- Column 1: Order Info -->
+                            <div class="p-6">
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+                                    Order Information
+                                </h4>
+                                <dl class="space-y-3">
+                                    <div class="flex justify-between text-sm">
+                                        <dt class="text-white/40">Order Number</dt>
+                                        <dd class="font-bold text-secondary tracking-widest">{{ order.order_number }}</dd>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <dt class="text-white/40">Order Type</dt>
+                                        <dd class="font-medium text-white/80">{{ order.get_order_type_display }}</dd>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <dt class="text-white/40">Booking Date</dt>
+                                        <dd class="font-medium text-white/80">{{ order.booking_date|date:"d M Y" }}</dd>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <dt class="text-white/40">Delivery Date</dt>
+                                        <dd class="font-bold {% if delivery_date < today %}text-red-500{% elif delivery_date == today %}text-amber-500{% else %}text-white{% endif %}">{{ order.delivery_date|date:"d M Y" }}</dd>
+                                    </div>
+                                    {% if order.notes %}
+                                    <div class="pt-3 border-t border-white/5">
+                                        <dt class="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Internal Notes</dt>
+                                        <dd class="text-sm text-white/60 italic leading-relaxed">{{ order.notes }}</dd>
+                                    </div>
+                                    {% endif %}
+                                </dl>
+                            </div>
+
+                            <!-- Column 2: Items -->
+                            <div class="p-6">
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px]">checkroom</span>
+                                    Garment Items
+                                </h4>
+                                <div class="space-y-2">
+                                    {% for item in order.items.all %}
+                                    <div class="flex justify-between items-start text-sm py-2.5 {% if not forloop.last %}border-b border-white/5{% endif %}">
+                                        <div>
+                                            <p class="font-bold text-white">{{ item.description }}</p>
+                                            <div class="flex items-center gap-2 mt-0.5">
+                                                {% if item.garment_category %}
+                                                <span class="text-[10px] text-white/40 font-bold uppercase tracking-wider">{{ item.garment_category }}</span>
+                                                <span class="text-white/10 text-[10px]">·</span>
+                                                {% endif %}
+                                                <span class="text-[10px] text-white/40 font-medium">Qty: {{ item.quantity }} × ₹{{ item.rate }}</span>
+                                            </div>
+                                        </div>
+                                        <span class="font-bold text-white">₹{{ item.total_amount }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Column 3: Billing + Actions -->
+                            <div class="p-6">
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px]">payments</span>
+                                    Billing Summary
+                                </h4>
+                                <dl class="space-y-2.5">
+                                    <div class="flex justify-between text-sm">
+                                        <dt class="text-white/40">Subtotal</dt>
+                                        <dd class="text-white/80">₹{{ order.subtotal }}</dd>
+                                    </div>
+                                    {% if order.discount_amount > 0 %}
+                                    <div class="flex justify-between text-sm text-green-400">
+                                        <dt>Discount</dt>
+                                        <dd>− ₹{{ order.discount_amount }}</dd>
+                                    </div>
+                                    {% endif %}
+                                    {% if order.gst_amount > 0 %}
+                                    <div class="flex justify-between text-sm">
+                                        <dt class="text-white/40">GST ({{ order.gst_percentage }}%)</dt>
+                                        <dd class="text-white/80">₹{{ order.gst_amount }}</dd>
+                                    </div>
+                                    {% endif %}
+                                    <div class="flex justify-between text-sm font-bold border-t border-white/5 pt-2.5 mt-2.5">
+                                        <dt class="text-white">Grand Total</dt>
+                                        <dd class="text-white">₹{{ order.grand_total }}</dd>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-white/40 mt-1">
+                                        <dt>Advance Paid</dt>
+                                        <dd>₹{{ order.advance_paid }}</dd>
+                                    </div>
+                                    <div class="flex justify-between text-sm font-black border-t border-white/5 pt-2.5 mt-2.5 {% if order.balance_due > 0 %}text-red-500{% else %}text-green-400{% endif %} uppercase tracking-widest">
+                                        <dt>Balance Due</dt>
+                                        <dd>₹{{ order.balance_due }}</dd>
+                                    </div>
+                                </dl>
+
+                                <!-- Action Buttons -->
+                                <div class="flex gap-2 mt-6 pt-5 border-t border-white/5">
+                                    <a href="{% url 'order_detail' order.id %}" class="btn-premium flex-1 !py-2.5 text-[11px] flex items-center justify-center gap-1.5">
+                                        <span class="material-symbols-outlined text-[16px]">edit</span>
+                                        Manage
+                                    </a>
+                                    <a href="{% url 'order_print' order.id %}" class="flex-1 text-center bg-white/5 border border-white/10 text-white/60 px-3 py-2.5 rounded-[12px] text-[11px] font-bold hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-1.5">
+                                        <span class="material-symbols-outlined text-[16px]">print</span>
+                                        Print
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="glass-panel p-20 text-center">
+        <span class="material-symbols-outlined text-6xl text-white/10 mb-4 block">event_busy</span>
+        <h3 class="text-xl font-bold text-white mb-2">No orders found</h3>
+        <p class="text-white/40 text-sm font-medium">Try adjusting your filters or date range to see results.</p>
+        <a href="{% url 'delivery_schedule' %}" class="inline-block mt-6 text-secondary font-bold hover:text-white transition-colors flex items-center justify-center gap-2 mx-auto underline decoration-secondary/30 underline-offset-4">
+            <span class="material-symbols-outlined text-base">restart_alt</span>
+            Clear all filters
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function toggleOrderDetail(orderId) {
+        const detail = document.getElementById(`detail-${orderId}`);
+        const chevron = document.getElementById(`chevron-${orderId}`);
+        const card = document.getElementById(`order-card-${orderId}`);
+        const isHidden = detail.classList.contains('hidden');
+        
+        detail.classList.toggle('hidden', !isHidden);
+        chevron.textContent = isHidden ? 'expand_less' : 'expand_more';
+        
+        if (isHidden) {
+            card.classList.add('ring-1', 'ring-secondary/30', 'bg-white/[0.03]');
+        } else {
+            card.classList.remove('ring-1', 'ring-secondary/30', 'bg-white/[0.03]');
+        }
+    }
+
+    // Auto-expand if only one group and few orders
+    document.addEventListener('DOMContentLoaded', () => {
+        {% if grouped_orders|length == 1 %}
+            {% for delivery_date, date_orders in grouped_orders %}
+                {% if date_orders|length <= 5 %}
+                    {% for order in date_orders %}
+                        toggleOrderDetail({{ order.id }});
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        // Auto-expand today's orders
+        {% for delivery_date, date_orders in grouped_orders %}
+            {% if delivery_date == today %}
+                {% for order in date_orders %}
+                    toggleOrderDetail({{ order.id }});
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    });
+</script>
+{% endblock %}

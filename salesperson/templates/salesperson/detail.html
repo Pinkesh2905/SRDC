@@ -1,0 +1,212 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ person.full_name }} — Analysis | SRDC{% endblock %}
+
+{% block content %}
+<style>
+    .sp-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 22px 24px;
+        transition: transform .2s, box-shadow .2s;
+        box-shadow: var(--card-shadow);
+    }
+    .sp-card:hover { transform: translateY(-2px); box-shadow: var(--card-hover-shadow); }
+    .sp-card__label {
+        font-size: 10px; font-weight: 800; text-transform: uppercase;
+        letter-spacing: 0.18em; color: var(--text-muted); margin-bottom: 10px;
+    }
+    .sp-card__value { font-size: 28px; font-weight: 800; color: var(--text-primary); line-height: 1; }
+    .sp-card__sub { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+
+    .sp-chip {
+        padding: 6px 16px; border-radius: 9999px; font-size: 12px; font-weight: 700;
+        border: 1px solid var(--glass-border); color: var(--text-secondary);
+        background: transparent; cursor: pointer; transition: all .2s;
+        text-decoration: none;
+    }
+    .sp-chip:hover { border-color: var(--accent); color: var(--text-primary); }
+    .sp-chip.active {
+        background: var(--secondary); color: #fff;
+        border-color: var(--secondary);
+    }
+
+    .sp-bottom-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(18px);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px; padding: 24px;
+        box-shadow: var(--card-shadow);
+    }
+    .sp-bottom-card__title {
+        font-size: 10px; font-weight: 800; text-transform: uppercase;
+        letter-spacing: 0.18em; color: var(--text-muted);
+        margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--table-row-border);
+    }
+</style>
+
+<div class="p-4 sm:p-8 max-w-[1200px] mx-auto w-full">
+
+    <!-- ═══ HEADER ═══ -->
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
+        <div>
+            <a href="{% url 'salesperson_dashboard' %}" class="inline-flex items-center gap-1 text-xs text-white/40 hover:text-secondary mb-3 transition-colors">
+                <span class="material-symbols-outlined text-[16px]">arrow_back</span> All Salespeople
+            </a>
+            <h2 class="font-h2 text-2xl sm:text-3xl font-semibold text-white mb-1 drop-shadow-md">{{ person.full_name }}</h2>
+            <p class="text-white/50 text-sm">
+                {% if person.employee_code %}{{ person.employee_code }} · {% endif %}
+                {% if person.phone %}{{ person.phone }} · {% endif %}
+                <span class="{% if person.is_active %}text-emerald-400{% else %}text-white/30{% endif %}">
+                    {% if person.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="?period=today" class="sp-chip {% if period == 'today' %}active{% endif %}">Today</a>
+            <a href="?period=7" class="sp-chip {% if period == '7' %}active{% endif %}">7 Days</a>
+            <a href="?period=30" class="sp-chip {% if period == '30' %}active{% endif %}">30 Days</a>
+            <a href="?period=all" class="sp-chip {% if period == 'all' %}active{% endif %}">All Time</a>
+        </div>
+    </div>
+
+    <!-- ═══ SCORECARDS ROW 1 ═══ -->
+    <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <div class="sp-card">
+            <div class="sp-card__label">Total Revenue</div>
+            <div class="sp-card__value text-emerald-400">{{ total_rev_fmt }}</div>
+        </div>
+        <div class="sp-card">
+            <div class="sp-card__label">Total Orders</div>
+            <div class="sp-card__value">{{ total_orders }}</div>
+        </div>
+        <div class="sp-card">
+            <div class="sp-card__label">Avg Order Value</div>
+            <div class="sp-card__value">{{ avg_ord_fmt }}</div>
+        </div>
+    </div>
+
+    <!-- ═══ SCORECARDS ROW 2 ═══ -->
+    <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div class="sp-card">
+            <div class="sp-card__label">Revenue Share</div>
+            <div class="sp-card__value" style="color: var(--secondary, #c8a951);">{{ share_pct }}%</div>
+            <div class="sp-card__sub">of total store revenue</div>
+        </div>
+        <div class="sp-card">
+            <div class="sp-card__label">Top Product</div>
+            <div class="sp-card__value text-lg leading-snug">{{ top_product_name }}</div>
+            <div class="sp-card__sub">{{ top_product_qty }} units sold</div>
+        </div>
+        <div class="sp-card col-span-2 lg:col-span-1">
+            <div class="sp-card__label">Pending Payments</div>
+            <div class="sp-card__value text-rose-400">{{ total_pending_fmt }}</div>
+            <div class="sp-card__sub">balance due from customers</div>
+        </div>
+    </div>
+
+    <!-- ═══ REVENUE TREND CHART ═══ -->
+    <div class="sp-bottom-card mb-6">
+        <div class="sp-bottom-card__title">Revenue Trend</div>
+        <div style="height: 260px;">
+            <canvas id="spRevChart"></canvas>
+        </div>
+    </div>
+
+    <!-- ═══ TOP CUSTOMERS ═══ -->
+    <div class="sp-bottom-card">
+        <div class="sp-bottom-card__title">Top Customers</div>
+        {% for cust in top_customers %}
+        <div class="flex items-center justify-between py-3 {% if not forloop.last %}border-b border-white/5{% endif %}">
+            <div class="flex items-center gap-3">
+                <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold {% if forloop.counter == 1 %}bg-yellow-500/20 text-yellow-400{% elif forloop.counter == 2 %}bg-gray-400/20 text-gray-300{% elif forloop.counter == 3 %}bg-amber-700/20 text-amber-500{% else %}bg-white/5 text-white/40{% endif %}">
+                    {{ forloop.counter }}
+                </span>
+                <span class="text-white text-sm font-semibold">{{ cust.name }}</span>
+            </div>
+            <span class="text-white font-bold text-sm">{{ cust.amount }}</span>
+        </div>
+        {% empty %}
+        <p class="text-center text-white/30 text-sm py-8 italic">No customer data for this period.</p>
+        {% endfor %}
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let spRevChart;
+
+    function getChartColors() {
+        const isDark = document.body.classList.contains('dark-mode');
+        return {
+            text: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(26,26,46,0.5)',
+            grid: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+            tooltipBg: isDark ? 'rgba(10,5,5,0.9)' : 'rgba(255,255,255,0.9)',
+            tooltipText: isDark ? '#fff' : '#1a1a2e',
+            tooltipBorder: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+        };
+    }
+
+    function initChart() {
+        const dates = {{ chart_dates|safe }};
+        const revs = {{ chart_revs|safe }};
+        const colors = getChartColors();
+
+        if (dates.length > 0) {
+            const ctx = document.getElementById('spRevChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+            gradient.addColorStop(0, 'rgba(52,211,153,0.25)');
+            gradient.addColorStop(1, 'rgba(52,211,153,0)');
+
+            if (spRevChart) spRevChart.destroy();
+            spRevChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: revs,
+                        borderColor: '#34d399',
+                        backgroundColor: gradient,
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#34d399',
+                        tension: 0.4,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { cornerRadius: 8, backgroundColor: colors.tooltipBg, titleColor: colors.tooltipText, bodyColor: colors.tooltipText, borderColor: colors.tooltipBorder, borderWidth: 1 }
+                    },
+                    scales: {
+                        x: { ticks: { color: colors.text, font: { size: 10 } }, grid: { color: colors.grid } },
+                        y: { ticks: { color: colors.text, font: { size: 10 }, callback: v => '₹' + (v >= 1000 ? (v/1000).toFixed(0) + 'K' : v) }, grid: { color: colors.grid } }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('spRevChart').parentElement.innerHTML = '<p class="text-center text-white/30 text-sm py-16 italic">No revenue data for this period.</p>';
+        }
+    }
+
+    initChart();
+
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                initChart();
+            }
+        });
+    });
+    observer.observe(document.body, { attributes: true });
+});
+</script>
+{% endblock %}

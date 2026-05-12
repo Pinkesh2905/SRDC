@@ -1,0 +1,536 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Billing Details | SRDC Admin{% endblock %}
+
+{% block content %}
+<!-- Screen Content -->
+<div class="p-8 max-w-[1440px] mx-auto w-full space-y-10 relative z-10">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+            <h2 class="font-h1 text-4xl sm:text-5xl font-bold text-white tracking-tight">Billing Details</h2>
+            <p class="font-body-md text-white/50 mt-2 flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary text-lg">info</span>
+                Finalize the order and generate the professional invoice.
+            </p>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex flex-col items-end">
+                <span class="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">REFERENCE NUMBER</span>
+                <span class="text-sm font-bold tracking-wider text-white bg-white/5 border border-white/10 px-5 py-2 rounded-full backdrop-blur-md shadow-inner">#{{ order_number }}</span>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" action="{% url 'order_create' %}" id="billing-form">
+        {% csrf_token %}
+        <input type="hidden" name="customer_id" value="{{ customer.id }}">
+        
+        <!-- Customer Details Card (Read Only) -->
+        <section class="glass-panel p-6 relative overflow-hidden">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-secondary">person</span>
+                <h3 class="font-serif text-2xl font-semibold text-white">Customer Overview</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-2">
+                    <label class="text-[11px] font-bold text-white/30 uppercase tracking-widest pl-1">FULL NAME</label>
+                    <div class="p-4 bg-white/[0.03] border border-white/5 rounded-[16px] text-white font-bold backdrop-blur-sm group hover:border-white/10 transition-all cursor-default">
+                        <span class="text-white/80 group-hover:text-white transition-colors">{{ customer.full_name|title }}</span>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[11px] font-bold text-white/30 uppercase tracking-widest pl-1">PHONE NUMBER</label>
+                    <div class="p-4 bg-white/[0.03] border border-white/5 rounded-[16px] text-white font-bold backdrop-blur-sm group hover:border-white/10 transition-all cursor-default">
+                        <span class="text-white/80 group-hover:text-white transition-colors">{{ customer.phone }}</span>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[11px] font-bold text-white/30 uppercase tracking-widest pl-1">CITY / LOCATION</label>
+                    <div class="p-4 bg-white/[0.03] border border-white/5 rounded-[16px] text-white font-bold backdrop-blur-sm group hover:border-white/10 transition-all cursor-default">
+                        <span class="text-white/80 group-hover:text-white transition-colors">{{ customer.city|title|default:"-" }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-panel p-6 mt-6 relative z-30">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+                <div class="space-y-2">
+                    <label class="text-[11px] font-bold text-white/40 uppercase tracking-widest pl-1">SALESPERSON</label>
+                    <div class="srdc-dropdown">
+                        <input type="checkbox" id="salesperson-dropdown">
+                        <input type="hidden" name="salesperson" value="">
+                        <label class="srdc-dropdown__face bg-white/5 border-white/10 rounded-[12px] hover:bg-white/10 transition-colors" for="salesperson-dropdown">
+                            <div class="srdc-dropdown__text text-white font-bold">Select Salesperson</div>
+                            <div class="srdc-dropdown__arrow border-white/40"></div>
+                        </label>
+                        <ul class="srdc-dropdown__items">
+                            <li class="srdc-dropdown__item" data-value="">No salesperson</li>
+                            {% for person in salespeople %}
+                            <li class="srdc-dropdown__item" data-value="{{ person.id }}">{{ person.full_name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[11px] font-bold text-white/40 uppercase tracking-widest pl-1">ORDER TYPE</label>
+                    <div class="srdc-dropdown">
+                        <input type="checkbox" id="order-type-dropdown">
+                        <input type="hidden" name="order_type" value="{{ current_order_type|default:'custom' }}">
+                        <label class="srdc-dropdown__face bg-white/5 border-white/10 rounded-[12px] hover:bg-white/10 transition-colors" for="order-type-dropdown">
+                            <div class="srdc-dropdown__text text-white font-bold">
+                                {% if current_order_type == 'custom' or not current_order_type %}Custom Tailoring
+                                {% elif current_order_type == 'rental' %}Rental Service
+                                {% else %}Select Order Type{% endif %}
+                            </div>
+                            <div class="srdc-dropdown__arrow border-white/40"></div>
+                        </label>
+                        <ul class="srdc-dropdown__items">
+                            {% for value,label in order_types %}
+                            <li class="srdc-dropdown__item" data-value="{{ value }}">{{ label }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[11px] font-bold text-white/40 uppercase tracking-widest pl-1">DELIVERY DATE</label>
+                    <div class="srdc-datepicker">
+                        <input type="hidden" name="delivery_date" value="">
+                        <div class="srdc-datepicker__face">
+                            <input type="text" class="srdc-datepicker__text" placeholder="dd/mm/yyyy" value="">
+                            <span class="material-symbols-outlined text-secondary text-[20px]">calendar_today</span>
+                        </div>
+                        <div class="srdc-datepicker__popup">
+                            <div class="srdc-calendar">
+                                <div class="srdc-calendar__header">
+                                    <div class="srdc-calendar__header-info">
+                                        <h3>---</h3>
+                                        <h2>Select Date</h2>
+                                    </div>
+                                </div>
+                                <div class="srdc-calendar__nav">
+                                    <button type="button" class="prev-month"><span class="material-symbols-outlined">chevron_left</span></button>
+                                    <div class="srdc-calendar__nav-title">Month Year</div>
+                                    <button type="button" class="next-month"><span class="material-symbols-outlined">chevron_right</span></button>
+                                </div>
+                                <div class="srdc-calendar__body">
+                                    <div class="srdc-calendar__days">
+                                        <div class="srdc-calendar__day-name">S</div>
+                                        <div class="srdc-calendar__day-name">M</div>
+                                        <div class="srdc-calendar__day-name">T</div>
+                                        <div class="srdc-calendar__day-name">W</div>
+                                        <div class="srdc-calendar__day-name">T</div>
+                                        <div class="srdc-calendar__day-name">F</div>
+                                        <div class="srdc-calendar__day-name">S</div>
+                                    </div>
+                                    <div class="srdc-calendar__numbers"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[11px] font-bold text-white/40 uppercase tracking-widest pl-1">RETURN DATE</label>
+                    <div class="srdc-datepicker">
+                        <input type="hidden" name="return_date" value="">
+                        <div class="srdc-datepicker__face">
+                            <input type="text" class="srdc-datepicker__text" placeholder="dd/mm/yyyy" value="">
+                            <span class="material-symbols-outlined text-secondary text-[20px]">calendar_today</span>
+                        </div>
+                        <div class="srdc-datepicker__popup">
+                            <div class="srdc-calendar">
+                                <div class="srdc-calendar__header">
+                                    <div class="srdc-calendar__header-info">
+                                        <h3>---</h3>
+                                        <h2>Select Date</h2>
+                                    </div>
+                                </div>
+                                <div class="srdc-calendar__nav">
+                                    <button type="button" class="prev-month"><span class="material-symbols-outlined">chevron_left</span></button>
+                                    <div class="srdc-calendar__nav-title">Month Year</div>
+                                    <button type="button" class="next-month"><span class="material-symbols-outlined">chevron_right</span></button>
+                                </div>
+                                <div class="srdc-calendar__body">
+                                    <div class="srdc-calendar__days">
+                                        <div class="srdc-calendar__day-name">S</div>
+                                        <div class="srdc-calendar__day-name">M</div>
+                                        <div class="srdc-calendar__day-name">T</div>
+                                        <div class="srdc-calendar__day-name">W</div>
+                                        <div class="srdc-calendar__day-name">T</div>
+                                        <div class="srdc-calendar__day-name">F</div>
+                                        <div class="srdc-calendar__day-name">S</div>
+                                    </div>
+                                    <div class="srdc-calendar__numbers"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[11px] font-bold text-white/40 uppercase tracking-widest pl-1">BUY BACK</label>
+                    <div class="glass-panel p-3 border border-white/5 rounded-[12px] flex items-center justify-between mt-1" style="height: 48px;">
+                        <span class="text-white/80 font-bold text-sm">Is Buy Back?</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="is_buy_back" id="buy-back-toggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary shadow-inner dark:bg-white/10"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bill Summary Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-10">
+            <!-- Left: Items -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Items List -->
+                <div class="glass-panel overflow-hidden">
+                    <div class="p-4 sm:p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-secondary">receipt_long</span>
+                            <h3 class="font-serif text-xl sm:text-2xl font-semibold text-white">Invoice Items</h3>
+                        </div>
+                        <button type="button" id="add-item-btn" class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-secondary/20 text-white border border-secondary/30 hover:bg-secondary/30 rounded-[12px] text-xs sm:text-sm font-bold transition-all">
+                            <span class="material-symbols-outlined text-sm">add_circle</span>
+                            Add Item
+                        </button>
+                    </div>
+                    
+                    <!-- Desktop Header (Hidden on Mobile) -->
+                    <div class="hidden md:grid grid-cols-12 gap-4 bg-gradient-to-r from-secondary/40 to-transparent text-white/80 p-4 font-serif text-[11px] uppercase tracking-[0.15em] font-bold">
+                        <div class="col-span-6 pl-2">Item Description</div>
+                        <div class="col-span-2 text-right">Qty</div>
+                        <div class="col-span-2 text-right">Rate (₹)</div>
+                        <div class="col-span-2 text-right pr-2">Total (₹)</div>
+                    </div>
+
+                    <div id="invoice-items-body" class="divide-y divide-white/5">
+                        {% for item in selected_items %}
+                        <div class="item-row group p-4 md:p-0 md:grid md:grid-cols-12 md:gap-4 md:items-center relative hover:bg-white/[0.02] transition-all duration-300">
+                            <div class="col-span-6 md:p-4">
+                                <label class="md:hidden text-[10px] font-bold text-white/30 uppercase tracking-widest block mb-1">Item Description</label>
+                                <input type="hidden" name="item_garment_category[]" value="{{ item.type }}">
+                                <input type="text" name="item_description[]" class="w-full bg-white/5 border border-white/10 rounded-[16px] p-3 font-semibold text-white text-sm sm:text-base placeholder:text-white/20 focus:outline-none focus:border-secondary/50 focus:ring-1 focus:ring-secondary/30 transition-all shadow-sm" value="{{ item.label }}" placeholder="e.g. Custom Shirt" required>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 mt-4 md:mt-0 md:col-span-6 md:grid-cols-6 md:items-center md:pr-4">
+                                <div class="col-span-1 md:col-span-2 md:text-right">
+                                    <label class="md:hidden text-[10px] font-bold text-white/30 uppercase tracking-widest block mb-1">Qty</label>
+                                    <input type="number" name="item_qty[]" class="w-full md:w-24 bg-white/5 border border-white/10 rounded-[16px] p-3 text-right qty-input text-sm sm:text-base text-white focus:outline-none focus:border-secondary/50 focus:ring-1 focus:ring-secondary/30 transition-all" value="{{ item.qty }}" min="1" required>
+                                </div>
+                                <div class="col-span-1 md:col-span-2 md:text-right">
+                                    <label class="md:hidden text-[10px] font-bold text-white/30 uppercase tracking-widest block mb-1">Rate</label>
+                                    <input type="number" name="item_rate[]" class="w-full md:w-36 bg-white/5 border border-white/10 rounded-[16px] p-3 text-right rate-input text-sm sm:text-base text-white focus:outline-none focus:border-secondary/50 focus:ring-1 focus:ring-secondary/30 transition-all" value="{{ item.rate }}" placeholder="0.00" step="0.01" required>
+                                </div>
+                                <div class="col-span-1 md:col-span-2 text-right">
+                                    <label class="md:hidden text-[10px] font-bold text-white/30 uppercase tracking-widest block mb-1">Total</label>
+                                    <div class="font-bold text-xl text-white item-total md:py-2">₹ 0.00</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 md:mt-0 md:absolute md:right-4 md:top-1/2 md:-translate-y-1/2">
+                                <button type="button" class="remove-item-btn w-full md:w-auto flex items-center justify-center gap-2 md:block p-2.5 text-white/20 hover:text-red-400 hover:bg-red-400/10 md:opacity-0 md:group-hover:opacity-100 transition-all border border-white/10 md:border-none rounded-[16px] bg-white/5 md:bg-transparent">
+                                    <span class="material-symbols-outlined text-xl">delete_outline</span>
+                                    <span class="md:hidden text-xs font-bold uppercase">Remove Item</span>
+                                </button>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div id="empty-row" class="p-8 text-center text-white/40 italic text-sm">
+                            No items added. Click "Add Item" to start.
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Hidden template for new rows -->
+                    <template id="row-template">
+                        <div class="item-row group p-4 md:p-0 md:grid md:grid-cols-12 md:gap-4 md:items-center relative hover:bg-white/[0.02] transition-all duration-300">
+                            <div class="col-span-6 md:p-4">
+                                <label class="md:hidden text-[10px] font-bold text-white/30 uppercase tracking-widest block mb-1">Item Description</label>
+                                <input type="hidden" name="item_garment_category[]" value="">
+                                <input type="text" name="item_description[]" class="w-full bg-white/5 border border-white/10 rounded-[16px] p-3 font-semibold text-white text-sm sm:text-base placeholder:text-white/20 focus:outline-none focus:border-secondary/50 focus:ring-1 focus:ring-secondary/30 transition-all shadow-sm" placeholder="e.g. Custom Shirt" required>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 mt-4 md:mt-0 md:col-span-6 md:grid-cols-6 md:items-center md:pr-4">
+                                <div class="col-span-1 md:col-span-2 md:text-right">
+                                    <label class="md:hidden text-[10px] font-bold text-white/30 uppercase tracking-widest block mb-1">Qty</label>
+                                    <input type="number" name="item_qty[]" class="w-full md:w-24 bg-white/5 border border-white/10 rounded-[16px] p-3 text-right qty-input text-sm sm:text-base text-white focus:outline-none focus:border-secondary/50 focus:ring-1 focus:ring-secondary/30 transition-all" value="1" min="1" required>
+                                </div>
+                                <div class="col-span-1 md:col-span-2 md:text-right">
+                                    <label class="md:hidden text-[10px] font-bold text-white/30 uppercase tracking-widest block mb-1">Rate</label>
+                                    <input type="number" name="item_rate[]" class="w-full md:w-36 bg-white/5 border border-white/10 rounded-[16px] p-3 text-right rate-input text-sm sm:text-base text-white focus:outline-none focus:border-secondary/50 focus:ring-1 focus:ring-secondary/30 transition-all" placeholder="0.00" step="0.01" required>
+                                </div>
+                                <div class="col-span-1 md:col-span-2 text-right">
+                                    <label class="md:hidden text-[10px] font-bold text-white/30 uppercase tracking-widest block mb-1">Total</label>
+                                    <div class="font-bold text-xl text-white item-total md:py-2">₹ 0.00</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 md:mt-0 md:absolute md:right-4 md:top-1/2 md:-translate-y-1/2">
+                                <button type="button" class="remove-item-btn w-full md:w-auto flex items-center justify-center gap-2 md:block p-2.5 text-white/20 hover:text-red-400 hover:bg-red-400/10 md:opacity-0 md:group-hover:opacity-100 transition-all border border-white/10 md:border-none rounded-[16px] bg-white/5 md:bg-transparent">
+                                    <span class="material-symbols-outlined text-xl">delete_outline</span>
+                                    <span class="md:hidden text-xs font-bold uppercase">Remove Item</span>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="glass-panel p-6 mt-6 border border-red-500/20 bg-gradient-to-r from-red-500/10 to-transparent relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-red-500/10 transition-all"></div>
+                    <div class="flex items-start justify-between relative z-10">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-red-500 text-3xl animate-pulse">flag</span>
+                            <div>
+                                <h3 class="font-serif text-xl font-semibold text-white">🚩 Outsource Required</h3>
+                                <p class="text-sm text-white/50 mt-1 max-w-md">Check this if the catalog / garment is NOT available in-store and must be ordered from a 3rd party supplier.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center mt-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_red_flagged" class="sr-only peer">
+                                <div class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-600 shadow-inner"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 mt-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="material-symbols-outlined text-secondary">edit_note</span>
+                        <h3 class="font-serif text-2xl font-semibold text-white">Order Notes</h3>
+                    </div>
+                    <textarea name="notes" class="w-full bg-white/5 border border-white/10 rounded-[12px] p-4 text-white placeholder:text-white/20 focus:outline-none focus:border-secondary/50 transition-all" placeholder="Mention specific customizations or tailoring instructions for this order..." rows="3"></textarea>
+                </div>
+            </div>
+
+            <!-- Right: Financial Summary -->
+            <div class="lg:col-span-1">
+                <div class="glass-panel p-6 relative">
+                    <h3 class="font-serif text-2xl font-semibold mb-6 border-b border-white/10 pb-2 text-white">Order Summary</h3>
+                    <div class="space-y-4 font-body-md">
+                        <div class="flex justify-between items-center">
+                            <span class="text-white/60">Sub-Total</span>
+                            <span class="font-semibold text-lg text-white" id="summary-subtotal">₹ 0.00</span>
+                            <input type="hidden" name="subtotal" id="input-subtotal" value="0">
+                        </div>
+                        <div class="flex justify-between items-center text-secondary" id="discount-container">
+                            <span class="text-white/60">Discount</span>
+                            <input type="number" name="discount" id="discount-input" class="w-24 bg-white/5 border border-white/10 rounded-[12px] p-1 text-right text-white font-bold focus:outline-none focus:border-secondary/50 transition-all" value="0" step="0.01">
+                        </div>
+                        <div class="flex justify-between items-center text-secondary hidden" id="deposit-container">
+                            <span class="text-white/60">Deposit Amount</span>
+                            <input type="number" name="deposit_amount" id="deposit-input" class="w-24 bg-white/5 border border-white/10 rounded-[12px] p-1 text-right text-white font-bold focus:outline-none focus:border-secondary/50 transition-all" value="0" step="0.01">
+                        </div>
+                        <div class="flex justify-between items-center hidden" id="deposit-paid-container">
+                            <span class="text-white/60">Deposit Paid?</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_deposit_paid" id="deposit-paid-toggle" class="sr-only peer">
+                                <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500 shadow-inner"></div>
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-white/10 pt-4">
+                            <span class="text-white/60">Taxable Amount</span>
+                            <span class="font-semibold text-white" id="summary-taxable">₹ 0.00</span>
+                            <input type="hidden" name="final_amount" id="input-final-amount" value="0">
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-white/60">Advance Paid</span>
+                            <input type="number" name="advance_paid" id="advance-input" class="w-24 bg-white/5 border border-white/10 rounded-[12px] p-1 text-right text-white font-bold focus:outline-none focus:border-secondary/50 transition-all" value="0" step="0.01">
+                        </div>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="text-white/60">Payment Method</span>
+                            <div class="srdc-dropdown w-48 text-right z-50">
+                                <input type="checkbox" id="payment-method-dropdown">
+                                <input type="hidden" name="payment_method" value="cash">
+                                <label class="srdc-dropdown__face bg-white/5 border-white/10 rounded-[12px] hover:bg-white/10 transition-colors" for="payment-method-dropdown">
+                                    <div class="srdc-dropdown__text text-white font-bold">Cash</div>
+                                    <div class="srdc-dropdown__arrow border-white/40"></div>
+                                </label>
+                                <ul class="srdc-dropdown__items text-left">
+                                    <li class="srdc-dropdown__item" data-value="cash">Cash</li>
+                                    <li class="srdc-dropdown__item" data-value="upi">UPI / QR Code</li>
+                                    <li class="srdc-dropdown__item" data-value="card">Credit/Debit Card</li>
+                                    <li class="srdc-dropdown__item" data-value="bank_transfer">Bank Transfer</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-secondary/40 to-secondary/10 border border-white/10 p-6 rounded-[20px] mt-8 shadow-2xl relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-white/10 transition-all"></div>
+                            <div class="flex justify-between items-center relative z-10">
+                                <span class="font-serif text-xl font-medium text-white/80">Grand Total</span>
+                                <span class="font-serif text-3xl font-bold text-white drop-shadow-lg" id="summary-grand">₹ 0.00</span>
+                                <input type="hidden" name="grand_total" id="input-grand-total" value="0">
+                            </div>
+                             <div class="flex flex-col items-end mt-4 pt-4 border-t border-white/10 relative z-10">
+                                <p class="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black mb-1">Balance Due on Delivery</p>
+                                <span class="text-secondary font-black text-2xl drop-shadow-[0_0_10px_rgba(216,182,109,0.3)]" id="summary-balance-due">₹ 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 space-y-3">
+                        <button type="submit" class="btn-premium btn-premium--full btn-premium--gold">
+                            <span class="btn-premium__label">Confirm & Generate Invoice</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const itemsBody = document.getElementById('invoice-items-body');
+        const addItemBtn = document.getElementById('add-item-btn');
+        const rowTemplate = document.getElementById('row-template');
+        const discountInput = document.getElementById('discount-input');
+        const advanceInput = document.getElementById('advance-input');
+        const buyBackToggle = document.getElementById('buy-back-toggle');
+        const depositInput = document.getElementById('deposit-input');
+        const discountContainer = document.getElementById('discount-container');
+        const depositContainer = document.getElementById('deposit-container');
+        const depositPaidContainer = document.getElementById('deposit-paid-container');
+        
+        let rowCounter = document.querySelectorAll('.item-row').length + 1;
+
+        function calculateTotals() {
+            let subtotal = 0;
+            
+            document.querySelectorAll('.item-row').forEach(row => {
+                const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+                const rate = parseFloat(row.querySelector('.rate-input').value) || 0;
+                const total = qty * rate;
+                row.querySelector('.item-total').textContent = total.toFixed(2);
+                subtotal += total;
+            });
+
+            const isBuyBack = buyBackToggle.checked;
+            
+            if (isBuyBack) {
+                discountContainer.classList.add('hidden');
+                depositContainer.classList.remove('hidden');
+                depositPaidContainer.classList.remove('hidden');
+            } else {
+                discountContainer.classList.remove('hidden');
+                depositContainer.classList.add('hidden');
+                depositPaidContainer.classList.add('hidden');
+            }
+
+            const discount = isBuyBack ? 0 : (parseFloat(discountInput.value) || 0);
+            const depositAmount = isBuyBack ? (subtotal * 0.5) : 0;
+            
+            if (isBuyBack) {
+                depositInput.value = depositAmount.toFixed(2);
+                depositInput.readOnly = true;
+            } else {
+                depositInput.readOnly = false;
+            }
+
+            const taxable = Math.max(0, subtotal - discount - depositAmount);
+            const advance = parseFloat(advanceInput.value) || 0;
+            const balanceDue = Math.max(0, taxable - advance);
+
+            document.getElementById('summary-subtotal').textContent = `₹ ${subtotal.toFixed(2)}`;
+            document.getElementById('summary-taxable').textContent = `₹ ${taxable.toFixed(2)}`;
+            document.getElementById('summary-grand').textContent = `₹ ${taxable.toFixed(2)}`;
+            document.getElementById('summary-balance-due').textContent = `₹ ${balanceDue.toFixed(2)}`;
+
+            document.getElementById('input-subtotal').value = subtotal.toFixed(2);
+            document.getElementById('input-final-amount').value = taxable.toFixed(2);
+            document.getElementById('input-grand-total').value = taxable.toFixed(2);
+        }
+
+        function addItemRow() {
+            const emptyRow = document.getElementById('empty-row');
+            if (emptyRow) emptyRow.remove();
+
+            const clone = rowTemplate.content.cloneNode(true);
+            const row = clone.querySelector('.item-row');
+            
+            itemsBody.appendChild(row);
+            
+            calculateTotals();
+        }
+
+        // Event Delegation for inputs and remove buttons
+        itemsBody.addEventListener('input', (e) => {
+            if (e.target.classList.contains('qty-input') || e.target.classList.contains('rate-input')) {
+                calculateTotals();
+            }
+        });
+
+
+
+        itemsBody.addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('.remove-item-btn');
+            if (removeBtn) {
+                const row = removeBtn.closest('.item-row');
+                row.remove();
+                if (document.querySelectorAll('.item-row').length === 0) {
+                    itemsBody.innerHTML = `
+                        <div id="empty-row" class="p-8 text-center text-white/40 italic text-sm">
+                            No items added. Click "Add Item" to start.
+                        </div>
+                    `;
+                }
+                calculateTotals();
+            }
+        });
+
+        addItemBtn.addEventListener('click', addItemRow);
+        discountInput.addEventListener('input', calculateTotals);
+        advanceInput.addEventListener('input', calculateTotals);
+        buyBackToggle.addEventListener('change', calculateTotals);
+        depositInput.addEventListener('input', calculateTotals);
+
+        // Date Validation: Return Date >= Delivery Date
+        const deliveryInput = document.querySelector('input[name="delivery_date"]');
+        const returnInput = document.querySelector('input[name="return_date"]');
+
+        function validateDates() {
+            if (deliveryInput.value && returnInput.value) {
+                const delivery = new Date(deliveryInput.value);
+                const returnD = new Date(returnInput.value);
+                
+                // Set hours to 0 to compare only dates
+                delivery.setHours(0,0,0,0);
+                returnD.setHours(0,0,0,0);
+
+                if (returnD < delivery) {
+                    alert("⚠️ Invalid Date Selection: The Return Date cannot be before the Delivery Date. Please adjust the schedule.");
+                    
+                    // Reset the return date input and display
+                    returnInput.value = "";
+                    const picker = returnInput.closest('.srdc-datepicker');
+                    const textDisplay = picker.querySelector('.srdc-datepicker__text');
+                    
+                    if (textDisplay.tagName === 'INPUT') {
+                        textDisplay.value = "";
+                    } else {
+                        textDisplay.textContent = "dd/mm/yyyy";
+                    }
+                    textDisplay.classList.add('placeholder');
+                    
+                    // Reset the header display in the popup if it exists
+                    const headerDay = picker.querySelector('.srdc-calendar__header-info h2');
+                    const headerMonth = picker.querySelector('.srdc-calendar__header-info h3');
+                    if (headerDay) headerDay.textContent = "Select Date";
+                    if (headerMonth) headerMonth.textContent = "---";
+                }
+            }
+        }
+
+        if (deliveryInput) deliveryInput.addEventListener('change', validateDates);
+        if (returnInput) returnInput.addEventListener('change', validateDates);
+        
+        calculateTotals();
+    });
+</script>
+{% endblock %}

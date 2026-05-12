@@ -1,0 +1,1563 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% block title %}SRDC Admin{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Syne:wght@400..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+        }
+        /* ═══ THEME SYSTEM ═══ */
+        :root {
+            --ink: #171717;
+            --ink-muted: #51483f;
+            --canvas: #f8f5f0;
+            --panel: rgba(255, 253, 250, 0.7);
+            --line: rgba(122, 31, 24, 0.1);
+            --accent: #8a6428;
+            --accent-dark: #7a1f18;
+            --primary: #d8b66d;
+            --secondary: #7a1f18;
+            --secondary-dark: #5f1712;
+            /* Light Mode Tokens (Default) */
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-bg-dark: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --glass-border-dark: rgba(0, 0, 0, 0.05);
+            --glass-blur: 40px;
+            --page-bg: #f3ede6;
+            --text-primary: #1a1a2e;
+            --text-secondary: rgba(26,26,46,0.6);
+            --text-muted: rgba(26,26,46,0.35);
+            --text-on-glass: #1a1a2e;
+            --input-bg: rgba(0,0,0,0.04);
+            --input-border: rgba(0,0,0,0.12);
+            --input-text: #1a1a2e;
+            --input-placeholder: rgba(26,26,46,0.4);
+            --input-focus-border: rgba(122,31,24,0.4);
+            --input-focus-bg: rgba(255,255,255,0.8);
+            --sidebar-bg: rgba(30, 15, 15, 0.95);
+            --sidebar-text: #f8f5f0;
+            --topbar-bg: rgba(255,255,255,0.5);
+            --topbar-border: rgba(0,0,0,0.06);
+            --table-head-bg: #7a1f18;
+            --table-head-text: #fff;
+            --table-row-border: rgba(0,0,0,0.06);
+            --table-text: #1a1a2e;
+            --card-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            --card-hover-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            --dropdown-bg: rgba(255,255,255,0.97);
+            --dropdown-text: #1a1a2e;
+            --dropdown-item-hover: rgba(0,0,0,0.05);
+            --datepicker-popup-bg: rgba(255,255,255,0.97);
+            --particle-color: rgba(216,182,109,0.12);
+            --thematic-overlay: rgba(243,237,230,0.7);
+            --badge-text: rgba(26,26,46,0.5);
+        }
+        body.dark-mode {
+            --glass-bg: rgba(10, 5, 5, 0.6);
+            --glass-bg-dark: rgba(10, 5, 5, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-border-dark: rgba(255, 255, 255, 0.05);
+            --page-bg: #0f0808;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255,255,255,0.6);
+            --text-muted: rgba(255,255,255,0.35);
+            --text-on-glass: #ffffff;
+            --input-bg: rgba(0,0,0,0.2);
+            --input-border: rgba(255,255,255,0.1);
+            --input-text: #ffffff;
+            --input-placeholder: rgba(255,255,255,0.5);
+            --input-focus-border: rgba(255,255,255,0.3);
+            --input-focus-bg: rgba(255,255,255,0.1);
+            --sidebar-bg: rgba(10, 5, 5, 0.95);
+            --sidebar-text: #f8f5f0;
+            --topbar-bg: rgba(10, 5, 5, 0.3);
+            --topbar-border: rgba(255,255,255,0.1);
+            --table-row-border: rgba(255,255,255,0.07);
+            --table-text: #ffffff;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            --card-hover-shadow: 0 12px 40px rgba(0,0,0,0.35);
+            --dropdown-bg: rgba(20,10,10,0.98);
+            --dropdown-text: #ffffff;
+            --dropdown-item-hover: rgba(255,255,255,0.1);
+            --datepicker-popup-bg: rgba(20,10,10,0.98);
+            --particle-color: rgba(216,182,109,0.15);
+            --thematic-overlay: rgba(15,8,8,0.7);
+            --badge-text: rgba(255,255,255,0.4);
+        }
+        html {
+            -webkit-font-smoothing: antialiased;
+            text-rendering: geometricPrecision;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--page-bg);
+        }
+        body {
+            background-color: var(--page-bg) !important;
+            margin: 0;
+            overflow-x: hidden;
+            color: var(--text-primary);
+        }
+        /* Traditional Background Layer */
+        .thematic-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background-image: url("{% static 'core/img/traditional_bg.png' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.35; /* Reduced opacity to compete less with content */
+            pointer-events: none;
+            filter: blur(12px); /* Added Gaussian blur for better focus on data */
+            transform: scale(1.05); /* Slight scale to prevent blurred edges */
+        }
+        .thematic-bg::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, var(--thematic-overlay) 0%, var(--thematic-overlay) 100%);
+        }
+        
+        /* Subtle Particles Animation */
+        @keyframes floatParticles {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+        }
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .particle {
+            position: absolute;
+            background: var(--particle-color);
+            border-radius: 50%;
+            animation: floatParticles 15s linear infinite;
+        }
+
+        .ethnic-pattern {
+            background-color: transparent;
+            background-image: url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M36 8l2 6 6 2-6 2-2 6-2-6-6-2 6-2 2-6z' fill='%23d8b66d' fill-opacity='0.05'/%3E%3C/svg%3E")
+        }
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+            border-radius: 16px;
+        }
+        .premium-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+            border-radius: 16px !important;
+        }
+        .app-sidebar {
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            backdrop-filter: blur(var(--glass-blur));
+            border-right: 1px solid var(--glass-border-dark);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+        }
+        .app-brand {
+            font-family: "Outfit", "Syne", sans-serif;
+            letter-spacing: -0.045em;
+        }
+        .app-nav-link {
+            color: rgba(245,245,234,0.78);
+            border: 1px solid transparent;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Subtle shadow for better contrast */
+        }
+        .app-nav-link .material-symbols-outlined {
+            width: 24px; /* Fixed width for strict vertical alignment */
+            display: flex;
+            justify-content: center;
+        }
+        .app-nav-link:hover {
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .app-nav-link.is-active {
+            color: #fff;
+            background: rgba(255,255,255,0.075);
+        }
+        .app-nav-link.is-active::before {
+            content: "";
+            width: 3px;
+            height: 28px;
+            border-radius: 99px;
+            background: var(--accent);
+            position: absolute;
+            left: -16px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .app-topbar {
+            background: var(--topbar-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border-bottom: 1px solid var(--topbar-border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .app-shell h2 {
+            letter-spacing: -0.045em;
+            line-height: 1.04;
+            color: var(--text-primary);
+        }
+        .app-shell h3,
+        .app-shell .font-serif {
+            letter-spacing: -0.025em;
+            color: var(--text-primary);
+        }
+        .app-shell .bg-white {
+            background: var(--glass-bg) !important;
+            backdrop-filter: blur(var(--glass-blur)) !important;
+            border: 1px solid var(--glass-border) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+        }
+        .app-shell .rounded-xl {
+            border-radius: 16px !important;
+        }
+        .app-shell table thead tr,
+        .app-shell .bg-secondary.text-white {
+            background: #7a1f18 !important;
+            color: #ffffff !important;
+        }
+        .app-shell table th {
+            font-family: "Outfit", sans-serif !important;
+            letter-spacing: 0 !important;
+            text-transform: none !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+        }
+        .app-shell table td {
+            border-color: var(--table-row-border) !important;
+            color: var(--table-text) !important;
+        }
+        .app-shell input,
+        .app-shell select,
+        .app-shell textarea {
+            border: 1px solid var(--input-border) !important;
+            border-radius: 12px !important;
+            background-color: var(--input-bg) !important;
+            color: var(--input-text) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            transition: all 0.2s ease !important;
+            box-shadow: none !important;
+        }
+        .app-shell input::placeholder {
+            color: var(--input-placeholder) !important;
+        }
+        .app-shell input:focus,
+        .app-shell select:focus,
+        .app-shell textarea:focus {
+            border-color: var(--input-focus-border) !important;
+            background-color: var(--input-focus-bg) !important;
+            box-shadow: 0 0 0 4px rgba(122,31,24,0.06) !important;
+        }
+        .app-shell button,
+        .app-shell a {
+            transition: background-color .16s ease, color .16s ease, border-color .16s ease, transform .16s ease;
+        }
+        .app-shell a.bg-secondary,
+        .app-shell button.bg-secondary {
+            background: #7a1f18 !important;
+            color: #fff !important;
+            box-shadow: 0 4px 12px rgba(122, 31, 24, 0.2) !important;
+        }
+        .app-shell a.bg-secondary:hover,
+        .app-shell button.bg-secondary:hover {
+            background: #2b2b25 !important;
+        }
+        .app-shell .text-secondary {
+            color: #d8b66d !important;
+        }
+        .app-shell .text-on-surface,
+        .app-shell .text-slate-800,
+        .app-shell .text-slate-900 {
+            color: var(--text-primary) !important;
+        }
+        .app-shell .text-slate-400,
+        .app-shell .text-slate-500,
+        .app-shell .text-slate-600 {
+            color: var(--text-secondary) !important;
+        }
+        .metric-line {
+            stroke: var(--accent-dark);
+            stroke-width: 2;
+            fill: none;
+        }
+        .metric-fill {
+            fill: url(#metricGradient);
+        }
+
+        /* SRDC Premium Dropdown (Inspired by Gooey Effect) */
+        .srdc-dropdown {
+            position: relative;
+            width: 100%;
+            z-index: 50;
+        }
+
+        .srdc-dropdown__face,
+        .srdc-dropdown__items {
+            background-color: var(--dropdown-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .srdc-dropdown__face {
+            display: flex !important;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            height: 42px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .srdc-dropdown__text {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dropdown-text);
+        }
+
+        .srdc-dropdown__arrow {
+            width: 8px;
+            height: 8px;
+            border-bottom: 2px solid var(--accent);
+            border-right: 2px solid var(--accent);
+            transform: rotate(45deg);
+            transition: transform 0.3s ease;
+            margin-right: 4px;
+            margin-top: -4px;
+        }
+
+        .srdc-dropdown__items {
+            margin: 0;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            width: 100%;
+            list-style: none;
+            padding: 8px 8px 8px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            visibility: hidden;
+            opacity: 0;
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.93, 0.88, 0.1, 0.8);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            max-height: 250px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+        }
+
+        /* Custom Scrollbar for Dropdowns */
+        .srdc-dropdown__items::-webkit-scrollbar {
+            width: 4px;
+        }
+        .srdc-dropdown__items::-webkit-scrollbar-thumb {
+            background-color: var(--accent);
+            border-radius: 10px;
+        }
+
+        .srdc-dropdown__item {
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+            color: var(--dropdown-text);
+        }
+        .srdc-dropdown__item:hover {
+            background-color: var(--dropdown-item-hover);
+            color: var(--dropdown-text);
+        }
+
+        .srdc-dropdown input[type="checkbox"] {
+            display: none !important;
+        }
+
+        .srdc-dropdown input[type="checkbox"]:checked ~ .srdc-dropdown__items {
+            top: calc(100% + 8px);
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .srdc-dropdown input[type="checkbox"]:checked ~ .srdc-dropdown__face .srdc-dropdown__arrow {
+            transform: rotate(-135deg);
+            margin-top: 4px;
+        }
+
+        svg#srdc-goo-svg {
+            display: none;
+        }
+
+        /* --- Premium Date Picker --- */
+        .srdc-datepicker {
+            position: relative;
+            width: 100%;
+            z-index: 40;
+        }
+        .srdc-datepicker__face {
+            background-color: var(--input-bg);
+            backdrop-filter: blur(12px);
+            padding: 0 16px; /* Increased horizontal padding for text breathing room */
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Adjusted gap */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: #ffffff;
+            height: 42px;
+        }
+        .srdc-datepicker__face:focus-within {
+            border-color: #7a1f18;
+            box-shadow: 0 0 0 3px rgba(122, 31, 24, 0.1);
+        }
+        .srdc-datepicker__face:hover {
+            border-color: #7a1f18;
+        }
+        .srdc-datepicker__text {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            flex: 1 !important;
+            width: auto !important;
+            min-width: 0 !important; /* Prevent overflow */
+            font-size: 14px !important;
+            color: #fff !important;
+            font-weight: 500 !important;
+            outline: none !important;
+            box-shadow: none !important;
+            cursor: text;
+        }
+        .srdc-datepicker__text.placeholder {
+            color: rgba(255,255,255,0.5);
+            opacity: 0.6;
+        }
+        .srdc-datepicker__popup {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background-color: var(--datepicker-popup-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            width: 320px;
+            z-index: 60;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(0.98);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+        .srdc-datepicker__popup.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+        @keyframes datepickerSlide {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .srdc-calendar__header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .srdc-calendar__header-info h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+            color: white; /* Ensure visibility */
+        }
+        .srdc-calendar__header-info h3 {
+            font-size: 10px; /* Reduced font size */
+            font-weight: 500;
+            opacity: 0.7;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: white;
+        }
+        .srdc-calendar__nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.1);
+        }
+        .srdc-calendar__nav button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        .srdc-calendar__nav button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .srdc-calendar__nav-title {
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: white;
+        }
+        .srdc-calendar__body {
+            padding: 12px;
+        }
+        .srdc-calendar__days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 8px;
+        }
+        .srdc-calendar__day-name {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 800;
+            color: #ffffff;
+            opacity: 0.4;
+            padding-bottom: 4px;
+        }
+        .srdc-calendar__numbers {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        .srdc-calendar__number {
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .srdc-calendar__number:hover:not(.empty) {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        .srdc-calendar__number.current {
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #1a1a1a !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .srdc-calendar__number.range-start,
+        .srdc-calendar__number.range-end {
+            background: var(--secondary) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 10px rgba(122, 31, 24, 0.25);
+        }
+        .srdc-calendar__number.in-range {
+            background: rgba(216, 182, 109, 0.18);
+            color: #ffffff;
+            border-radius: 4px;
+        }
+        .srdc-calendar__number.today {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .srdc-calendar__number.empty {
+            cursor: default;
+        }
+
+        /* Selection Grid for Far Years/Months */
+        .srdc-calendar__selection {
+            position: absolute;
+            top: 76px; /* Below header */
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            display: none;
+            padding: 12px;
+            grid-template-rows: auto 1fr;
+            gap: 12px;
+        }
+        .srdc-calendar__selection.show {
+            display: grid;
+        }
+        .srdc-selection__grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+        }
+        .srdc-selection__item {
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .srdc-selection__item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        .srdc-selection__item.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1a1a1a;
+        }
+        .srdc-year-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 8px;
+            background: var(--canvas);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .srdc-year-selector button {
+            color: var(--ink);
+            padding: 2px;
+        }
+        .srdc-datepicker__text.placeholder {
+            color: var(--ink-muted);
+            opacity: 0.6;
+        }
+
+        /* --- Premium Animated Buttons --- */
+        /* --- Premium Standardized Buttons --- */
+        .btn-premium {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 24px;
+            background-color: var(--secondary);
+            color: #ffffff !important;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.02em;
+            text-decoration: none;
+            border: 1px solid var(--secondary-dark);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(122, 31, 24, 0.15);
+        }
+
+        .btn-premium:hover {
+            background-color: #8c2a22; /* Slightly lighter maroon */
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(122, 31, 24, 0.2), 0 4px 6px -2px rgba(122, 31, 24, 0.1);
+        }
+
+        .btn-premium:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-premium__label {
+            position: relative;
+            z-index: 2;
+            color: inherit;
+        }
+
+        /* Gold Variant */
+        .btn-premium--gold {
+            background-color: #d8b66d;
+            color: #410000;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-premium--gold:hover {
+            background-color: #e2c484;
+            box-shadow: 0 10px 15px -3px rgba(216, 182, 109, 0.25);
+        }
+
+        /* Small and Full width helpers */
+        .btn-premium--small {
+            padding: 6px 16px;
+            font-size: 13px;
+        }
+        
+        .btn-premium--full {
+            width: 100%;
+        }
+
+        /* Hide the old SVG elements if they remain in templates */
+        .btn-premium__circle, 
+        .btn-premium__border {
+            display: none !important;
+        }
+
+        .btn-premium--small {
+            width: 140px;
+        }
+        
+        .btn-premium--full {
+            width: 100%;
+        }
+
+    /* --- Tailwind Utility Overrides for Light Mode --- */
+    body:not(.dark-mode) .text-white { color: var(--text-primary) !important; }
+    body:not(.dark-mode) .text-white\/20 { color: var(--text-muted) !important; }
+    body:not(.dark-mode) .text-white\/30 { color: var(--text-muted) !important; }
+    body:not(.dark-mode) .text-white\/40 { color: var(--text-muted) !important; }
+    body:not(.dark-mode) .text-white\/50 { color: var(--text-secondary) !important; }
+    body:not(.dark-mode) .text-white\/60 { color: var(--text-secondary) !important; }
+    body:not(.dark-mode) .text-white\/80 { color: var(--text-primary) !important; }
+    
+    body:not(.dark-mode) .bg-white\/5 { background-color: var(--glass-bg) !important; }
+    body:not(.dark-mode) .bg-white\/10 { background-color: rgba(0, 0, 0, 0.08) !important; }
+    body:not(.dark-mode) .bg-white\/20 { background-color: rgba(0, 0, 0, 0.12) !important; }
+    body:not(.dark-mode) .bg-black\/20 { background-color: rgba(0, 0, 0, 0.03) !important; }
+    body:not(.dark-mode) .bg-white\/\[0\.03\] { background-color: rgba(0, 0, 0, 0.02) !important; }
+    body:not(.dark-mode) .bg-white\/\[0\.02\] { background-color: rgba(0, 0, 0, 0.01) !important; }
+    
+    body:not(.dark-mode) .border-white\/5 { border-color: var(--glass-border) !important; }
+    body:not(.dark-mode) .border-white\/10 { border-color: var(--glass-border) !important; }
+    body:not(.dark-mode) .border-white\/20 { border-color: rgba(0, 0, 0, 0.15) !important; }
+    
+    body:not(.dark-mode) .glass-panel {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--card-shadow);
+    }
+
+    body:not(.dark-mode) .srdc-dropdown__items {
+        background: #fff !important;
+        border: 1px solid rgba(0,0,0,0.1) !important;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
+    }
+    body:not(.dark-mode) .srdc-dropdown__item {
+        color: #1a1a2e !important;
+    }
+    body:not(.dark-mode) .srdc-dropdown__item:hover {
+        background: rgba(0,0,0,0.05) !important;
+    }
+
+    body:not(.dark-mode) .srdc-calendar {
+        background: #fff !important;
+        color: #1a1a2e !important;
+    }
+    body:not(.dark-mode) .srdc-calendar__day-name { color: rgba(0,0,0,0.4) !important; }
+    body:not(.dark-mode) .srdc-calendar__day:not(.srdc-calendar__day--disabled) { color: #1a1a2e !important; }
+    body:not(.dark-mode) .srdc-calendar__day--today { background: rgba(0,0,0,0.05) !important; }
+    body:not(.dark-mode) .srdc-calendar__nav button { color: #1a1a2e !important; }
+    body:not(.dark-mode) .srdc-calendar__header { background: var(--secondary) !important; }
+    body:not(.dark-mode) .srdc-calendar__header h3 { color: rgba(255,255,255,0.7) !important; }
+    body:not(.dark-mode) .srdc-calendar__header h2 { color: #fff !important; }
+
+    /* --- Tailwind Status Color Overrides for Light Mode --- */
+    body:not(.dark-mode) .text-emerald-400 { color: #059669 !important; }
+    body:not(.dark-mode) .bg-emerald-500\/20 { background-color: rgba(16, 185, 129, 0.15) !important; }
+    body:not(.dark-mode) .border-emerald-500\/30 { border-color: rgba(16, 185, 129, 0.25) !important; }
+
+    body:not(.dark-mode) .text-blue-400 { color: #2563eb !important; }
+    body:not(.dark-mode) .bg-blue-500\/20 { background-color: rgba(59, 130, 246, 0.15) !important; }
+    body:not(.dark-mode) .border-blue-500\/30 { border-color: rgba(59, 130, 246, 0.25) !important; }
+
+    body:not(.dark-mode) .text-orange-400 { color: #ea580c !important; }
+    body:not(.dark-mode) .bg-orange-500\/20 { background-color: rgba(249, 115, 22, 0.15) !important; }
+    body:not(.dark-mode) .border-orange-500\/30 { border-color: rgba(249, 115, 22, 0.25) !important; }
+
+    body:not(.dark-mode) .text-amber-400 { color: #d97706 !important; }
+    body:not(.dark-mode) .bg-amber-500\/20 { background-color: rgba(245, 158, 11, 0.15) !important; }
+    body:not(.dark-mode) .border-amber-500\/30 { border-color: rgba(245, 158, 11, 0.25) !important; }
+
+    body:not(.dark-mode) .text-indigo-400 { color: #4f46e5 !important; }
+    body:not(.dark-mode) .bg-indigo-500\/20 { background-color: rgba(99, 102, 241, 0.15) !important; }
+    body:not(.dark-mode) .border-indigo-500\/30 { border-color: rgba(99, 102, 241, 0.25) !important; }
+
+    body:not(.dark-mode) .text-rose-400 { color: #e11d48 !important; }
+    body:not(.dark-mode) .bg-rose-500\/20 { background-color: rgba(244, 63, 94, 0.15) !important; }
+    body:not(.dark-mode) .border-rose-500\/30 { border-color: rgba(244, 63, 94, 0.25) !important; }
+
+    body:not(.dark-mode) .text-red-400 { color: #dc2626 !important; }
+    body:not(.dark-mode) .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.1) !important; }
+    body:not(.dark-mode) .border-red-500\/20 { border-color: rgba(239, 68, 68, 0.2) !important; }
+
+        /* ═══ LIGHT MODE OVERRIDES ═══ */
+        body:not(.dark-mode) .app-shell .text-white { color: var(--text-primary) !important; }
+        body:not(.dark-mode) .app-shell .text-white\/80 { color: rgba(26,26,46,0.8) !important; }
+        body:not(.dark-mode) .app-shell .text-white\/70 { color: rgba(26,26,46,0.7) !important; }
+        body:not(.dark-mode) .app-shell .text-white\/60 { color: var(--text-secondary) !important; }
+        body:not(.dark-mode) .app-shell .text-white\/50 { color: rgba(26,26,46,0.5) !important; }
+        body:not(.dark-mode) .app-shell .text-white\/40 { color: var(--text-muted) !important; }
+        body:not(.dark-mode) .app-shell .text-white\/30 { color: rgba(26,26,46,0.3) !important; }
+        body:not(.dark-mode) .app-shell .text-white\/20 { color: rgba(26,26,46,0.2) !important; }
+        body:not(.dark-mode) .app-shell .bg-white\/5 { background-color: rgba(0,0,0,0.03) !important; }
+        body:not(.dark-mode) .app-shell .bg-white\/10 { background-color: rgba(0,0,0,0.05) !important; }
+        body:not(.dark-mode) .app-shell .bg-white\/15 { background-color: rgba(0,0,0,0.06) !important; }
+        body:not(.dark-mode) .app-shell .bg-white\/20 { background-color: rgba(0,0,0,0.07) !important; }
+        body:not(.dark-mode) .app-shell .bg-black\/40 { background-color: rgba(0,0,0,0.04) !important; }
+        body:not(.dark-mode) .app-shell .bg-black\/50 { background-color: rgba(0,0,0,0.06) !important; }
+        body:not(.dark-mode) .app-shell .border-white\/5 { border-color: rgba(0,0,0,0.04) !important; }
+        body:not(.dark-mode) .app-shell .border-white\/10 { border-color: rgba(0,0,0,0.08) !important; }
+        body:not(.dark-mode) .app-shell .border-white\/25 { border-color: rgba(0,0,0,0.12) !important; }
+        body:not(.dark-mode) .app-shell .divide-white\/5 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(0,0,0,0.05) !important; }
+        body:not(.dark-mode) .app-shell .placeholder\:text-white\/40::placeholder { color: rgba(26,26,46,0.4) !important; }
+        body:not(.dark-mode) .app-shell .placeholder\:text-white\/20::placeholder { color: rgba(26,26,46,0.2) !important; }
+        body:not(.dark-mode) .app-shell .hover\:bg-white\/5:hover { background-color: rgba(0,0,0,0.04) !important; }
+        body:not(.dark-mode) .app-shell .hover\:bg-white\/10:hover { background-color: rgba(0,0,0,0.06) !important; }
+        body:not(.dark-mode) .app-shell .hover\:text-white:hover { color: var(--text-primary) !important; }
+        body:not(.dark-mode) .app-shell .hover\:text-white\/80:hover { color: rgba(26,26,46,0.8) !important; }
+        body:not(.dark-mode) .app-shell .focus\:bg-white\/20:focus { background-color: rgba(0,0,0,0.07) !important; }
+        body:not(.dark-mode) .app-shell .focus\:border-white\/40:focus { border-color: rgba(0,0,0,0.15) !important; }
+        /* Calendar colors in light mode */
+        body:not(.dark-mode) .srdc-calendar__number { color: var(--text-primary); }
+        body:not(.dark-mode) .srdc-calendar__day-name { color: var(--text-primary); }
+        body:not(.dark-mode) .srdc-calendar__nav-title { color: var(--text-primary); }
+        body:not(.dark-mode) .srdc-calendar__nav button { color: var(--text-primary); }
+        body:not(.dark-mode) .srdc-calendar__header-info h2 { color: var(--text-primary) !important; }
+        body:not(.dark-mode) .srdc-calendar__header-info h3 { color: var(--text-secondary) !important; }
+        body:not(.dark-mode) .srdc-calendar__header { background: rgba(0,0,0,0.03); }
+        body:not(.dark-mode) .srdc-calendar__nav { background: rgba(0,0,0,0.02); }
+        body:not(.dark-mode) .srdc-calendar__number.today { border-color: rgba(0,0,0,0.15); background: rgba(0,0,0,0.04); }
+        body:not(.dark-mode) .srdc-calendar__number:hover:not(.empty) { background: rgba(0,0,0,0.06); }
+        body:not(.dark-mode) .srdc-calendar__selection { background: rgba(255,255,255,0.9); }
+        body:not(.dark-mode) .srdc-selection__item { color: var(--text-primary); }
+        body:not(.dark-mode) .srdc-selection__item:hover { background: rgba(0,0,0,0.06); }
+        body:not(.dark-mode) .srdc-datepicker__text { color: var(--text-primary) !important; }
+        body:not(.dark-mode) .srdc-datepicker__face { color: var(--text-primary); }
+        /* Nav link colors stay light in sidebar (sidebar is always dark) */
+        body:not(.dark-mode) .app-nav-link { color: rgba(245,245,234,0.78); }
+        body:not(.dark-mode) .app-nav-link:hover { color: #fff; }
+        /* Topbar search icon */
+        body:not(.dark-mode) .app-topbar .material-symbols-outlined { color: var(--text-muted); }
+        body:not(.dark-mode) #sidebarOpen .material-symbols-outlined { color: #fff !important; }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            width: 40px; height: 40px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: 1px solid var(--glass-border);
+            background: var(--glass-bg); color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        .theme-toggle:hover { transform: scale(1.08); }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#c9c3bb",
+                      "surface-container-high": "#ede8df",
+                      "inverse-primary": "#d8b66d",
+                      "on-secondary-fixed-variant": "#5f1712",
+                      "on-tertiary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-container-highest": "#e5ddd2",
+                      "outline-variant": "#d7c8b4",
+                      "inverse-on-surface": "#f2f0f0",
+                      "surface-container-low": "#f2eee7",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed": "#ead8d1",
+                      "on-surface": "#171717",
+                      "on-secondary-fixed": "#410000",
+                      "secondary-fixed-dim": "#d8a59a",
+                      "on-primary-fixed": "#2e1500",
+                      "on-error": "#ffffff",
+                      "surface-container": "#eee8df",
+                      "primary-fixed": "#efe0c6",
+                      "outline": "#897968",
+                      "primary-fixed-dim": "#d8b66d",
+                      "on-background": "#171717",
+                      "on-tertiary-fixed-variant": "#474745",
+                      "tertiary": "#56514a",
+                      "surface-bright": "#fffdfa",
+                      "inverse-surface": "#262321",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-container": "#4c3412",
+                      "on-tertiary-container": "#3f3a34",
+                      "on-tertiary-fixed": "#1b1c1a",
+                      "secondary-container": "#b64a3c",
+                      "secondary": "#7a1f18",
+                      "primary-container": "#d8b66d",
+                      "on-primary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed-variant": "#604418",
+                      "on-secondary-container": "#4d0905",
+                      "primary": "#8a6428",
+                      "surface": "#fffdfa",
+                      "background": "#f8f5f0",
+                      "surface-tint": "#8a6428",
+                      "tertiary-container": "#c5bfb3",
+                      "surface-variant": "#e9e2d8",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#51483f",
+                      "surface-dim": "#ded7cc",
+                      "tertiary-fixed": "#e6ded3"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "64px",
+                      "lg": "40px",
+                      "xs": "4px",
+                      "base": "8px",
+                      "md": "24px",
+                      "container-max": "1440px",
+                      "gutter": "24px",
+                      "sm": "12px"
+              },
+              "fontFamily": {
+                      "sans": ["Outfit", "Inter", "ui-sans-serif", "system-ui"],
+                      "serif": ["Outfit", "Syne", "ui-sans-serif"],
+                      "h2": ["Outfit", "ui-sans-serif"],
+                      "label-sm": ["Outfit", "ui-sans-serif"],
+                      "h1": ["Outfit", "Syne", "ui-sans-serif"],
+                      "body-lg": ["Outfit", "ui-sans-serif"],
+                      "h3": ["Outfit", "ui-sans-serif"],
+                      "body-md": ["Outfit", "ui-sans-serif"]
+              }
+            },
+          },
+        }
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-transparent font-body-md text-on-background min-h-screen flex">
+    <!-- Traditional Background Layer -->
+    <div class="thematic-bg"></div>
+    
+    <!-- Floating Particles -->
+    <div class="particles" id="particlesContainer"></div>
+    
+    <!-- Sidebar Backdrop for Mobile -->
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
+
+    <!-- SideNavBar -->
+    <aside id="sidebar" class="app-sidebar fixed left-0 top-0 h-full w-72 z-50 flex flex-col pt-7 pb-8 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+        <!-- Luxury Background Watermark -->
+        <div class="absolute inset-0 opacity-[0.15] pointer-events-none overflow-hidden z-0 blur">
+            <img src="{% static 'core/img/traditional_bg.png' %}" 
+                 class="w-full h-full object-cover" alt="">
+        </div>
+
+        <div class="px-8 mb-12 flex items-center gap-3 relative z-10">
+            <div>
+                <h1 class="app-brand text-lg font-bold text-white leading-tight">Shree Ram Dulha Collections</h1>
+            </div>
+        </div>
+        
+        <nav class="flex-1 space-y-2 px-8">
+            <a class="app-nav-link relative flex items-center gap-4 py-3 px-0 rounded-lg {% if request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}" href="{% url 'dashboard' %}">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="text-sm">Home</span>
+            </a>
+            <a class="app-nav-link relative flex items-center gap-4 py-3 px-0 rounded-lg {% if request.resolver_match.url_name == 'customer_list' or request.resolver_match.url_name == 'customer_detail' %}is-active{% endif %}" href="{% url 'customer_list' %}">
+                <span class="material-symbols-outlined">group</span>
+                <span class="text-sm">Customers</span>
+            </a>
+            <a class="app-nav-link relative flex items-center gap-4 py-3 px-0 rounded-lg {% if request.resolver_match.url_name == 'measurement_profile' %}is-active{% endif %} z-10" href="{% url 'measurement_profile' %}">
+                <span class="material-symbols-outlined">straighten</span>
+                <span class="text-sm">Measure</span>
+            </a>
+            <a class="app-nav-link relative flex items-center gap-4 py-3 px-0 rounded-lg {% if request.resolver_match.url_name == 'order_list' or request.resolver_match.url_name == 'order_detail' %}is-active{% endif %}" href="{% url 'order_list' %}">
+                <span class="material-symbols-outlined">receipt_long</span>
+                <span class="text-sm">Orders</span>
+            </a>
+            <a class="app-nav-link relative flex items-center gap-4 py-3 px-0 rounded-lg {% if request.resolver_match.url_name == 'salesperson_dashboard' %}is-active{% endif %}" href="{% url 'salesperson_dashboard' %}">
+                <span class="material-symbols-outlined">badge</span>
+                <span class="text-sm">Salespeople</span>
+            </a>
+        </nav>
+        <div class="px-8 mt-auto pt-8 border-t border-white/10 relative z-10">
+            <div class="flex items-center gap-4 py-6">
+                <div class="w-10 h-10 rounded-full bg-secondary/20 border border-secondary/30 flex items-center justify-center text-secondary font-bold flex-shrink-0">
+                    {% if request.user.first_name %}{{ request.user.first_name.0|upper }}{% else %}{{ request.user.username.0|upper }}{% endif %}
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-0.5">Owner</p>
+                    <p class="text-sm font-bold text-white truncate leading-tight">
+                        {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}
+                    </p>
+                </div>
+                <form action="{% url 'logout' %}" method="post" class="ml-auto">
+                    {% csrf_token %}
+                    <button type="submit" class="group flex items-center justify-center w-9 h-9 rounded-full bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5" title="Logout">
+                        <span class="material-symbols-outlined text-[18px]">logout</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Canvas -->
+    <main class="flex-1 flex flex-col min-h-screen app-shell lg:ml-72 w-full">
+        <!-- TopNavBar -->
+        <header class="app-topbar flex justify-between items-center w-full px-4 lg:px-8 h-16 sticky top-0 z-40">
+            <div class="flex items-center gap-2 lg:gap-4">
+                <button id="sidebarOpen" class="lg:hidden p-2 text-white bg-primary rounded-lg flex items-center justify-center mr-2 shadow-lg">
+                    <span class="material-symbols-outlined text-[20px]">menu</span>
+                </button>
+                {% if request.resolver_match.url_name != 'customer_list' and request.resolver_match.url_name != 'measurement_profile' and request.resolver_match.url_name != 'order_create' %}
+                <form class="relative hidden sm:block flex items-center" method="GET" action="{% url 'global_search' %}">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-[20px]">search</span>
+                    <input name="q" class="h-10 pl-10 pr-4 bg-white/15 border border-white/25 rounded-xl text-sm w-40 md:w-80 focus:bg-white/20 focus:border-white/40 transition-all placeholder:text-white/40 text-white outline-none flex items-center" placeholder="Search customers, orders..." type="search"/>
+                </form>
+                {% endif %}
+            </div>
+            <div class="flex items-center gap-3 lg:gap-6">
+                <button id="themeToggle" class="theme-toggle" title="Toggle Light/Dark Mode">
+                    <span class="material-symbols-outlined text-[20px]" id="themeIcon">dark_mode</span>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Content Area -->
+        <div class="flex-1 relative">
+            {% if messages %}
+            <div class="px-4 lg:px-8 pt-6 space-y-2 relative z-50">
+                {% for message in messages %}
+                <div class="max-w-[1440px] mx-auto rounded-lg border px-4 py-3 text-sm font-semibold backdrop-blur-md {% if message.tags == 'error' %}bg-red-500/20 text-red-100 border-red-500/50{% elif message.tags == 'success' %}bg-green-500/20 text-green-100 border-green-500/50{% else %}bg-blue-500/20 text-blue-100 border-blue-500/50{% endif %} shadow-xl">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% block content %}
+            {% endblock %}
+            
+        </div>
+    </main>
+
+    <svg id="srdc-goo-svg">
+        <filter id="srdc-goo">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+          <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+          <feBlend in="SourceGraphic" in2="goo" />
+        </filter>
+    </svg>
+
+    <script>
+        function initCustomDropdowns() {
+            document.querySelectorAll('.srdc-dropdown').forEach(dropdown => {
+                const face = dropdown.querySelector('.srdc-dropdown__face');
+                const checkbox = dropdown.querySelector('input[type="checkbox"]');
+                const items = dropdown.querySelectorAll('.srdc-dropdown__item');
+                const faceText = dropdown.querySelector('.srdc-dropdown__text');
+                const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+
+                if (face) {
+                    face.addEventListener('click', (e) => {
+                        e.preventDefault(); // Prevent native label behavior
+                        e.stopPropagation(); // Prevent global close
+                        
+                        const isChecking = !checkbox.checked;
+                        
+                        if (isChecking) {
+                            // Exclusive open: close all others
+                            document.querySelectorAll('.srdc-dropdown input[type="checkbox"]').forEach(cb => {
+                                if (cb !== checkbox) cb.checked = false;
+                            });
+                            document.querySelectorAll('.srdc-datepicker__popup').forEach(p => p.classList.remove('show'));
+                        }
+                        
+                        checkbox.checked = isChecking;
+                    });
+                }
+
+                items.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const value = item.getAttribute('data-value');
+                        const text = item.textContent.trim();
+                        
+                        if (hiddenInput) {
+                            hiddenInput.value = value;
+                            // Propagate other data attributes for dependent logic
+                            Array.from(item.attributes).forEach(attr => {
+                                if (attr.name.startsWith('data-') && attr.name !== 'data-value') {
+                                    hiddenInput.setAttribute(attr.name, attr.value);
+                                }
+                            });
+                        }
+                        if (faceText) faceText.textContent = text;
+                        
+                        if (checkbox) checkbox.checked = false;
+                        
+                        items.forEach(i => i.classList.remove('bg-secondary/10', 'font-bold'));
+                        item.classList.add('bg-secondary/10', 'font-bold');
+
+                        if (hiddenInput) {
+                            hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    });
+                });
+
+                if (hiddenInput && hiddenInput.value) {
+                    const activeItem = Array.from(items).find(i => i.getAttribute('data-value') === hiddenInput.value);
+                    if (activeItem) {
+                        activeItem.classList.add('bg-secondary/10', 'font-bold');
+                        if (faceText) faceText.textContent = activeItem.textContent.trim();
+                    }
+                }
+            });
+        }
+
+        function initCustomDatePickers() {
+            const pickers = document.querySelectorAll('.srdc-datepicker');
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const fullMonthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const today = new Date();
+
+            const parseISODate = (value) => {
+                if (!value) return null;
+                const parts = value.split('-').map(Number);
+                if (parts.length !== 3 || parts.some(isNaN)) return null;
+                const parsed = new Date(parts[0], parts[1] - 1, parts[2]);
+                return parsed.getFullYear() === parts[0] && parsed.getMonth() === parts[1] - 1 && parsed.getDate() === parts[2] ? parsed : null;
+            };
+
+            const toISODate = (date) => {
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            };
+
+            const toDisplayDate = (date) => {
+                const d = String(date.getDate()).padStart(2, '0');
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                return `${d}/${m}/${date.getFullYear()}`;
+            };
+
+            pickers.forEach(picker => {
+                const face = picker.querySelector('.srdc-datepicker__face');
+                const popup = picker.querySelector('.srdc-datepicker__popup');
+                const isRange = picker.dataset.range === 'true';
+                const hiddenInput = picker.querySelector('input[type="hidden"]:not([data-range-start]):not([data-range-end])');
+                const rangeStartInput = picker.querySelector('[data-range-start]');
+                const rangeEndInput = picker.querySelector('[data-range-end]');
+                const textDisplay = picker.querySelector('.srdc-datepicker__text');
+                
+                let displayedMonth = new Date().getMonth();
+                let displayedYear = new Date().getFullYear();
+                let selectedDate = hiddenInput && hiddenInput.value ? parseISODate(hiddenInput.value) : null;
+                let rangeStart = isRange && rangeStartInput ? parseISODate(rangeStartInput.value) : null;
+                let rangeEnd = isRange && rangeEndInput ? parseISODate(rangeEndInput.value) : null;
+                let rangeStep = rangeStart && !rangeEnd ? 'end' : 'start';
+
+                if (isRange) {
+                    const firstVisibleDate = rangeStart || rangeEnd;
+                    if (firstVisibleDate) {
+                        displayedMonth = firstVisibleDate.getMonth();
+                        displayedYear = firstVisibleDate.getFullYear();
+                    }
+                    updateRangeDisplay();
+                } else if (selectedDate) {
+                    displayedMonth = selectedDate.getMonth();
+                    displayedYear = selectedDate.getFullYear();
+                    if (textDisplay) {
+                        const dateStr = toDisplayDate(selectedDate);
+                        if (textDisplay.tagName === 'INPUT') textDisplay.value = dateStr;
+                        else textDisplay.textContent = dateStr;
+                        textDisplay.classList.remove('placeholder');
+                    }
+                } else if (textDisplay) {
+                    textDisplay.classList.add('placeholder');
+                    if (textDisplay.tagName === 'INPUT') textDisplay.value = '';
+                    else textDisplay.textContent = 'mm/dd/yyyy';
+                }
+
+                if (!isRange && textDisplay && textDisplay.tagName === 'INPUT') {
+                    textDisplay.addEventListener('input', (e) => {
+                        let val = e.target.value;
+
+                        if (!val.trim()) {
+                            selectedDate = null;
+                            hiddenInput.value = '';
+                            renderCalendar();
+                            hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                            return;
+                        }
+                        
+                        // Auto-slash logic
+                        if (val.length === 2 && !val.includes('/') && e.inputType !== 'deleteContentBackward') {
+                            e.target.value = val + '/';
+                        } else if (val.length === 5 && val.split('/').length === 2 && e.inputType !== 'deleteContentBackward') {
+                            e.target.value = val + '/';
+                        }
+                        
+                        val = e.target.value;
+                        const parts = val.split('/');
+                        if (parts.length === 3) {
+                            const d = parseInt(parts[0]);
+                            const m = parseInt(parts[1]) - 1;
+                            const y = parseInt(parts[2]);
+                            if (!isNaN(d) && !isNaN(m) && !isNaN(y) && y > 1900 && y < 2100) {
+                                const newDate = new Date(y, m, d);
+                                if (!isNaN(newDate.getTime()) && newDate.getDate() === d && newDate.getMonth() === m) {
+                                    selectedDate = newDate;
+                                    displayedMonth = m;
+                                    displayedYear = y;
+                                    hiddenInput.value = toISODate(selectedDate);
+                                    renderCalendar();
+                                    hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                }
+                            }
+                        }
+                    });
+                    textDisplay.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Open popup on click if closed
+                        if (!popup.classList.contains('show')) {
+                            // Close others
+                            document.querySelectorAll('.srdc-datepicker__popup').forEach(p => p.classList.remove('show'));
+                            popup.classList.add('show');
+                            renderCalendar();
+                        }
+                    });
+                }
+
+                // Selection Overlay
+                let selectionOverlay = popup.querySelector('.srdc-calendar__selection');
+                if (!selectionOverlay) {
+                    selectionOverlay = document.createElement('div');
+                    selectionOverlay.className = 'srdc-calendar__selection';
+                    selectionOverlay.innerHTML = `
+                        <div class="srdc-year-selector">
+                            <button type="button" class="prev-year"><span class="material-symbols-outlined">chevron_left</span></button>
+                            <span class="font-bold text-sm current-year-display"></span>
+                            <button type="button" class="next-year"><span class="material-symbols-outlined">chevron_right</span></button>
+                        </div>
+                        <div class="srdc-selection__grid"></div>
+                    `;
+                    popup.appendChild(selectionOverlay);
+
+                    const grid = selectionOverlay.querySelector('.srdc-selection__grid');
+                    monthNames.forEach((m, i) => {
+                        const item = document.createElement('div');
+                        item.className = 'srdc-selection__item';
+                        item.textContent = m;
+                        item.dataset.month = i;
+                        item.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            displayedMonth = i;
+                            selectionOverlay.classList.remove('show');
+                            renderCalendar();
+                        });
+                        grid.appendChild(item);
+                    });
+
+                    selectionOverlay.querySelector('.prev-year').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        displayedYear--;
+                        updateSelectionUI();
+                    });
+                    selectionOverlay.querySelector('.next-year').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        displayedYear++;
+                        updateSelectionUI();
+                    });
+                }
+
+                face.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isShowing = popup.classList.contains('show');
+                    
+                    // Close everything else
+                    document.querySelectorAll('.srdc-dropdown input[type="checkbox"]').forEach(cb => cb.checked = false);
+                    document.querySelectorAll('.srdc-datepicker__popup').forEach(p => {
+                        if (p !== popup) p.classList.remove('show');
+                    });
+
+                    if (!isShowing) {
+                        popup.classList.add('show');
+                        selectionOverlay.classList.remove('show');
+                        renderCalendar();
+                    } else {
+                        popup.classList.remove('show');
+                    }
+                });
+
+                popup.addEventListener('click', (e) => e.stopPropagation());
+
+                const navTitle = popup.querySelector('.srdc-calendar__nav-title');
+                if (navTitle) {
+                    navTitle.style.cursor = 'pointer';
+                    navTitle.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selectionOverlay.classList.toggle('show');
+                        updateSelectionUI();
+                    });
+                }
+
+                function updateSelectionUI() {
+                    const yearDisplay = selectionOverlay.querySelector('.current-year-display');
+                    if (yearDisplay) yearDisplay.textContent = displayedYear;
+                    selectionOverlay.querySelectorAll('.srdc-selection__item').forEach(item => {
+                        item.classList.remove('active');
+                        if (parseInt(item.dataset.month) === displayedMonth) item.classList.add('active');
+                    });
+                }
+
+                function renderCalendar() {
+                    const numbersGrid = popup.querySelector('.srdc-calendar__numbers');
+                    const navTitle = popup.querySelector('.srdc-calendar__nav-title');
+                    const headerDay = popup.querySelector('.srdc-calendar__header-info h2');
+                    const headerMonth = popup.querySelector('.srdc-calendar__header-info h3');
+                    
+                    if (navTitle) navTitle.textContent = `${fullMonthNames[displayedMonth]} ${displayedYear}`;
+                    
+                    if (isRange) {
+                        if (headerDay) headerDay.textContent = rangeStep === 'end' ? "Select end date" : "Select start date";
+                        if (headerMonth) headerMonth.textContent = rangeStart && !rangeEnd ? `From ${toDisplayDate(rangeStart)}` : "---";
+                    } else if (selectedDate) {
+                        if (headerDay) headerDay.textContent = `${selectedDate.getDate()}, ${dayNames[selectedDate.getDay()]}`;
+                        if (headerMonth) headerMonth.textContent = fullMonthNames[selectedDate.getMonth()];
+                    } else {
+                        if (headerDay) headerDay.textContent = "Select Date";
+                        if (headerMonth) headerMonth.textContent = "---";
+                    }
+
+                    if (numbersGrid) {
+                        numbersGrid.innerHTML = '';
+                        const firstDay = new Date(displayedYear, displayedMonth, 1).getDay();
+                        const daysInMonth = new Date(displayedYear, displayedMonth + 1, 0).getDate();
+                        
+                        for (let i = 0; i < firstDay; i++) {
+                            const empty = document.createElement('div');
+                            empty.className = 'srdc-calendar__number empty';
+                            numbersGrid.appendChild(empty);
+                        }
+                        
+                        for (let d = 1; d <= daysInMonth; d++) {
+                            const num = document.createElement('div');
+                            num.className = 'srdc-calendar__number';
+                            num.textContent = d;
+                            
+                            const currentIterDate = new Date(displayedYear, displayedMonth, d);
+                            if (today.toDateString() === currentIterDate.toDateString()) num.classList.add('today');
+                            if (isRange) {
+                                if (rangeStart && currentIterDate.toDateString() === rangeStart.toDateString()) num.classList.add('range-start');
+                                if (rangeEnd && currentIterDate.toDateString() === rangeEnd.toDateString()) num.classList.add('range-end');
+                                if (rangeStart && rangeEnd && currentIterDate > rangeStart && currentIterDate < rangeEnd) num.classList.add('in-range');
+                            } else if (selectedDate && selectedDate.toDateString() === currentIterDate.toDateString()) {
+                                num.classList.add('current');
+                            }
+                            
+                            num.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                const clickedDate = new Date(displayedYear, displayedMonth, d);
+                                if (isRange) {
+                                    if (rangeStep === 'start' || !rangeStart || rangeEnd) {
+                                        rangeStart = clickedDate;
+                                        rangeEnd = null;
+                                        rangeStep = 'end';
+                                    } else if (clickedDate < rangeStart) {
+                                        rangeEnd = rangeStart;
+                                        rangeStart = clickedDate;
+                                        rangeStep = 'start';
+                                        popup.classList.remove('show');
+                                    } else {
+                                        rangeEnd = clickedDate;
+                                        rangeStep = 'start';
+                                        popup.classList.remove('show');
+                                    }
+                                    updateRangeDisplay();
+                                    if (rangeStartInput) rangeStartInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                    if (rangeEndInput) rangeEndInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                } else {
+                                    selectedDate = clickedDate;
+                                    hiddenInput.value = toISODate(selectedDate);
+                                    if (textDisplay) {
+                                        const dateStr = toDisplayDate(selectedDate);
+                                        if (textDisplay.tagName === 'INPUT') textDisplay.value = dateStr;
+                                        else textDisplay.textContent = dateStr;
+                                        textDisplay.classList.remove('placeholder');
+                                    }
+                                    popup.classList.remove('show');
+                                    hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                }
+                                renderCalendar();
+                            });
+                            numbersGrid.appendChild(num);
+                        }
+                    }
+                }
+
+                function updateRangeDisplay() {
+                    if (!isRange || !textDisplay) return;
+                    if (rangeStartInput) rangeStartInput.value = rangeStart ? toISODate(rangeStart) : '';
+                    if (rangeEndInput) rangeEndInput.value = rangeEnd ? toISODate(rangeEnd) : '';
+
+                    let label = '';
+                    if (rangeStart && rangeEnd) label = `${toDisplayDate(rangeStart)} - ${toDisplayDate(rangeEnd)}`;
+                    else if (rangeStart) label = `${toDisplayDate(rangeStart)} - End date`;
+
+                    if (textDisplay.tagName === 'INPUT') textDisplay.value = label;
+                    else textDisplay.textContent = label || 'Start date - End date';
+                    textDisplay.classList.toggle('placeholder', !label);
+                }
+
+                const prevBtn = picker.querySelector('.prev-month');
+                const nextBtn = picker.querySelector('.next-month');
+                if (prevBtn) prevBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    displayedMonth--;
+                    if (displayedMonth < 0) { displayedMonth = 11; displayedYear--; }
+                    renderCalendar();
+                });
+                if (nextBtn) nextBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    displayedMonth++;
+                    if (displayedMonth > 11) { displayedMonth = 0; displayedYear++; }
+                    renderCalendar();
+                });
+            });
+        }
+
+        // Global click handler to close everything
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.srdc-dropdown input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.srdc-datepicker__popup').forEach(p => p.classList.remove('show'));
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initCustomDropdowns();
+            initCustomDatePickers();
+
+            // Init particles
+            const container = document.getElementById('particlesContainer');
+            if (container) {
+                for (let i = 0; i < 20; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = Math.random() * 100 + 'vw';
+                    p.style.top = Math.random() * 100 + 'vh';
+                    const size = Math.random() * 4 + 2;
+                    p.style.width = size + 'px';
+                    p.style.height = size + 'px';
+                    p.style.animationDelay = Math.random() * 15 + 's';
+                    p.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                    container.appendChild(p);
+                }
+            }
+        });
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+    <script>
+        // Sidebar Toggling for Mobile
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOpen = document.getElementById('sidebarOpen');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+        function toggleSidebar(show) {
+            if (show) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarBackdrop.classList.remove('hidden');
+                setTimeout(() => {
+                    sidebarBackdrop.classList.add('opacity-100');
+                    sidebarBackdrop.classList.remove('opacity-0');
+                }, 10);
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                sidebarBackdrop.classList.add('opacity-0');
+                sidebarBackdrop.classList.remove('opacity-100');
+                setTimeout(() => {
+                    sidebarBackdrop.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        if (sidebarOpen) {
+            sidebarOpen.addEventListener('click', () => toggleSidebar(true));
+        }
+
+        if (sidebarBackdrop) {
+            sidebarBackdrop.addEventListener('click', () => toggleSidebar(false));
+        }
+
+        // Close sidebar on link click (for mobile)
+        const navLinks = sidebar.querySelectorAll('a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 1024) {
+                    toggleSidebar(false);
+                }
+            });
+        });
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.body;
+
+        // Function to set theme
+        function setTheme(isDark) {
+            if (isDark) {
+                body.classList.add('dark-mode');
+                themeIcon.textContent = 'light_mode';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                themeIcon.textContent = 'dark_mode';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Initialize theme from localStorage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            setTheme(true);
+        } else {
+            setTheme(false); // Default to light
+        }
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const isDark = body.classList.contains('dark-mode');
+                setTheme(!isDark);
+            });
+        }
+    </script>
+</body>
+</html>
