@@ -84,15 +84,15 @@
     <!-- ═══ HEADER ═══ -->
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 gap-4">
         <div>
-            <h2 class="font-h1 text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">Dashboard</h2>
-            <p class="text-xs text-slate-500 dark:text-white/40 mt-1">Business overview</p>
+            <h2 class="font-h1 text-xl sm:text-2xl font-black text-theme-primary leading-tight">Dashboard</h2>
+            <p class="text-xs text-theme-secondary mt-1">Business overview</p>
         </div>
         <div class="flex items-center gap-3 flex-wrap">
             <!-- Filter Tabs -->
-            <div class="flex bg-slate-100 dark:bg-black/40 p-1 rounded-[12px] border  h-[38px] backdrop-blur-md">
-                <a href="?filter=today" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'today' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-slate-500 dark:text-white/50 hover:text-slate-800 dark:text-white/80{% endif %}">Today</a>
-                <a href="?filter=week" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'week' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-slate-500 dark:text-white/50 hover:text-slate-800 dark:text-white/80{% endif %}">7 Days</a>
-                <a href="?filter=month" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'month' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-slate-500 dark:text-white/50 hover:text-slate-800 dark:text-white/80{% endif %}">30 Days</a>
+            <div class="flex bg-theme-input p-1 rounded-[12px] border border-theme-input h-[38px] backdrop-blur-md">
+                <a href="?filter=today" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'today' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-theme-secondary hover:text-theme-primary{% endif %}">Today</a>
+                <a href="?filter=week" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'week' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-theme-secondary hover:text-theme-primary{% endif %}">7 Days</a>
+                <a href="?filter=month" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'month' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-theme-secondary hover:text-theme-primary{% endif %}">30 Days</a>
             </div>
             <a href="{% url 'measurement_profile' %}" class="btn-premium btn-premium--gold !py-0 h-[38px] px-5 !rounded-[10px] flex items-center justify-center">
                 <span class="btn-premium__label flex items-center gap-2 text-xs font-bold">
@@ -141,20 +141,20 @@
         <div class="score-card">
             <div class="score-card__label">Advance Received</div>
             <div class="score-card__value">{{ total_advance_fmt }}</div>
-            <div class="score-card__sub flex gap-4 mt-2">
+                <div class="score-card__sub flex gap-4 mt-2">
                 <div>
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400 dark:text-white/30 block mb-0.5">Cash</span>
-                    <span class="text-emerald-400 font-bold text-sm">{{ cash_adv_fmt }}</span>
+                    <span class="text-[10px] uppercase tracking-wider text-theme-muted block mb-0.5">Cash</span>
+                    <span class="text-emerald-500 dark:text-emerald-400 font-bold text-sm">{{ cash_adv_fmt }}</span>
                 </div>
                 <div>
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400 dark:text-white/30 block mb-0.5">Online</span>
-                    <span class="text-blue-400 font-bold text-sm">{{ online_adv_fmt }}</span>
+                    <span class="text-[10px] uppercase tracking-wider text-theme-muted block mb-0.5">Online</span>
+                    <span class="text-blue-500 dark:text-blue-400 font-bold text-sm">{{ online_adv_fmt }}</span>
                 </div>
             </div>
         </div>
         <div class="score-card">
             <div class="score-card__label">Pending Payments</div>
-            <div class="score-card__value text-red-400">{{ total_pending_fmt }}</div>
+            <div class="score-card__value text-red-500 dark:text-red-400">{{ total_pending_fmt }}</div>
             <div class="score-card__sub">Avg {{ avg_pending_fmt }}</div>
         </div>
     </div>
@@ -189,7 +189,7 @@
                 <span class="amount">{{ cust.amount }}</span>
             </div>
             {% empty %}
-            <p class="text-sm text-slate-400 dark:text-white/20 italic text-center py-4">No data yet</p>
+            <p class="text-sm text-theme-muted italic text-center py-4">No data yet</p>
             {% endfor %}
         </div>
 
@@ -203,7 +203,7 @@
                 <span class="text-emerald-400">{{ p.qty }} units</span>
             </div>
             {% empty %}
-            <p class="text-xs text-slate-400 dark:text-white/20 italic">No data</p>
+            <p class="text-xs text-theme-muted italic">No data</p>
             {% endfor %}
             <div class="movement-label">Slow Moving</div>
             {% for p in slow_moving %}
@@ -212,7 +212,7 @@
                 <span class="text-red-400">{{ p.qty }} units</span>
             </div>
             {% empty %}
-            <p class="text-xs text-slate-400 dark:text-white/20 italic">No data</p>
+            <p class="text-xs text-theme-muted italic">No data</p>
             {% endfor %}
         </div>
     </div>
