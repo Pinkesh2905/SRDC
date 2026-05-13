@@ -798,33 +798,6 @@
     body:not(.dark-mode) .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.1) !important; }
     body:not(.dark-mode) .border-red-500\/20 { border-color: rgba(239, 68, 68, 0.2) !important; }
 
-        /* ═══ LIGHT MODE OVERRIDES ═══ */
-        body:not(.dark-mode) .app-shell .text-white:not(.bg-secondary) { color: var(--text-primary) !important; }
-        body:not(.dark-mode) .app-shell .text-white\/80 { color: rgba(26,26,46,0.8) !important; }
-        body:not(.dark-mode) .app-shell .text-white\/70 { color: rgba(26,26,46,0.7) !important; }
-        body:not(.dark-mode) .app-shell .text-white\/60 { color: var(--text-secondary) !important; }
-        body:not(.dark-mode) .app-shell .text-white\/50 { color: rgba(26,26,46,0.5) !important; }
-        body:not(.dark-mode) .app-shell .text-white\/40 { color: var(--text-muted) !important; }
-        body:not(.dark-mode) .app-shell .text-white\/30 { color: rgba(26,26,46,0.3) !important; }
-        body:not(.dark-mode) .app-shell .text-white\/20 { color: rgba(26,26,46,0.2) !important; }
-        body:not(.dark-mode) .app-shell .bg-white\/5 { background-color: rgba(0,0,0,0.03) !important; }
-        body:not(.dark-mode) .app-shell .bg-white\/10 { background-color: rgba(0,0,0,0.05) !important; }
-        body:not(.dark-mode) .app-shell .bg-white\/15 { background-color: rgba(0,0,0,0.06) !important; }
-        body:not(.dark-mode) .app-shell .bg-white\/20 { background-color: rgba(0,0,0,0.07) !important; }
-        body:not(.dark-mode) .app-shell .bg-black\/40 { background-color: rgba(0,0,0,0.04) !important; }
-        body:not(.dark-mode) .app-shell .bg-black\/50 { background-color: rgba(0,0,0,0.06) !important; }
-        body:not(.dark-mode) .app-shell .border-white\/5 { border-color: rgba(0,0,0,0.04) !important; }
-        body:not(.dark-mode) .app-shell .border-white\/10 { border-color: rgba(0,0,0,0.08) !important; }
-        body:not(.dark-mode) .app-shell .border-white\/25 { border-color: rgba(0,0,0,0.12) !important; }
-        body:not(.dark-mode) .app-shell .divide-white\/5 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(0,0,0,0.05) !important; }
-        body:not(.dark-mode) .app-shell .placeholder\:text-white\/40::placeholder { color: rgba(26,26,46,0.4) !important; }
-        body:not(.dark-mode) .app-shell .placeholder\:text-white\/20::placeholder { color: rgba(26,26,46,0.2) !important; }
-        body:not(.dark-mode) .app-shell .hover\:bg-white\/5:hover { background-color: rgba(0,0,0,0.04) !important; }
-        body:not(.dark-mode) .app-shell .hover\:bg-white\/10:hover { background-color: rgba(0,0,0,0.06) !important; }
-        body:not(.dark-mode) .app-shell .hover\:text-white:hover { color: var(--text-primary) !important; }
-        body:not(.dark-mode) .app-shell .hover\:text-white\/80:hover { color: rgba(26,26,46,0.8) !important; }
-        body:not(.dark-mode) .app-shell .focus\:bg-white\/20:focus { background-color: rgba(0,0,0,0.07) !important; }
-        body:not(.dark-mode) .app-shell .focus\:border-white\/40:focus { border-color: rgba(0,0,0,0.15) !important; }
         /* Calendar colors in light mode */
         body:not(.dark-mode) .srdc-calendar__number { color: var(--text-primary); }
         body:not(.dark-mode) .srdc-calendar__day-name { color: var(--text-primary); }
@@ -1021,8 +994,8 @@
                 </button>
                 {% if request.resolver_match.url_name != 'customer_list' and request.resolver_match.url_name != 'measurement_profile' and request.resolver_match.url_name != 'order_create' %}
                 <form class="relative hidden sm:block flex items-center" method="GET" action="{% url 'global_search' %}">
-                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-[20px]">search</span>
-                    <input name="q" class="h-10 pl-10 pr-4 bg-white/15 border border-white/25 rounded-xl text-sm w-40 md:w-80 focus:bg-white/20 focus:border-white/40 transition-all placeholder:text-white/40 text-white outline-none flex items-center" placeholder="Search customers, orders..." type="search"/>
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-white/30 text-[20px]">search</span>
+                    <input name="q" class="h-10 pl-10 pr-4 bg-slate-200 dark:bg-white/15 border border-slate-300 dark:border-white/25 rounded-xl text-sm w-40 md:w-80 focus:bg-slate-300 dark:focus:bg-white/20 focus:border-slate-400 dark:focus:border-white/40 transition-all placeholder:text-slate-400 dark:placeholder:text-white/40 text-slate-900 dark:text-white outline-none flex items-center" placeholder="Search customers, orders..." type="search"/>
                 </form>
                 {% endif %}
             </div>

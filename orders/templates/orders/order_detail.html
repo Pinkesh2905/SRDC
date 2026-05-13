@@ -8,26 +8,26 @@
     <div class="mb-6 bg-red-500/10 border border-red-500/30 rounded-[16px] p-4 flex items-center gap-4 animate-pulse-slow">
         <span class="material-symbols-outlined text-red-400 text-3xl">flag</span>
         <div>
-            <h3 class="font-serif text-lg font-semibold text-white">Outsource Order</h3>
-            <p class="text-xs text-white/60">This item is flagged and must be procured from a 3rd party supplier.</p>
+            <h3 class="font-serif text-lg font-semibold text-slate-900 dark:text-slate-900 dark:text-white">Outsource Order</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-600 dark:text-white/60">This item is flagged and must be procured from a 3rd party supplier.</p>
         </div>
     </div>
     {% endif %}
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div class="flex items-center gap-5">
-            <a href="{% url 'order_list' %}" class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all shadow-xl shrink-0 group">
+            <a href="{% url 'order_list' %}" class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-slate-300 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-500 dark:text-white/40 hover:text-slate-900 dark:text-slate-900 dark:text-white hover:bg-slate-200 dark:bg-slate-200 dark:bg-white/10 hover:border-slate-300 dark:border-slate-300 dark:border-white/20 transition-all shadow-xl shrink-0 group">
                 <span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
             </a>
             <div>
                 <div class="flex items-center gap-3">
-                    <h2 class="font-h1 text-3xl sm:text-4xl font-bold text-white tracking-tight">Order #{{ order.order_number }}</h2>
+                    <h2 class="font-h1 text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-900 dark:text-white tracking-tight">Order #{{ order.order_number }}</h2>
                     <span class="px-3 py-1 rounded-full bg-secondary/20 border border-secondary/30 text-secondary text-[10px] font-bold uppercase tracking-wider">
                         {% for value,label in statuses %}
                             {% if order.status == value %}{{ label }}{% endif %}
                         {% endfor %}
                     </span>
                 </div>
-                <p class="text-white/40 text-xs sm:text-sm mt-1">Placed on {{ order.booking_date }}</p>
+                <p class="text-slate-500 dark:text-slate-500 dark:text-white/40 text-xs sm:text-sm mt-1">Placed on {{ order.booking_date }}</p>
             </div>
         </div>
         <div class="flex gap-3">
@@ -45,23 +45,23 @@
             <div class="glass-panel overflow-hidden p-6">
                 <div class="flex items-center gap-3 mb-6">
                     <span class="material-symbols-outlined text-secondary">checkroom</span>
-                    <h3 class="font-serif text-xl font-semibold text-white">Garments</h3>
+                    <h3 class="font-serif text-xl font-semibold text-slate-900 dark:text-slate-900 dark:text-white">Garments</h3>
                 </div>
                 <div class="space-y-4">
                     {% for item in items %}
-                    <div class="flex justify-between items-center p-5 border border-white/5 rounded-[16px] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300 group">
+                    <div class="flex justify-between items-center p-5 border border-slate-200 dark:border-slate-200 dark:border-white/5 rounded-[16px] bg-white/[0.02] hover:bg-white/[0.05] hover:border-slate-300 dark:border-slate-300 dark:border-white/10 transition-all duration-300 group">
                         <div class="flex items-center gap-5">
                             <div class="w-14 h-14 bg-secondary/10 rounded-[14px] flex items-center justify-center text-secondary border border-secondary/20 group-hover:scale-110 transition-transform">
                                 <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">checkroom</span>
                             </div>
                             <div>
-                                <h4 class="font-bold text-white text-lg">{{ item.description }}</h4>
-                                <p class="text-sm text-white/30 font-medium">Qty: {{ item.quantity }} &times; ₹{{ item.rate }}</p>
+                                <h4 class="font-bold text-slate-900 dark:text-slate-900 dark:text-white text-lg">{{ item.description }}</h4>
+                                <p class="text-sm text-slate-400 dark:text-slate-400 dark:text-white/30 font-medium">Qty: {{ item.quantity }} &times; ₹{{ item.rate }}</p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Subtotal</div>
-                            <div class="font-bold text-xl text-white">₹{{ item.total_amount }}</div>
+                            <div class="text-[10px] font-bold text-slate-400 dark:text-slate-400 dark:text-white/20 uppercase tracking-widest mb-1">Subtotal</div>
+                            <div class="font-bold text-xl text-slate-900 dark:text-slate-900 dark:text-white">₹{{ item.total_amount }}</div>
                         </div>
                     </div>
                     {% endfor %}
@@ -71,10 +71,10 @@
             <!-- Notes -->
             {% if order.notes %}
             <div class="glass-panel p-6 border-l-4 border-l-secondary">
-                <h3 class="font-serif text-xl font-semibold text-white mb-2 flex items-center gap-2">
+                <h3 class="font-serif text-xl font-semibold text-slate-900 dark:text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                     <span class="material-symbols-outlined text-secondary">notes</span> Order Notes
                 </h3>
-                <p class="text-white/60 text-sm whitespace-pre-wrap leading-relaxed">{{ order.notes }}</p>
+                <p class="text-slate-600 dark:text-slate-600 dark:text-white/60 text-sm whitespace-pre-wrap leading-relaxed">{{ order.notes }}</p>
             </div>
             {% endif %}
         </div>
@@ -83,15 +83,15 @@
         <div class="space-y-6">
             <!-- Status Update -->
             <div class="glass-panel p-6 relative z-20 overflow-visible">
-                <h3 class="font-serif text-lg font-semibold text-white mb-4">Order Status</h3>
+                <h3 class="font-serif text-lg font-semibold text-slate-900 dark:text-slate-900 dark:text-white mb-4">Order Status</h3>
                 
                 <form method="POST" action="{% url 'order_detail' order.id %}">
                     {% csrf_token %}
                     <div class="srdc-dropdown mb-4">
                         <input type="checkbox" id="status-dropdown">
                         <input type="hidden" name="status" value="{{ order.status }}">
-                        <label class="srdc-dropdown__face bg-white/5 border-white/10 rounded-[12px] hover:bg-white/10 transition-colors" for="status-dropdown">
-                            <div class="srdc-dropdown__text text-white font-bold">
+                        <label class="srdc-dropdown__face bg-slate-100 dark:bg-slate-100 dark:bg-white/5 border-slate-300 dark:border-slate-300 dark:border-white/10 rounded-[12px] hover:bg-slate-200 dark:bg-slate-200 dark:bg-white/10 transition-colors" for="status-dropdown">
+                            <div class="srdc-dropdown__text text-slate-900 dark:text-slate-900 dark:text-white font-bold">
                                 {% for value,label in statuses %}
                                     {% if order.status == value %}{{ label }}{% endif %}
                                 {% endfor %}
@@ -111,19 +111,19 @@
             </div>
 
             <!-- Red Flag Toggle -->
-            <div class="glass-panel p-6 relative z-10 border {% if order.is_red_flagged %}border-red-500/30 bg-gradient-to-br from-red-500/10 to-transparent{% else %}border-white/5{% endif %}">
+            <div class="glass-panel p-6 relative z-10 border {% if order.is_red_flagged %}border-red-500/30 bg-gradient-to-br from-red-500/10 to-transparent{% else %}border-slate-200 dark:border-slate-200 dark:border-white/5{% endif %}">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="font-serif text-lg font-semibold text-white mb-1 flex items-center gap-2">
-                            <span class="material-symbols-outlined {% if order.is_red_flagged %}text-red-400{% else %}text-white/40{% endif %}">flag</span>
+                        <h3 class="font-serif text-lg font-semibold text-slate-900 dark:text-slate-900 dark:text-white mb-1 flex items-center gap-2">
+                            <span class="material-symbols-outlined {% if order.is_red_flagged %}text-red-400{% else %}text-slate-500 dark:text-slate-500 dark:text-white/40{% endif %}">flag</span>
                             Red Flag
                         </h3>
-                        <p class="text-[10px] text-white/40 uppercase tracking-widest">Outsource Required</p>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-500 dark:text-white/40 uppercase tracking-widest">Outsource Required</p>
                     </div>
                     <form method="POST" action="{% url 'order_detail' order.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="toggle_red_flag" value="1">
-                        <button type="submit" class="px-4 py-2 rounded-full font-bold text-xs transition-all {% if order.is_red_flagged %}bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30{% else %}bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white{% endif %}">
+                        <button type="submit" class="px-4 py-2 rounded-full font-bold text-xs transition-all {% if order.is_red_flagged %}bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30{% else %}bg-slate-100 dark:bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-600 dark:text-white/60 border border-slate-300 dark:border-slate-300 dark:border-white/10 hover:bg-slate-200 dark:bg-slate-200 dark:bg-white/10 hover:text-slate-900 dark:text-slate-900 dark:text-white{% endif %}">
                             {% if order.is_red_flagged %}Turn Off{% else %}Turn On{% endif %}
                         </button>
                     </form>
@@ -132,73 +132,73 @@
 
             <!-- Customer Summary -->
             <div class="glass-panel p-6 relative z-10">
-                <h3 class="font-serif text-lg font-semibold text-white mb-4">Customer</h3>
+                <h3 class="font-serif text-lg font-semibold text-slate-900 dark:text-slate-900 dark:text-white mb-4">Customer</h3>
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-10 h-10 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-bold border border-secondary/30">
                         {{ order.customer.full_name|make_list|first|upper }}
                     </div>
                     <div>
-                        <h4 class="font-bold text-white">{{ order.customer.full_name }}</h4>
-                        <p class="text-sm text-white/40">{{ order.customer.phone }}</p>
+                        <h4 class="font-bold text-slate-900 dark:text-slate-900 dark:text-white">{{ order.customer.full_name }}</h4>
+                        <p class="text-sm text-slate-500 dark:text-slate-500 dark:text-white/40">{{ order.customer.phone }}</p>
                     </div>
                 </div>
             </div>
 
             <div class="glass-panel p-6 relative z-10">
-                <h3 class="font-serif text-lg font-semibold text-white mb-4">Salesperson</h3>
+                <h3 class="font-serif text-lg font-semibold text-slate-900 dark:text-slate-900 dark:text-white mb-4">Salesperson</h3>
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-bold border border-secondary/30">
                         <span class="material-symbols-outlined text-[20px]">badge</span>
                     </div>
                     <div>
-                        <h4 class="font-bold text-white">{{ order.salesperson.full_name|default:"Not assigned" }}</h4>
-                        <p class="text-sm text-white/40">{{ order.salesperson.employee_code|default:"-" }}</p>
+                        <h4 class="font-bold text-slate-900 dark:text-slate-900 dark:text-white">{{ order.salesperson.full_name|default:"Not assigned" }}</h4>
+                        <p class="text-sm text-slate-500 dark:text-slate-500 dark:text-white/40">{{ order.salesperson.employee_code|default:"-" }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Financial Summary -->
             <div class="glass-panel p-6">
-                <h3 class="font-serif text-lg font-semibold text-white mb-4">Payment</h3>
+                <h3 class="font-serif text-lg font-semibold text-slate-900 dark:text-slate-900 dark:text-white mb-4">Payment</h3>
                 
                 <div class="space-y-2 mb-4 text-sm">
-                    <div class="flex justify-between text-white/60">
+                    <div class="flex justify-between text-slate-600 dark:text-slate-600 dark:text-white/60">
                         <span>Subtotal</span>
-                        <span class="text-white">₹{{ order.subtotal }}</span>
+                        <span class="text-slate-900 dark:text-slate-900 dark:text-white">₹{{ order.subtotal }}</span>
                     </div>
                     {% if order.is_buy_back %}
                     <div class="flex justify-between text-secondary">
-                        <span class="text-white/60">Deposit Amount{% if order.is_deposit_paid %} (Paid){% else %} (Pending){% endif %}</span>
+                        <span class="text-slate-600 dark:text-slate-600 dark:text-white/60">Deposit Amount{% if order.is_deposit_paid %} (Paid){% else %} (Pending){% endif %}</span>
                         <span>₹{{ order.deposit_amount }}</span>
                     </div>
                     {% elif order.discount_amount > 0 %}
                     <div class="flex justify-between text-secondary">
-                        <span class="text-white/60">Discount</span>
+                        <span class="text-slate-600 dark:text-slate-600 dark:text-white/60">Discount</span>
                         <span>-₹{{ order.discount_amount }}</span>
                     </div>
                     {% endif %}
-                    <div class="flex justify-between font-bold text-white pt-2 border-t border-white/10">
+                    <div class="flex justify-between font-bold text-slate-900 dark:text-slate-900 dark:text-white pt-2 border-t border-slate-300 dark:border-slate-300 dark:border-white/10">
                         <span>Grand Total</span>
                         <span>₹{{ order.grand_total }}</span>
                     </div>
-                    <div class="flex justify-between text-white/60 pt-2">
+                    <div class="flex justify-between text-slate-600 dark:text-slate-600 dark:text-white/60 pt-2">
                         <span>Advance Paid</span>
-                        <span class="text-white">₹{{ order.advance_paid }}</span>
+                        <span class="text-slate-900 dark:text-slate-900 dark:text-white">₹{{ order.advance_paid }}</span>
                     </div>
-                    <div class="flex justify-between text-white/40 text-xs mt-1 italic">
+                    <div class="flex justify-between text-slate-500 dark:text-slate-500 dark:text-white/40 text-xs mt-1 italic">
                         <span>Payment Method</span>
                         <span>{{ order.get_payment_method_display }}</span>
                     </div>
                 </div>
 
-                <div class="p-5 rounded-[16px] bg-gradient-to-br from-secondary/40 to-secondary/10 border border-white/10 text-white shadow-xl mb-6 group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12 blur-xl"></div>
+                <div class="p-5 rounded-[16px] bg-gradient-to-br from-secondary/40 to-secondary/10 border border-slate-300 dark:border-slate-300 dark:border-white/10 text-slate-900 dark:text-slate-900 dark:text-white shadow-xl mb-6 group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-slate-100 dark:bg-slate-100 dark:bg-white/5 rounded-full -mr-12 -mt-12 blur-xl"></div>
                     <div class="flex justify-between items-end relative z-10">
                         <div>
-                            <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-1">Balance Due</span>
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-500 dark:text-white/40 uppercase tracking-widest block mb-1">Balance Due</span>
                             <span class="font-serif text-3xl font-bold tracking-tight">₹{{ balance_due|floatformat:2 }}</span>
                         </div>
-                        <span class="material-symbols-outlined text-white/20 text-4xl">payments</span>
+                        <span class="material-symbols-outlined text-slate-400 dark:text-slate-400 dark:text-white/20 text-4xl">payments</span>
                     </div>
                 </div>
 
@@ -207,16 +207,16 @@
                     {% csrf_token %}
                     <div class="grid grid-cols-12 gap-2">
                         <div class="col-span-7">
-                            <label class="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 px-1">Amount</label>
-                            <input type="number" step="0.01" max="{{ balance_due }}" name="additional_payment" placeholder="0.00" class="w-full bg-white/5 border border-white/10 rounded-[12px] px-3 py-2 text-sm focus:outline-none focus:border-secondary/50 text-white font-bold transition-all" required>
+                            <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-500 dark:text-white/40 uppercase tracking-widest mb-1 px-1">Amount</label>
+                            <input type="number" step="0.01" max="{{ balance_due }}" name="additional_payment" placeholder="0.00" class="w-full bg-slate-100 dark:bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-slate-300 dark:border-white/10 rounded-[12px] px-3 py-2 text-sm focus:outline-none focus:border-secondary/50 text-slate-900 dark:text-slate-900 dark:text-white font-bold transition-all" required>
                         </div>
                         <div class="col-span-5">
-                            <label class="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 px-1">Method</label>
+                            <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-500 dark:text-white/40 uppercase tracking-widest mb-1 px-1">Method</label>
                             <div class="srdc-dropdown w-full z-10">
                                 <input type="checkbox" id="detail-payment-method">
                                 <input type="hidden" name="payment_method" value="{{ order.payment_method }}">
-                                <label class="srdc-dropdown__face bg-white/5 border-white/10 rounded-[12px] hover:bg-white/10 transition-colors !h-[38px]" for="detail-payment-method">
-                                    <div class="srdc-dropdown__text text-white font-bold text-[11px] sm:text-xs truncate">
+                                <label class="srdc-dropdown__face bg-slate-100 dark:bg-slate-100 dark:bg-white/5 border-slate-300 dark:border-slate-300 dark:border-white/10 rounded-[12px] hover:bg-slate-200 dark:bg-slate-200 dark:bg-white/10 transition-colors !h-[38px]" for="detail-payment-method">
+                                    <div class="srdc-dropdown__text text-slate-900 dark:text-slate-900 dark:text-white font-bold text-[11px] sm:text-xs truncate">
                                         {% if order.payment_method == 'cash' %}Cash
                                         {% elif order.payment_method == 'upi' %}UPI / QR
                                         {% elif order.payment_method == 'card' %}Card
