@@ -15,7 +15,7 @@
     {% endif %}
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div class="flex items-center gap-5">
-            <a href="{% url 'order_list' %}" class="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-white/40 hover:text-white hover:bg-white/10 hover:border-slate-300 dark:border-white/20 transition-all shadow-xl shrink-0 group">
+            <a href="{% url 'order_list' %}" class="w-12 h-12 rounded-full  border  flex items-center justify-center text-slate-500 dark:text-white/40 hover:text-white hover:bg-white/10 hover:border-slate-300 dark:border-white/20 transition-all shadow-xl shrink-0 group">
                 <span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
             </a>
             <div>
@@ -49,7 +49,7 @@
                 </div>
                 <div class="space-y-4">
                     {% for item in items %}
-                    <div class="flex justify-between items-center p-5 border border-slate-200 dark:border-white/5 rounded-[16px] bg-white/[0.02] hover:bg-white/[0.05] hover:border-slate-300 dark:border-white/10 transition-all duration-300 group">
+                    <div class="flex justify-between items-center p-5 border  rounded-[16px] bg-white/[0.02] hover:bg-white/[0.05] hover: transition-all duration-300 group">
                         <div class="flex items-center gap-5">
                             <div class="w-14 h-14 bg-secondary/10 rounded-[14px] flex items-center justify-center text-secondary border border-secondary/20 group-hover:scale-110 transition-transform">
                                 <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">checkroom</span>
@@ -90,7 +90,7 @@
                     <div class="srdc-dropdown mb-4">
                         <input type="checkbox" id="status-dropdown">
                         <input type="hidden" name="status" value="{{ order.status }}">
-                        <label class="srdc-dropdown__face bg-slate-100 dark:bg-white/5 border-slate-300 dark:border-white/10 rounded-[12px] hover:bg-white/10 transition-colors" for="status-dropdown">
+                        <label class="srdc-dropdown__face   rounded-[12px] hover:bg-white/10 transition-colors" for="status-dropdown">
                             <div class="srdc-dropdown__text text-slate-900 dark:text-white font-bold">
                                 {% for value,label in statuses %}
                                     {% if order.status == value %}{{ label }}{% endif %}
@@ -111,7 +111,7 @@
             </div>
 
             <!-- Red Flag Toggle -->
-            <div class="glass-panel p-6 relative z-10 border {% if order.is_red_flagged %}border-red-500/30 bg-gradient-to-br from-red-500/10 to-transparent{% else %}border-slate-200 dark:border-white/5{% endif %}">
+            <div class="glass-panel p-6 relative z-10 border {% if order.is_red_flagged %}border-red-500/30 bg-gradient-to-br from-red-500/10 to-transparent{% else %}{% endif %}">
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="font-serif text-lg font-semibold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
@@ -123,7 +123,7 @@
                     <form method="POST" action="{% url 'order_detail' order.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="toggle_red_flag" value="1">
-                        <button type="submit" class="px-4 py-2 rounded-full font-bold text-xs transition-all {% if order.is_red_flagged %}bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30{% else %}bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-white/60 border border-slate-300 dark:border-white/10 hover:bg-white/10 hover:text-white{% endif %}">
+                        <button type="submit" class="px-4 py-2 rounded-full font-bold text-xs transition-all {% if order.is_red_flagged %}bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30{% else %} text-slate-600 dark:text-white/60 border  hover:bg-white/10 hover:text-white{% endif %}">
                             {% if order.is_red_flagged %}Turn Off{% else %}Turn On{% endif %}
                         </button>
                     </form>
@@ -177,7 +177,7 @@
                         <span>-₹{{ order.discount_amount }}</span>
                     </div>
                     {% endif %}
-                    <div class="flex justify-between font-bold text-slate-900 dark:text-white pt-2 border-t border-slate-300 dark:border-white/10">
+                    <div class="flex justify-between font-bold text-slate-900 dark:text-white pt-2 border-t ">
                         <span>Grand Total</span>
                         <span>₹{{ order.grand_total }}</span>
                     </div>
@@ -191,8 +191,8 @@
                     </div>
                 </div>
 
-                <div class="p-5 rounded-[16px] bg-gradient-to-br from-secondary/40 to-secondary/10 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white shadow-xl mb-6 group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-slate-100 dark:bg-white/5 rounded-full -mr-12 -mt-12 blur-xl"></div>
+                <div class="p-5 rounded-[16px] bg-gradient-to-br from-secondary/40 to-secondary/10 border  text-slate-900 dark:text-white shadow-xl mb-6 group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24  rounded-full -mr-12 -mt-12 blur-xl"></div>
                     <div class="flex justify-between items-end relative z-10">
                         <div>
                             <span class="text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest block mb-1">Balance Due</span>
@@ -208,14 +208,14 @@
                     <div class="grid grid-cols-12 gap-2">
                         <div class="col-span-7">
                             <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-1 px-1">Amount</label>
-                            <input type="number" step="0.01" max="{{ balance_due }}" name="additional_payment" placeholder="0.00" class="w-full bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-[12px] px-3 py-2 text-sm focus:outline-none focus:border-secondary/50 text-slate-900 dark:text-white font-bold transition-all" required>
+                            <input type="number" step="0.01" max="{{ balance_due }}" name="additional_payment" placeholder="0.00" class="w-full  border  rounded-[12px] px-3 py-2 text-sm focus:outline-none focus:border-secondary/50 text-slate-900 dark:text-white font-bold transition-all" required>
                         </div>
                         <div class="col-span-5">
                             <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-1 px-1">Method</label>
                             <div class="srdc-dropdown w-full z-10">
                                 <input type="checkbox" id="detail-payment-method">
                                 <input type="hidden" name="payment_method" value="{{ order.payment_method }}">
-                                <label class="srdc-dropdown__face bg-slate-100 dark:bg-white/5 border-slate-300 dark:border-white/10 rounded-[12px] hover:bg-white/10 transition-colors !h-[38px]" for="detail-payment-method">
+                                <label class="srdc-dropdown__face   rounded-[12px] hover:bg-white/10 transition-colors !h-[38px]" for="detail-payment-method">
                                     <div class="srdc-dropdown__text text-slate-900 dark:text-white font-bold text-[11px] sm:text-xs truncate">
                                         {% if order.payment_method == 'cash' %}Cash
                                         {% elif order.payment_method == 'upi' %}UPI / QR

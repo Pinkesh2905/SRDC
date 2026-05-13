@@ -35,7 +35,7 @@
                 <div class="srdc-dropdown">
                     <input type="checkbox" id="status-dropdown">
                     <input type="hidden" name="status" value="{{ current_status|default:'' }}">
-                    <label class="srdc-dropdown__face bg-slate-100 dark:bg-white/5 border-slate-300 dark:border-white/10 rounded-[12px] hover:bg-white/10 transition-colors" for="status-dropdown">
+                    <label class="srdc-dropdown__face rounded-[12px] transition-colors" for="status-dropdown">
                         <div class="srdc-dropdown__text text-slate-900 dark:text-white font-bold text-xs sm:text-sm">
                             {% if current_status %}
                                 {% for value,label in statuses %}
@@ -97,7 +97,7 @@
                 <div class="srdc-dropdown">
                     <input type="checkbox" id="redflag-dropdown">
                     <input type="hidden" name="red_flag" value="{{ red_flag|default:'' }}">
-                    <label class="srdc-dropdown__face bg-slate-100 dark:bg-white/5 border-slate-300 dark:border-white/10 rounded-[12px] hover:bg-white/10 transition-colors {% if red_flag == '1' %}bg-red-500/10 border-red-500/30 text-red-400{% endif %}" for="redflag-dropdown">
+                    <label class="srdc-dropdown__face rounded-[12px] transition-colors {% if red_flag == '1' %}bg-red-500/10 border-red-500/30 text-red-400{% endif %}" for="redflag-dropdown">
                         <div class="srdc-dropdown__text {% if red_flag == '1' %}text-red-400{% else %}text-slate-900 dark:text-white{% endif %} font-bold text-xs sm:text-sm">
                             {% if red_flag == '1' %}🚩 Flagged{% else %}Any{% endif %}
                         </div>
@@ -140,7 +140,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200 dark:divide-white/5">
                         {% for order in orders %}
-                        <tr class="hover:bg-slate-100 dark:bg-white/5 transition-colors">
+                        <tr class="transition-colors">
                             <td class="px-8 py-5 text-slate-900 dark:text-white font-bold text-[13px] whitespace-nowrap">
                                 <div class="flex items-center gap-2">
                                     <a href="{% url 'order_detail' order.id %}" class="hover:underline">{{ order.order_number }}</a>

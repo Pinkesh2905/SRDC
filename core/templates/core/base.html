@@ -245,6 +245,15 @@
             border-color: var(--table-row-border) !important;
             color: var(--table-text) !important;
         }
+        .app-shell table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        .app-shell table tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.03) !important;
+        }
+        body.dark-mode .app-shell table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
         .app-shell input,
         .app-shell select,
         .app-shell textarea {
@@ -755,6 +764,34 @@
     }
     body:not(.dark-mode) .srdc-dropdown__text {
         color: var(--text-primary) !important;
+    }
+    
+    /* Dark mode force-dark for dropdowns and panels */
+    body.dark-mode .srdc-dropdown__face,
+    body.dark-mode .srdc-dropdown__items,
+    body.dark-mode .srdc-datepicker__face,
+    body.dark-mode .srdc-datepicker__popup {
+        background: rgba(20, 10, 10, 0.98) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
+    body.dark-mode .srdc-dropdown__text,
+    body.dark-mode .srdc-datepicker__text {
+        color: #ffffff !important;
+    }
+    body.dark-mode .srdc-dropdown__item {
+        color: #ffffff !important;
+    }
+    body.dark-mode .srdc-dropdown__item:hover {
+        background: rgba(255,255,255,0.1) !important;
+    }
+    
+    /* Force table row hover in dark mode to stay dark/transparent */
+    body.dark-mode table tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    body.dark-mode table tbody td {
+        color: #ffffff !important;
     }
     body:not(.dark-mode) .srdc-dropdown__item {
         color: var(--text-primary) !important;
