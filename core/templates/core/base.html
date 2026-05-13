@@ -317,7 +317,7 @@
             padding: 8px 16px;
             border-radius: 12px;
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
         }
 
         .srdc-dropdown__face {
@@ -430,7 +430,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 14px;
-            color: #ffffff;
+            color: var(--input-text);
             height: 42px;
         }
         .srdc-datepicker__face:focus-within {
@@ -449,14 +449,14 @@
             width: auto !important;
             min-width: 0 !important; /* Prevent overflow */
             font-size: 14px !important;
-            color: #fff !important;
+            color: var(--input-text) !important;
             font-weight: 500 !important;
             outline: none !important;
             box-shadow: none !important;
             cursor: text;
         }
         .srdc-datepicker__text.placeholder {
-            color: rgba(255,255,255,0.5);
+            color: var(--input-placeholder);
             opacity: 0.6;
         }
         .srdc-datepicker__popup {
@@ -737,34 +737,44 @@
         }
 
     /* --- Tailwind Utility Overrides for Light Mode --- */
-    
 
+    /* Glass panels: lighter, no heavy shadow */
     body:not(.dark-mode) .glass-panel {
         background: var(--glass-bg);
         border: 1px solid var(--glass-border);
         box-shadow: var(--card-shadow);
     }
 
+    /* Dropdowns: clean flat look in light mode, no dramatic shadow */
+    body:not(.dark-mode) .srdc-dropdown__face,
     body:not(.dark-mode) .srdc-dropdown__items {
-        background: #fff !important;
-        border: 1px solid rgba(0,0,0,0.1) !important;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
+        background: rgba(255,255,255,0.95) !important;
+        border: 1px solid rgba(0,0,0,0.10) !important;
+        box-shadow: none !important;
+    }
+    body:not(.dark-mode) .srdc-dropdown__text {
+        color: var(--text-primary) !important;
     }
     body:not(.dark-mode) .srdc-dropdown__item {
-        color: #1a1a2e !important;
+        color: var(--text-primary) !important;
     }
     body:not(.dark-mode) .srdc-dropdown__item:hover {
         background: rgba(0,0,0,0.05) !important;
     }
 
+    /* Datepicker popup: no heavy shadow in light mode */
+    body:not(.dark-mode) .srdc-datepicker__popup {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important;
+        border: 1px solid rgba(0,0,0,0.09) !important;
+    }
+    body:not(.dark-mode) .srdc-datepicker__face {
+        box-shadow: none !important;
+    }
+
     body:not(.dark-mode) .srdc-calendar {
         background: #fff !important;
-        color: #1a1a2e !important;
+        color: var(--text-primary) !important;
     }
-    body:not(.dark-mode) .srdc-calendar__day-name { color: rgba(0,0,0,0.4) !important; }
-    body:not(.dark-mode) .srdc-calendar__day:not(.srdc-calendar__day--disabled) { color: #1a1a2e !important; }
-    body:not(.dark-mode) .srdc-calendar__day--today { background: rgba(0,0,0,0.05) !important; }
-    body:not(.dark-mode) .srdc-calendar__nav button { color: #1a1a2e !important; }
     body:not(.dark-mode) .srdc-calendar__header { background: var(--secondary) !important; }
     body:not(.dark-mode) .srdc-calendar__header h3 { color: rgba(255,255,255,0.7) !important; }
     body:not(.dark-mode) .srdc-calendar__header h2 { color: #fff !important; }

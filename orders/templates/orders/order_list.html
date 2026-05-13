@@ -6,8 +6,8 @@
 <div class="p-4 sm:p-8 max-w-[1440px] mx-auto w-full">
     <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-4">
         <div>
-            <h2 class="font-h2 text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-900 dark:text-white mb-1 sm:mb-2 drop-shadow-md">Orders & Bills</h2>
-            <p class="text-slate-600 dark:text-slate-600 dark:text-white/60 text-sm sm:text-base font-body-md">Manage and track all customer orders.</p>
+            <h2 class="font-h2 text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white mb-1 sm:mb-2 drop-shadow-md">Orders & Bills</h2>
+            <p class="text-slate-600 dark:text-white/60 text-sm sm:text-base font-body-md">Manage and track all customer orders.</p>
         </div>
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <a href="{% url 'delivery_schedule' %}" class="btn-premium flex-1 sm:flex-none text-center">
@@ -23,20 +23,20 @@
     <form method="GET" action="{% url 'order_list' %}" class="glass-panel p-4 sm:p-6 mb-6 relative z-20">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(240px,1.7fr)_minmax(132px,1fr)_minmax(150px,1fr)_minmax(150px,1fr)_minmax(132px,1fr)_minmax(280px,1.5fr)] gap-4 items-end">
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Search Directory</label>
+                <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Search Directory</label>
                 <div class="relative">
-                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-500 dark:text-white/40">search</span>
-                    <input name="q" value="{{ q|default:'' }}" class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-slate-300 dark:border-white/10 rounded-[12px] text-sm text-slate-900 dark:text-slate-900 dark:text-white placeholder:text-slate-400 dark:text-slate-400 dark:text-white/20 focus:outline-none focus:border-secondary/50 transition-all" placeholder="Order, customer, phone" type="search">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-white/40">search</span>
+                    <input name="q" value="{{ q|default:'' }}" class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-[12px] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:text-white/20 focus:outline-none focus:border-secondary/50 transition-all" placeholder="Order, customer, phone" type="search">
                 </div>
             </div>
             
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Status</label>
+                <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Status</label>
                 <div class="srdc-dropdown">
                     <input type="checkbox" id="status-dropdown">
                     <input type="hidden" name="status" value="{{ current_status|default:'' }}">
-                    <label class="srdc-dropdown__face bg-slate-100 dark:bg-slate-100 dark:bg-white/5 border-slate-300 dark:border-slate-300 dark:border-white/10 rounded-[12px] hover:bg-slate-200 dark:bg-slate-200 dark:bg-white/10 transition-colors" for="status-dropdown">
-                        <div class="srdc-dropdown__text text-slate-900 dark:text-slate-900 dark:text-white font-bold text-xs sm:text-sm">
+                    <label class="srdc-dropdown__face bg-slate-100 dark:bg-white/5 border-slate-300 dark:border-white/10 rounded-[12px] hover:bg-white/10 transition-colors" for="status-dropdown">
+                        <div class="srdc-dropdown__text text-slate-900 dark:text-white font-bold text-xs sm:text-sm">
                             {% if current_status %}
                                 {% for value,label in statuses %}
                                     {% if current_status == value %}{{ label }}{% endif %}
@@ -45,7 +45,7 @@
                                 All Statuses
                             {% endif %}
                         </div>
-                        <span class="material-symbols-outlined text-slate-500 dark:text-slate-500 dark:text-white/40">expand_more</span>
+                        <span class="material-symbols-outlined text-slate-500 dark:text-white/40">expand_more</span>
                     </label>
                     <ul class="srdc-dropdown__items">
                         <li class="srdc-dropdown__item" data-value="">All Statuses</li>
@@ -57,7 +57,7 @@
             </div>
 
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Delivery Date</label>
+                <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Delivery Date</label>
                 <div class="srdc-datepicker">
                     <input type="hidden" name="delivery_date" value="{% if delivery_date %}{{ delivery_date|date:'Y-m-d' }}{% endif %}">
                     <div class="srdc-datepicker__face">
@@ -75,7 +75,7 @@
             </div>
 
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Return Date</label>
+                <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Return Date</label>
                 <div class="srdc-datepicker">
                     <input type="hidden" name="return_date" value="{% if return_date %}{{ return_date|date:'Y-m-d' }}{% endif %}">
                     <div class="srdc-datepicker__face">
@@ -93,15 +93,15 @@
             </div>
 
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Red Flag</label>
+                <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Red Flag</label>
                 <div class="srdc-dropdown">
                     <input type="checkbox" id="redflag-dropdown">
                     <input type="hidden" name="red_flag" value="{{ red_flag|default:'' }}">
-                    <label class="srdc-dropdown__face bg-slate-100 dark:bg-slate-100 dark:bg-white/5 border-slate-300 dark:border-slate-300 dark:border-white/10 rounded-[12px] hover:bg-slate-200 dark:bg-slate-200 dark:bg-white/10 transition-colors {% if red_flag == '1' %}bg-red-500/10 border-red-500/30 text-red-400{% endif %}" for="redflag-dropdown">
-                        <div class="srdc-dropdown__text {% if red_flag == '1' %}text-red-400{% else %}text-slate-900 dark:text-slate-900 dark:text-white{% endif %} font-bold text-xs sm:text-sm">
+                    <label class="srdc-dropdown__face bg-slate-100 dark:bg-white/5 border-slate-300 dark:border-white/10 rounded-[12px] hover:bg-white/10 transition-colors {% if red_flag == '1' %}bg-red-500/10 border-red-500/30 text-red-400{% endif %}" for="redflag-dropdown">
+                        <div class="srdc-dropdown__text {% if red_flag == '1' %}text-red-400{% else %}text-slate-900 dark:text-white{% endif %} font-bold text-xs sm:text-sm">
                             {% if red_flag == '1' %}🚩 Flagged{% else %}Any{% endif %}
                         </div>
-                        <span class="material-symbols-outlined {% if red_flag == '1' %}text-red-400{% else %}text-slate-500 dark:text-slate-500 dark:text-white/40{% endif %}">expand_more</span>
+                        <span class="material-symbols-outlined {% if red_flag == '1' %}text-red-400{% else %}text-slate-500 dark:text-white/40{% endif %}">expand_more</span>
                     </label>
                     <ul class="srdc-dropdown__items">
                         <li class="srdc-dropdown__item" data-value="">Any</li>
@@ -112,11 +112,11 @@
 
             <div class="flex gap-2">
                 <button type="submit" class="flex-1 btn-premium text-sm">Apply</button>
-                <a href="{% url 'order_list_print' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" target="_blank" class="flex items-center justify-center px-4 text-sm font-semibold text-slate-700 dark:text-slate-800 dark:text-white/80 hover:text-slate-900 dark:text-slate-900 dark:text-white border border-slate-300 dark:border-slate-300 dark:border-white/10 rounded-[12px] bg-slate-100 dark:bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:bg-slate-200 dark:bg-white/10" title="Print filtered list">
+                <a href="{% url 'order_list_print' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" target="_blank" class="flex items-center justify-center px-4 text-sm font-semibold text-slate-700 dark:text-white/80 hover:text-white border border-slate-300 dark:border-white/10 rounded-[12px] bg-slate-100 dark:bg-white/5 hover:bg-white/10" title="Print filtered list">
                     <span class="material-symbols-outlined text-[18px]">print</span>
                 </a>
                 {% if q or current_status or delivery_date or return_date or red_flag %}
-                <a href="{% url 'order_list' %}" class="flex items-center justify-center px-4 text-sm font-semibold text-slate-600 dark:text-slate-600 dark:text-white/60 hover:text-slate-900 dark:text-slate-900 dark:text-white border border-slate-300 dark:border-slate-300 dark:border-white/10 rounded-[12px]">Clear</a>
+                <a href="{% url 'order_list' %}" class="flex items-center justify-center px-4 text-sm font-semibold text-slate-600 dark:text-white/60 hover:text-white border border-slate-300 dark:border-white/10 rounded-[12px]">Clear</a>
                 {% endif %}
             </div>
         </div>
@@ -128,7 +128,7 @@
         <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                        <tr class="bg-slate-200 dark:bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-slate-900 dark:text-white">
+                        <tr class="bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white">
                             <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider">Order ID</th>
                             <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider">Customer</th>
                             <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider text-center text-amber-700 dark:text-amber-400">Delivery Date</th>
@@ -138,10 +138,10 @@
                             <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200 dark:divide-slate-200 dark:divide-white/5">
+                    <tbody class="divide-y divide-slate-200 dark:divide-white/5">
                         {% for order in orders %}
-                        <tr class="hover:bg-slate-100 dark:bg-slate-100 dark:bg-white/5 transition-colors">
-                            <td class="px-8 py-5 text-slate-900 dark:text-slate-900 dark:text-white font-bold text-[13px] whitespace-nowrap">
+                        <tr class="hover:bg-slate-100 dark:bg-white/5 transition-colors">
+                            <td class="px-8 py-5 text-slate-900 dark:text-white font-bold text-[13px] whitespace-nowrap">
                                 <div class="flex items-center gap-2">
                                     <a href="{% url 'order_detail' order.id %}" class="hover:underline">{{ order.order_number }}</a>
                                     {% if order.is_red_flagged %}
@@ -154,12 +154,12 @@
                                     <div class="w-8 h-8 rounded-full bg-secondary/20 text-secondary border border-secondary/30 flex items-center justify-center text-[10px] font-bold">
                                         {{ order.customer.full_name|slice:":1"|upper }}
                                     </div>
-                                    <span class="font-bold text-slate-900 dark:text-slate-900 dark:text-white text-sm">{{ order.customer.full_name }}</span>
+                                    <span class="font-bold text-slate-900 dark:text-white text-sm">{{ order.customer.full_name }}</span>
                                 </div>
                             </td>
                             <td class="px-8 py-5 text-amber-700 dark:text-amber-400 text-sm whitespace-nowrap text-center font-bold">{{ order.delivery_date|date:"M d, Y" }}</td>
                             <td class="px-8 py-5 text-amber-700 dark:text-secondary text-sm whitespace-nowrap text-center font-bold">{{ order.return_date|date:"M d, Y" }}</td>
-                            <td class="px-8 py-5 font-bold text-slate-900 dark:text-slate-900 dark:text-white text-sm whitespace-nowrap">₹{{ order.grand_total }}</td>
+                            <td class="px-8 py-5 font-bold text-slate-900 dark:text-white text-sm whitespace-nowrap">₹{{ order.grand_total }}</td>
                         <td class="px-8 py-5">
                             <span class="inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
                                 {% if order.status == 'delivered' %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
@@ -168,16 +168,16 @@
                                 {% elif order.status == 'pending' %}bg-amber-500/20 text-amber-400 border border-amber-500/30
                                 {% elif order.status == 'processing' %}bg-indigo-500/20 text-indigo-400 border border-indigo-500/30
                                 {% elif order.status == 'cancelled' %}bg-rose-500/20 text-rose-400 border border-rose-500/30
-                                {% else %}bg-slate-200 dark:bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-600 dark:text-white/60 border border-slate-300 dark:border-slate-300 dark:border-white/10{% endif %}">
+                                {% else %}bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-white/60 border border-slate-300 dark:border-white/10{% endif %}">
                                 {{ order.get_status_display }}
                             </span>
                         </td>
                         <td class="px-8 py-5 text-right">
                             <div class="flex justify-end gap-2">
-                                <a href="{% url 'order_detail' order.id %}" class="text-slate-500 dark:text-slate-500 dark:text-white/40 hover:text-slate-900 dark:text-slate-900 dark:text-white transition-colors" title="View Details">
+                                <a href="{% url 'order_detail' order.id %}" class="text-slate-500 dark:text-white/40 hover:text-white transition-colors" title="View Details">
                                     <span class="material-symbols-outlined text-xl">visibility</span>
                                 </a>
-                                <a href="{% url 'order_detail' order.id %}" class="text-slate-500 dark:text-slate-500 dark:text-white/40 hover:text-slate-900 dark:text-slate-900 dark:text-white transition-colors" title="Update Order">
+                                <a href="{% url 'order_detail' order.id %}" class="text-slate-500 dark:text-white/40 hover:text-white transition-colors" title="Update Order">
                                     <span class="material-symbols-outlined text-xl">edit</span>
                                 </a>
                             </div>
@@ -185,7 +185,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="px-8 py-12 text-center text-slate-500 dark:text-slate-500 dark:text-white/40 italic">No orders found matching your filters.</td>
+                        <td colspan="6" class="px-8 py-12 text-center text-slate-500 dark:text-white/40 italic">No orders found matching your filters.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -193,13 +193,13 @@
         </div>
 
         <!-- Mobile Card View -->
-        <div class="md:hidden divide-y divide-slate-200 dark:divide-slate-200 dark:divide-white/5">
+        <div class="md:hidden divide-y divide-slate-200 dark:divide-white/5">
             {% for order in orders %}
-            <div class="p-5 space-y-4 active:bg-slate-100 dark:bg-slate-100 dark:bg-white/5 transition-colors">
+            <div class="p-5 space-y-4 active:bg-white/5 transition-colors">
                 <div class="flex justify-between items-start">
                     <div class="space-y-1">
                         <div class="flex items-center gap-2">
-                            <a href="{% url 'order_detail' order.id %}" class="font-mono text-slate-900 dark:text-slate-900 dark:text-white font-bold text-sm block hover:underline">{{ order.order_number }}</a>
+                            <a href="{% url 'order_detail' order.id %}" class="font-mono text-slate-900 dark:text-white font-bold text-sm block hover:underline">{{ order.order_number }}</a>
                             {% if order.is_red_flagged %}
                             <span class="material-symbols-outlined text-red-400 text-[14px] animate-pulse-slow" title="Outsource Required">flag</span>
                             {% endif %}
@@ -208,7 +208,7 @@
                             <div class="w-6 h-6 rounded-full bg-secondary/20 text-secondary border border-secondary/30 flex items-center justify-center text-[10px] font-bold">
                                 {{ order.customer.full_name|slice:":1"|upper }}
                             </div>
-                            <span class="font-bold text-slate-900 dark:text-slate-900 dark:text-white text-sm leading-tight">{{ order.customer.full_name }}</span>
+                            <span class="font-bold text-slate-900 dark:text-white text-sm leading-tight">{{ order.customer.full_name }}</span>
                         </div>
                     </div>
                     <span class="shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
@@ -218,7 +218,7 @@
                         {% elif order.status == 'pending' %}bg-amber-500/20 text-amber-400 border border-amber-500/30
                         {% elif order.status == 'processing' %}bg-indigo-500/20 text-indigo-400 border border-indigo-500/30
                         {% elif order.status == 'cancelled' %}bg-rose-500/20 text-rose-400 border border-rose-500/30
-                        {% else %}bg-slate-200 dark:bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-600 dark:text-white/60 border border-slate-300 dark:border-slate-300 dark:border-white/10{% endif %}">
+                        {% else %}bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-white/60 border border-slate-300 dark:border-white/10{% endif %}">
                         {{ order.get_status_display }}
                     </span>
                 </div>
@@ -235,7 +235,7 @@
                                 Ret: {{ order.return_date|date:"M d, Y" }}
                             </div>
                         </div>
-                        <div class="font-bold text-lg text-slate-900 dark:text-slate-900 dark:text-white">₹{{ order.grand_total }}</div>
+                        <div class="font-bold text-lg text-slate-900 dark:text-white">₹{{ order.grand_total }}</div>
                     </div>
                     <div class="flex items-center gap-2">
                         <a href="{% url 'order_detail' order.id %}" class="flex items-center gap-1.5 px-4 py-2 btn-premium text-xs">
@@ -246,7 +246,7 @@
                 </div>
             </div>
             {% empty %}
-            <div class="p-12 text-center text-slate-500 dark:text-slate-500 dark:text-white/40 italic text-sm">
+            <div class="p-12 text-center text-slate-500 dark:text-white/40 italic text-sm">
                 No orders found matching your filters.
             </div>
             {% endfor %}
@@ -256,15 +256,15 @@
     <!-- Pagination if needed -->
     {% if is_paginated %}
     <div class="glass-panel mt-6 px-8 py-4 flex items-center justify-between">
-        <span class="text-xs font-bold text-slate-500 dark:text-slate-500 dark:text-white/40 uppercase tracking-widest">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+        <span class="text-xs font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
         <div class="flex gap-2">
             {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" class="p-2 rounded-[12px] border border-slate-300 dark:border-slate-300 dark:border-white/10 bg-slate-100 dark:bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-slate-900 dark:text-white hover:bg-slate-200 dark:bg-slate-200 dark:bg-white/10 transition-colors">
+            <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" class="p-2 rounded-[12px] border border-slate-300 dark:border-white/10 bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white hover:bg-white/10 transition-colors">
                 <span class="material-symbols-outlined text-lg">chevron_left</span>
             </a>
             {% endif %}
             {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" class="p-2 rounded-[12px] border border-slate-300 dark:border-slate-300 dark:border-white/10 bg-slate-100 dark:bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-slate-900 dark:text-white hover:bg-slate-200 dark:bg-slate-200 dark:bg-white/10 transition-colors">
+            <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" class="p-2 rounded-[12px] border border-slate-300 dark:border-white/10 bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white hover:bg-white/10 transition-colors">
                 <span class="material-symbols-outlined text-lg">chevron_right</span>
             </a>
             {% endif %}
