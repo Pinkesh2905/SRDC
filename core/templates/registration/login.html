@@ -102,40 +102,38 @@
 </head>
 
 <body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col font-body-md">
-<main class="flex-grow flex w-full">
-    <div class="flex flex-col md:flex-row w-full min-h-screen">
+<main class="flex-grow flex flex-col md:flex-row w-full min-h-screen">
 
-        <!-- ═══ LEFT: Hero Image ═══ -->
-        <div class="hidden md:flex w-1/2 relative bg-surface-container-low">
+        <!-- ═══ HERO SECTION (Mobile 40vh / Desktop 50vw) ═══ -->
+        <div class="relative h-[40vh] md:h-auto md:w-1/2 bg-surface-container-low overflow-hidden">
             <img
                 alt="Luxurious maroon and ivory Sherwani with gold embroidery — Shree Ram Dulha Collections"
                 class="absolute inset-0 w-full h-full object-cover"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnbw7padM4qnEMO9OFUXKd76dbXMXYIXsfpYDKStPg07pAl3ZtLFV8MEMsxeS_yR2ZZVgyV_ZrIhe7rxh9doYUxSqtoz9bCfbuKCDTwpev1csOgVGaGlvayU_6JMtiaYLaUIwos1AwvF48tCAq3Uo6B-0ZkpZaaI1gKkXSdWyNTyLgFTuzuET6kUnxG6NHxEIIsWYiU9ApKpWHJVDirfUd-zaErMG6qwMGd0cpvulA-ISuVgK0FnEpbsg-0-0HKX3K8uMH2bh63KtY"
             >
-            <!-- Gradient overlays -->
-            <div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
-            <div class="absolute inset-0 bg-gradient-to-r from-primary/60 to-transparent"></div>
-            <!-- Text -->
-            <div class="relative z-10 flex flex-col justify-end p-16 text-on-primary">
-                <h1 class="font-display-md text-display-md text-on-primary mb-4">Shree Ram Dulha Collections</h1>
-                <p class="font-headline-md text-headline-md text-secondary-fixed opacity-90">Welcome Back to the Atelier</p>
+            <!-- Overlay Gradients -->
+            <div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-primary/40 to-transparent"></div>
+            <!-- Text Overlay -->
+            <div class="relative z-10 h-full flex flex-col justify-end p-8 md:p-16 text-on-primary">
+                <h1 class="font-display-md text-2xl md:text-display-md text-on-primary mb-1 md:mb-4 drop-shadow-md">Shree Ram Dulha Collections</h1>
+                <p class="font-headline-md text-base md:text-headline-md text-secondary-fixed opacity-95">Welcome Back to the Atelier</p>
             </div>
         </div>
 
-        <!-- ═══ RIGHT: Login Form ═══ -->
-        <div class="w-full md:w-1/2 flex items-center justify-center p-8 lg:p-24 bg-surface">
-            <div class="w-full max-w-md">
+        <!-- ═══ LOGIN FORM SECTION ═══ -->
+        <div class="flex-grow md:w-1/2 flex items-start md:items-center justify-center p-8 lg:p-24 bg-surface -mt-6 md:mt-0 relative z-20 rounded-t-3xl md:rounded-none">
+            <div class="w-full max-w-md pt-4 md:pt-0">
 
-                <!-- Mobile brand anchor -->
-                <div class="md:hidden text-center mb-12">
-                    <h1 class="font-display-md text-headline-lg text-primary mb-2">Shree Ram Dulha Collections</h1>
-                    <p class="font-body-lg text-body-lg text-on-surface-variant">Sign in to your heritage account</p>
+                <!-- Mobile Brand Subtle Indicator -->
+                <div class="md:hidden flex justify-center mb-8">
+                    <div class="h-1 w-12 bg-outline-variant/30 rounded-full"></div>
                 </div>
 
                 <!-- Heading -->
-                <div class="mb-12">
-                    <h2 class="font-display-md text-display-md text-on-surface mb-2">Login to Your Account</h2>
-                    <p class="font-body-md text-body-md text-on-surface-variant">Enter your details below to continue.</p>
+                <div class="mb-10 md:mb-12">
+                    <h2 class="font-display-md text-3xl md:text-display-md text-on-surface mb-2">Login to Your Account</h2>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Enter your heritage credentials to continue.</p>
                 </div>
 
                 <!-- Error Banner -->
@@ -153,10 +151,10 @@
                     <input type="hidden" name="next" value="{{ next|default:'/' }}">
 
                     <!-- Username -->
-                    <div>
-                        <label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-2" for="id_username">Username</label>
+                    <div class="relative group">
+                        <label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-1" for="id_username">Username</label>
                         <input
-                            class="block w-full px-0 py-3 bg-transparent border-0 border-b-2 border-outline focus:outline-none focus:border-secondary font-body-lg text-body-lg text-on-surface transition-colors duration-300 placeholder-on-surface-variant/50"
+                            class="block w-full px-0 py-4 bg-transparent border-0 border-b-2 border-outline/30 focus:outline-none focus:border-primary font-body-lg text-body-lg text-on-surface transition-all duration-300 placeholder:text-outline-variant"
                             id="id_username"
                             name="username"
                             placeholder="Enter your username"
@@ -169,11 +167,11 @@
                     </div>
 
                     <!-- Password -->
-                    <div>
-                        <label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-2" for="id_password">Password</label>
+                    <div class="relative group">
+                        <label class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-1" for="id_password">Password</label>
                         <div class="relative">
                             <input
-                                class="block w-full px-0 py-3 bg-transparent border-0 border-b-2 border-outline focus:outline-none focus:border-secondary font-body-lg text-body-lg text-on-surface transition-colors duration-300 pr-8 placeholder-on-surface-variant/50"
+                                class="block w-full px-0 py-4 bg-transparent border-0 border-b-2 border-outline/30 focus:outline-none focus:border-primary font-body-lg text-body-lg text-on-surface transition-all duration-300 placeholder:text-outline-variant pr-10"
                                 id="id_password"
                                 name="password"
                                 placeholder="Enter your password"
@@ -182,7 +180,7 @@
                                 autocomplete="new-password"
                             >
                             <!-- Show/hide toggle -->
-                            <button type="button" onclick="togglePwd()" class="absolute right-0 bottom-3 text-outline hover:text-on-surface transition-colors">
+                            <button type="button" onclick="togglePwd()" class="absolute right-0 bottom-4 text-outline-variant hover:text-primary transition-colors">
                                 <span class="material-symbols-outlined text-[20px]" id="pwd-eye">visibility</span>
                             </button>
                         </div>
@@ -203,9 +201,9 @@
 
                 <!-- Divider -->
                 <div class="mt-12 mb-8 flex items-center justify-center">
-                    <div class="h-px bg-outline/30 w-16"></div>
-                    <span class="mx-4 material-symbols-outlined text-[16px] text-secondary">apparel</span>
-                    <div class="h-px bg-outline/30 w-16"></div>
+                    <div class="h-px bg-outline-variant/30 flex-grow"></div>
+                    <span class="mx-6 material-symbols-outlined text-lg text-primary/60">apparel</span>
+                    <div class="h-px bg-outline-variant/30 flex-grow"></div>
                 </div>
 
                 <!-- Sign Up Link — only shown before any owner account exists -->
@@ -229,7 +227,6 @@
 
             </div>
         </div>
-    </div>
 </main>
 
 <script>
