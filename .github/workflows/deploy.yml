@@ -21,8 +21,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/SRDC
-            # Pull the latest changes from GitHub
-            git pull origin main
+            # Force pull latest changes from GitHub (resetting local changes/untracked files if necessary)
+            git fetch origin main
+            git reset --hard origin/main
             
             # Activate virtual environment
             source venv/bin/activate
