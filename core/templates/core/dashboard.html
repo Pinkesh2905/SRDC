@@ -152,10 +152,10 @@
                     </div>
                 </div>
         </div>
-        <div class="score-card">
-            <div class="score-card__label">Pending Payments</div>
+        <div class="score-card cursor-pointer hover:bg-theme-input/10 transition-all group" onclick="showAdvanceDetails('pending')">
+            <div class="score-card__label group-hover:text-red-500 transition-colors">Pending Payments</div>
             <div class="score-card__value text-red-500 dark:text-red-400">{{ total_pending_fmt }}</div>
-            <div class="score-card__sub">Avg {{ avg_pending_fmt }}</div>
+            <div class="score-card__sub group-hover:text-theme-primary">Avg {{ avg_pending_fmt }}</div>
         </div>
     </div>
 
@@ -248,6 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ─── Advance Details Logic ───
     const cashOrders = {{ cash_orders_json|safe }};
     const onlineOrders = {{ online_orders_json|safe }};
+    const pendingOrders = {{ pending_orders_json|safe }};
 
     window.showAdvanceDetails = function(type) {
         const modal = document.getElementById('advanceModal');
@@ -255,11 +256,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const title = document.getElementById('advanceModalTitle');
         const content = document.getElementById('advanceModalContent');
         
-        const data = type === 'cash' ? cashOrders : onlineOrders;
-        title.textContent = (type === 'cash' ? 'Cash' : 'Online') + ' Advance Payments';
+        let data, displayTitle;
+        if (type === 'cash') {
+            data = cashOrders;
+            displayTitle = 'Cash Advance Payments';
+        } else if (type === 'online') {
+            data = onlineOrders;
+            displayTitle = 'Online Advance Payments';
+        } else {
+            data = pendingOrders;
+            displayTitle = 'Pending Balances';
+        }
+        
+        title.textContent = displayTitle;
         
         if (data.length === 0) {
-            content.innerHTML = '<p class="text-center text-theme-muted py-8 italic">No payments found in this period.</p>';
+            content.innerHTML = '<p class="text-center text-theme-muted py-8 italic">No entries found for this period.</p>';
         } else {
             let html = '';
             data.forEach(item => {

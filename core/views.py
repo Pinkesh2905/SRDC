@@ -120,11 +120,18 @@ def dashboard(request):
         for o in online_adv_qs.values('order_number', 'customer__full_name', 'advance_paid').order_by('-created_at')
     ]
 
-    pend = period_qs.annotate(
+    pending_qs = period_qs.annotate(
         bal=F('final_amount') - F('advance_paid')
-    ).filter(bal__gt=0).aggregate(total=Sum('bal'), avg=Avg('bal'))
-    total_pending = float(pend['total'] or 0)
-    avg_pending = float(pend['avg'] or 0)
+    ).filter(bal__gt=0)
+    
+    pend_agg = pending_qs.aggregate(total=Sum('bal'), avg=Avg('bal'))
+    total_pending = float(pend_agg['total'] or 0)
+    avg_pending = float(pend_agg['avg'] or 0)
+    
+    pending_orders_list = [
+        {'id': o['order_number'], 'name': o['customer__full_name'], 'amount': float(o['bal'])}
+        for o in pending_qs.values('order_number', 'customer__full_name', 'bal').order_by('-created_at')
+    ]
 
     # ─── REVENUE TREND ───
     daily_qs = period_qs.annotate(
@@ -179,6 +186,7 @@ def dashboard(request):
         'online_adv_fmt': format_inr(online_adv),
         'cash_orders_json': json.dumps(cash_orders_list),
         'online_orders_json': json.dumps(online_orders_list),
+        'pending_orders_json': json.dumps(pending_orders_list),
         'avg_advance_fmt': format_inr(avg_advance),
         'total_pending_fmt': format_inr(total_pending),
         'avg_pending_fmt': format_inr(avg_pending),
