@@ -183,6 +183,40 @@ def update_order_from_post(order, post_data):
         order.is_red_flagged = not order.is_red_flagged
         changed.append('is_red_flagged')
 
+    total_discount = post_data.get('total_discount')
+    if total_discount is not None:
+        discount = money(total_discount)
+        if discount > order.subtotal:
+            raise ValidationError('Discount cannot be greater than subtotal.')
+        
+        order.discount_amount = discount.quantize(MONEY)
+        
+        if order.is_buy_back:
+            order.final_amount = (order.subtotal - order.deposit_amount - order.discount_amount).quantize(MONEY)
+        else:
+            order.final_amount = (order.subtotal - order.discount_amount).quantize(MONEY)
+            
+        order.grand_total = (order.final_amount - order.advance_paid).quantize(MONEY)
+        changed.extend(['discount_amount', 'final_amount', 'grand_total'])
+
+    additional_discount = post_data.get('additional_discount')
+    if additional_discount:
+        discount = money(additional_discount)
+        if discount <= 0:
+            raise ValidationError('Discount must be greater than 0.')
+        if discount > order.balance_due:
+            raise ValidationError('Discount cannot be greater than the balance due.')
+            
+        order.discount_amount = (order.discount_amount + discount).quantize(MONEY)
+        
+        if order.is_buy_back:
+            order.final_amount = (order.subtotal - order.deposit_amount - order.discount_amount).quantize(MONEY)
+        else:
+            order.final_amount = (order.subtotal - order.discount_amount).quantize(MONEY)
+            
+        order.grand_total = (order.final_amount - order.advance_paid).quantize(MONEY)
+        changed.extend(['discount_amount', 'final_amount', 'grand_total'])
+
     additional_payment = post_data.get('additional_payment')
     if additional_payment:
         payment = money(additional_payment)
@@ -205,3 +239,150 @@ def update_order_from_post(order, post_data):
     if changed:
         order.save(update_fields=list(dict.fromkeys(changed + ['updated_at'])))
     return order
+
+@transaction.atomic
+def update_order_info_from_post(order, post_data):
+    # Update customer details
+    customer = order.customer
+    customer_changed = False
+    
+    new_name = post_data.get('customer_name')
+    if new_name and new_name.strip() != customer.full_name:
+        customer.full_name = new_name.strip()
+        customer_changed = True
+        
+    new_phone = post_data.get('customer_phone')
+    if new_phone and new_phone.strip() != customer.phone:
+        customer.phone = new_phone.strip()
+        customer_changed = True
+        
+    new_city = post_data.get('customer_city')
+    if new_city is not None and new_city.strip() != customer.city:
+        customer.city = new_city.strip()
+        customer_changed = True
+        
+    if customer_changed:
+        customer.save(update_fields=['full_name', 'phone', 'city', 'updated_at'])
+
+    # Update order metadata
+    order_changed = []
+    
+    new_notes = post_data.get('notes')
+    if new_notes is not None:
+        new_notes = new_notes.strip()
+        if new_notes != order.notes:
+            order.notes = new_notes
+            order_changed.append('notes')
+            
+    salesperson_id = post_data.get('salesperson')
+    if salesperson_id:
+        try:
+            sp = Salesperson.objects.get(id=salesperson_id, is_active=True)
+            if order.salesperson != sp:
+                order.salesperson = sp
+                order_changed.append('salesperson')
+        except Salesperson.DoesNotExist:
+            raise ValidationError('Invalid salesperson selected.')
+            
+    if order_changed:
+        order.save(update_fields=order_changed + ['updated_at'])
+        
+    return order
+
+
+@transaction.atomic
+def update_order_item_from_post(item, post_data):
+    # Update Item details
+    item_changed = []
+    
+    desc = post_data.get('description')
+    if desc is not None:
+        desc = desc.strip()
+        if desc != item.description:
+            item.description = desc
+            item_changed.append('description')
+            
+    qty_str = post_data.get('quantity')
+    if qty_str:
+        try:
+            qty = int(qty_str)
+            if qty < 1:
+                raise ValidationError('Quantity must be at least 1.')
+            if qty != item.quantity:
+                item.quantity = qty
+                item_changed.append('quantity')
+        except ValueError:
+            raise ValidationError('Quantity must be a whole number.')
+            
+    rate_str = post_data.get('rate')
+    if rate_str:
+        rate = money(rate_str)
+        if rate <= 0:
+            raise ValidationError('Rate must be greater than 0.')
+        if rate != item.rate:
+            item.rate = rate
+            item_changed.append('rate')
+            
+    if 'quantity' in item_changed or 'rate' in item_changed:
+        item.total_amount = (Decimal(item.quantity) * item.rate).quantize(MONEY)
+        item_changed.append('total_amount')
+        
+    if item_changed:
+        item.save(update_fields=item_changed)
+        
+        # Recalculate order totals
+        order = item.order
+        subtotal = sum(i.total_amount for i in order.items.all())
+        order.subtotal = subtotal
+        
+        if order.is_buy_back:
+            order.deposit_amount = (subtotal / Decimal('2')).quantize(MONEY)
+            order.final_amount = (subtotal - order.deposit_amount - order.discount_amount).quantize(MONEY)
+        else:
+            order.final_amount = (subtotal - order.discount_amount).quantize(MONEY)
+            
+        order.grand_total = (order.final_amount - order.advance_paid).quantize(MONEY)
+        order.save(update_fields=['subtotal', 'deposit_amount', 'final_amount', 'grand_total', 'updated_at'])
+
+    # Update associated Measurement
+    if item.measurement:
+        measurement = item.measurement
+        m_changed = False
+        
+        m_notes = post_data.get('measurement_notes')
+        if m_notes is not None:
+            m_notes = m_notes.strip()
+            if m_notes != measurement.notes:
+                measurement.notes = m_notes
+                m_changed = True
+                
+        # Update JSON values
+        from measurements.models import get_all_garment_parameters
+        all_params = get_all_garment_parameters()
+        params = all_params.get(item.garment_category, [])
+        
+        values_updated = False
+        is_sample = post_data.get('is_sample_product') == 'on'
+        if is_sample != measurement.is_sample_product:
+            measurement.is_sample_product = is_sample
+            m_changed = True
+            if is_sample:
+                measurement.values = {}
+                values_updated = False # Don't process individual params if clearing
+
+        if not is_sample:
+            for param in params:
+                val = post_data.get(f'measure_{param}')
+                if val is not None:
+                    val = val.strip()
+                    if measurement.values.get(param) != val:
+                        measurement.values[param] = val
+                        values_updated = True
+                    
+        if values_updated:
+            m_changed = True
+            
+        if m_changed:
+            measurement.save(update_fields=['notes', 'values', 'is_sample_product', 'updated_at'])
+            
+    return item

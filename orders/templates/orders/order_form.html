@@ -16,7 +16,7 @@
         </div>
         <div class="flex items-center gap-4">
             <div class="flex flex-col items-end">
-                <span class="text-[10px] font-bold text-theme-muted uppercase tracking-[0.2em] mb-1">REFERENCE NUMBER</span>
+                <span class="text-xs font-bold text-theme-secondary uppercase tracking-[0.2em] mb-1">REFERENCE NUMBER</span>
                 <span class="text-sm font-bold tracking-wider text-theme-primary bg-theme-input border border-theme-input px-5 py-2 rounded-full backdrop-blur-md shadow-inner">#{{ order_number }}</span>
             </div>
         </div>
@@ -34,19 +34,19 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="space-y-2">
-                    <label class="text-[11px] font-bold text-theme-muted uppercase tracking-widest pl-1">FULL NAME</label>
+                    <label class="text-xs font-bold text-theme-secondary uppercase tracking-widest pl-1">FULL NAME</label>
                     <div class="p-4 bg-theme-input/30 border border-theme-input rounded-[16px] text-theme-primary font-bold backdrop-blur-sm group hover:border-secondary/20 transition-all cursor-default">
                         <span class="text-theme-secondary group-hover:text-theme-primary transition-colors">{{ customer.full_name|title }}</span>
                     </div>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[11px] font-bold text-theme-muted uppercase tracking-widest pl-1">PHONE NUMBER</label>
+                    <label class="text-xs font-bold text-theme-secondary uppercase tracking-widest pl-1">PHONE NUMBER</label>
                     <div class="p-4 bg-theme-input/30 border border-theme-input rounded-[16px] text-theme-primary font-bold backdrop-blur-sm group hover:border-secondary/20 transition-all cursor-default">
                         <span class="text-theme-secondary group-hover:text-theme-primary transition-colors">{{ customer.phone }}</span>
                     </div>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[11px] font-bold text-theme-muted uppercase tracking-widest pl-1">CITY / LOCATION</label>
+                    <label class="text-xs font-bold text-theme-secondary uppercase tracking-widest pl-1">CITY / LOCATION</label>
                     <div class="p-4 bg-theme-input/30 border border-theme-input rounded-[16px] text-theme-primary font-bold backdrop-blur-sm group hover:border-secondary/20 transition-all cursor-default">
                         <span class="text-theme-secondary group-hover:text-theme-primary transition-colors">{{ customer.city|title|default:"-" }}</span>
                     </div>
@@ -57,7 +57,7 @@
         <section class="glass-panel p-6 mt-6 relative z-30">
             <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
                 <div class="space-y-2">
-                    <label class="text-[11px] font-bold text-theme-secondary uppercase tracking-widest pl-1">SALESPERSON</label>
+                    <label class="text-xs font-bold text-theme-primary uppercase tracking-widest pl-1">SALESPERSON</label>
                     <div class="srdc-dropdown">
                         <input type="checkbox" id="salesperson-dropdown">
                         <input type="hidden" name="salesperson" value="">
@@ -74,7 +74,7 @@
                     </div>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[11px] font-bold text-theme-secondary uppercase tracking-widest pl-1">ORDER TYPE</label>
+                    <label class="text-xs font-bold text-theme-primary uppercase tracking-widest pl-1">ORDER TYPE</label>
                     <div class="srdc-dropdown">
                         <input type="checkbox" id="order-type-dropdown">
                         <input type="hidden" name="order_type" value="{{ current_order_type|default:'custom' }}">
@@ -94,7 +94,7 @@
                     </div>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[11px] font-bold text-theme-secondary uppercase tracking-widest pl-1">DELIVERY DATE</label>
+                    <label class="text-xs font-bold text-theme-primary uppercase tracking-widest pl-1">DELIVERY DATE</label>
                     <div class="srdc-datepicker">
                         <input type="hidden" name="delivery_date" value="">
                         <div class="srdc-datepicker__face">
@@ -131,7 +131,7 @@
                     </div>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[11px] font-bold text-theme-secondary uppercase tracking-widest pl-1">RETURN DATE</label>
+                    <label class="text-xs font-bold text-theme-primary uppercase tracking-widest pl-1">RETURN DATE</label>
                     <div class="srdc-datepicker">
                         <input type="hidden" name="return_date" value="">
                         <div class="srdc-datepicker__face">
@@ -168,7 +168,7 @@
                     </div>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[11px] font-bold text-theme-secondary uppercase tracking-widest pl-1">BUY BACK</label>
+                    <label class="text-xs font-bold text-theme-primary uppercase tracking-widest pl-1">BUY BACK</label>
                     <div class="glass-panel p-3 border border-theme-input rounded-[12px] flex items-center justify-between mt-1" style="height: 48px;">
                         <span class="text-theme-secondary font-bold text-sm">Is Buy Back?</span>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -199,7 +199,7 @@
                     </div>
                     
                     <!-- Desktop Header (Hidden on Mobile) -->
-                    <div class="hidden md:grid grid-cols-12 gap-4 bg-gradient-to-r from-secondary/20 to-transparent text-theme-secondary p-4 font-serif text-[11px] uppercase tracking-[0.15em] font-bold border-b border-theme-input">
+                    <div class="hidden md:grid grid-cols-12 gap-4 bg-gradient-to-r from-secondary/20 to-transparent text-theme-primary p-4 font-serif text-xs uppercase tracking-[0.15em] font-bold border-b border-theme-input">
                         <div class="col-span-6 pl-2">Item Description</div>
                         <div class="col-span-2 text-right">Qty</div>
                         <div class="col-span-2 text-right">Rate (₹)</div>
@@ -210,22 +210,22 @@
                         {% for item in selected_items %}
                         <div class="item-row group p-4 md:p-0 md:grid md:grid-cols-12 md:gap-4 md:items-center relative hover:bg-theme-input/20 transition-all duration-300">
                             <div class="col-span-6 md:p-4">
-                                <label class="md:hidden text-[10px] font-bold text-theme-muted uppercase tracking-widest block mb-1">Item Description</label>
+                                <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Item Description</label>
                                 <input type="hidden" name="item_garment_category[]" value="{{ item.type }}">
                                 <input type="text" name="item_description[]" class="w-full bg-theme-input border border-theme-input rounded-[16px] p-3 font-semibold text-theme-primary text-sm sm:text-base placeholder-theme focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all shadow-sm" value="{{ item.label }}" placeholder="e.g. Custom Shirt" required>
                             </div>
 
                             <div class="grid grid-cols-3 gap-4 mt-4 md:mt-0 md:col-span-6 md:grid-cols-6 md:items-center md:pr-4">
                                 <div class="col-span-1 md:col-span-2 md:text-right">
-                                    <label class="md:hidden text-[10px] font-bold text-theme-muted uppercase tracking-widest block mb-1">Qty</label>
+                                    <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Qty</label>
                                     <input type="number" name="item_qty[]" class="w-full md:w-24 bg-theme-input border border-theme-input rounded-[16px] p-3 text-right qty-input text-sm sm:text-base text-theme-primary focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all" value="{{ item.qty }}" min="1" required>
                                 </div>
                                 <div class="col-span-1 md:col-span-2 md:text-right">
-                                    <label class="md:hidden text-[10px] font-bold text-theme-muted uppercase tracking-widest block mb-1">Rate</label>
+                                    <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Rate</label>
                                     <input type="number" name="item_rate[]" class="w-full md:w-36 bg-theme-input border border-theme-input rounded-[16px] p-3 text-right rate-input text-sm sm:text-base text-theme-primary focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all" value="{{ item.rate }}" placeholder="0.00" step="0.01" required>
                                 </div>
                                 <div class="col-span-1 md:col-span-2 text-right">
-                                    <label class="md:hidden text-[10px] font-bold text-theme-muted uppercase tracking-widest block mb-1">Total</label>
+                                    <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Total</label>
                                     <div class="font-bold text-xl text-theme-primary item-total md:py-2">₹ 0.00</div>
                                 </div>
                             </div>
@@ -248,22 +248,22 @@
                     <template id="row-template">
                         <div class="item-row group p-4 md:p-0 md:grid md:grid-cols-12 md:gap-4 md:items-center relative hover:bg-theme-input/20 transition-all duration-300">
                             <div class="col-span-6 md:p-4">
-                                <label class="md:hidden text-[10px] font-bold text-theme-muted uppercase tracking-widest block mb-1">Item Description</label>
+                                <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Item Description</label>
                                 <input type="hidden" name="item_garment_category[]" value="">
                                 <input type="text" name="item_description[]" class="w-full bg-theme-input border border-theme-input rounded-[16px] p-3 font-semibold text-theme-primary text-sm sm:text-base placeholder-theme focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all shadow-sm" placeholder="e.g. Custom Shirt" required>
                             </div>
 
                             <div class="grid grid-cols-3 gap-4 mt-4 md:mt-0 md:col-span-6 md:grid-cols-6 md:items-center md:pr-4">
                                 <div class="col-span-1 md:col-span-2 md:text-right">
-                                    <label class="md:hidden text-[10px] font-bold text-theme-muted uppercase tracking-widest block mb-1">Qty</label>
+                                    <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Qty</label>
                                     <input type="number" name="item_qty[]" class="w-full md:w-24 bg-theme-input border border-theme-input rounded-[16px] p-3 text-right qty-input text-sm sm:text-base text-theme-primary focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all" value="1" min="1" required>
                                 </div>
                                 <div class="col-span-1 md:col-span-2 md:text-right">
-                                    <label class="md:hidden text-[10px] font-bold text-theme-muted uppercase tracking-widest block mb-1">Rate</label>
+                                    <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Rate</label>
                                     <input type="number" name="item_rate[]" class="w-full md:w-36 bg-theme-input border border-theme-input rounded-[16px] p-3 text-right rate-input text-sm sm:text-base text-theme-primary focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all" placeholder="0.00" step="0.01" required>
                                 </div>
                                 <div class="col-span-1 md:col-span-2 text-right">
-                                    <label class="md:hidden text-[10px] font-bold text-theme-muted uppercase tracking-widest block mb-1">Total</label>
+                                    <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Total</label>
                                     <div class="font-bold text-xl text-theme-primary item-total md:py-2">₹ 0.00</div>
                                 </div>
                             </div>
@@ -366,7 +366,7 @@
                                 <input type="hidden" name="grand_total" id="input-grand-total" value="0">
                             </div>
                              <div class="flex flex-col items-end mt-4 pt-4 border-t border-theme-input relative z-10">
-                                <p class="text-[10px] text-theme-muted uppercase tracking-[0.2em] font-black mb-1">Balance Due on Delivery</p>
+                                <p class="text-xs text-theme-secondary uppercase tracking-[0.2em] font-black mb-1">Balance Due on Delivery</p>
                                 <span class="text-secondary font-black text-2xl drop-shadow-[0_0_10px_rgba(216,182,109,0.3)]" id="summary-balance-due">₹ 0.00</span>
                             </div>
                         </div>

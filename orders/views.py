@@ -9,8 +9,8 @@ from django.utils.dateparse import parse_date
 from measurements.models import get_all_garment_categories
 from customers.models import Customer
 from salesperson.models import Salesperson
-from .models import Order, OrderStatus, OrderType
-from .services import create_order_from_post, update_order_from_post
+from .models import Order, OrderItem, OrderStatus, OrderType
+from .services import create_order_from_post, update_order_from_post, update_order_info_from_post, update_order_item_from_post
 
 @login_required
 def order_create(request):
@@ -112,7 +112,8 @@ def order_print(request, order_id):
                 measurements.append({
                     'category_display': all_cats.get(cat, cat.title()),
                     'data': ordered_values,
-                    'notes': m.notes
+                    'notes': m.notes,
+                    'is_sample_product': m.is_sample_product
                 })
                 
     amount_in_words = num2words(order.final_amount)
@@ -190,7 +191,7 @@ def order_list(request):
 def order_list_print(request):
     orders, filters_context = filtered_orders_from_request(request)
     generated_at = timezone.localtime()
-    total_amount = sum(order.grand_total for order in orders)
+    total_amount = sum(order.final_amount for order in orders)
 
     context = {
         'orders': orders,
@@ -213,11 +214,15 @@ def order_detail(request, order_id):
         return redirect('order_detail', order_id=order.id)
         
     items = order.items.all()
+    
+    from measurements.models import get_all_garment_parameters
     context = {
         'order': order,
         'items': items,
         'statuses': OrderStatus.choices,
         'balance_due': order.balance_due,
+        'salespeople': Salesperson.objects.filter(is_active=True),
+        'garment_parameters': get_all_garment_parameters(),
     }
     return render(request, 'orders/order_detail.html', context)
 
@@ -295,3 +300,39 @@ def delivery_schedule(request):
         'total_balance': total_balance,
     }
     return render(request, 'orders/delivery_schedule.html', context)
+
+
+@login_required
+def order_delete(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == 'POST':
+        order_number = order.order_number
+        customer_name = order.customer.full_name
+        order.delete()  # CASCADE deletes OrderItems automatically
+        messages.success(request, f'Order {order_number} for {customer_name} has been permanently deleted.')
+        return redirect('order_list')
+    # If GET, just redirect back (no GET-based deletion)
+    return redirect('order_detail', order_id=order_id)
+
+@login_required
+def order_edit_info(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == 'POST':
+        try:
+            update_order_info_from_post(order, request.POST)
+            messages.success(request, 'Order info updated.')
+        except ValidationError as exc:
+            messages.error(request, '; '.join(exc.messages))
+    return redirect('order_detail', order_id=order_id)
+
+@login_required
+def order_item_edit(request, order_id, item_id):
+    order = get_object_or_404(Order, id=order_id)
+    item = get_object_or_404(OrderItem, id=item_id, order=order)
+    if request.method == 'POST':
+        try:
+            update_order_item_from_post(item, request.POST)
+            messages.success(request, f'Item "{item.description}" updated.')
+        except ValidationError as exc:
+            messages.error(request, '; '.join(exc.messages))
+    return redirect('order_detail', order_id=order_id)

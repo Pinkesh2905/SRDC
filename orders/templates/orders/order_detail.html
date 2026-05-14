@@ -21,6 +21,9 @@
             <div>
                 <div class="flex items-center gap-3">
                     <h2 class="font-h1 text-3xl sm:text-4xl font-bold text-theme-primary tracking-tight">Order #{{ order.order_number }}</h2>
+                    <button type="button" onclick="openEditOrderModal()" class="w-8 h-8 rounded-full bg-secondary/10 text-secondary hover:bg-secondary/20 flex items-center justify-center transition-all shadow-sm shrink-0" title="Edit Order Info">
+                        <span class="material-symbols-outlined text-[16px]">edit</span>
+                    </button>
                     <span class="px-3 py-1 rounded-full bg-secondary/20 border border-secondary/30 text-secondary text-[10px] font-bold uppercase tracking-wider">
                         {% for value,label in statuses %}
                             {% if order.status == value %}{{ label }}{% endif %}
@@ -35,6 +38,10 @@
                 <span class="material-symbols-outlined text-lg mr-2">print</span>
                 Print Invoice
             </a>
+            <button type="button" onclick="openDeleteModal()" class="flex items-center gap-2 px-6 py-3 rounded-[14px] font-bold text-sm bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20 hover:text-red-300 transition-all duration-200" title="Delete this order permanently">
+                <span class="material-symbols-outlined text-lg">delete_forever</span>
+                <span class="hidden sm:inline">Delete</span>
+            </button>
         </div>
     </div>
 
@@ -60,8 +67,11 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-[10px] font-bold text-theme-muted uppercase tracking-widest mb-1">Subtotal</div>
-                            <div class="font-bold text-xl text-theme-primary">₹{{ item.total_amount }}</div>
+                            <div class="text-xs font-bold text-theme-secondary uppercase tracking-widest mb-1">Subtotal</div>
+                            <div class="font-bold text-xl text-theme-primary mb-2">₹{{ item.total_amount }}</div>
+                            <button type="button" onclick="openEditItemModal('{{ item.id }}')" class="text-[10px] text-secondary hover:text-theme-primary font-bold uppercase tracking-wider flex items-center justify-end gap-1 ml-auto transition-colors">
+                                <span class="material-symbols-outlined text-[14px]">edit</span> Edit
+                            </button>
                         </div>
                     </div>
                     {% endfor %}
@@ -118,7 +128,7 @@
                             <span class="material-symbols-outlined {% if order.is_red_flagged %}text-red-400{% else %}text-theme-muted{% endif %}">flag</span>
                             Red Flag
                         </h3>
-                        <p class="text-[10px] text-theme-muted uppercase tracking-widest">Outsource Required</p>
+                        <p class="text-xs text-theme-secondary uppercase tracking-widest">Outsource Required</p>
                     </div>
                     <form method="POST" action="{% url 'order_detail' order.id %}">
                         {% csrf_token %}
@@ -166,26 +176,32 @@
                         <span>Subtotal</span>
                         <span class="text-theme-primary">₹{{ order.subtotal }}</span>
                     </div>
+                    <div class="flex justify-between text-secondary items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="text-theme-secondary">Discount</span>
+                            <button type="button" onclick="openEditDiscountModal()" class="w-6 h-6 rounded-full hover:bg-secondary/10 flex items-center justify-center text-secondary transition-all" title="Edit total discount">
+                                <span class="material-symbols-outlined text-[14px]">edit</span>
+                            </button>
+                        </div>
+                        <span class="{% if order.discount_amount > 0 %}text-secondary{% else %}text-theme-primary{% endif %}">
+                            {% if order.discount_amount > 0 %}-{% endif %}₹{{ order.discount_amount }}
+                        </span>
+                    </div>
                     {% if order.is_buy_back %}
                     <div class="flex justify-between text-secondary">
                         <span class="text-theme-secondary">Deposit Amount{% if order.is_deposit_paid %} (Paid){% else %} (Pending){% endif %}</span>
                         <span>₹{{ order.deposit_amount }}</span>
                     </div>
-                    {% elif order.discount_amount > 0 %}
-                    <div class="flex justify-between text-secondary">
-                        <span class="text-theme-secondary">Discount</span>
-                        <span>-₹{{ order.discount_amount }}</span>
-                    </div>
                     {% endif %}
-                    <div class="flex justify-between font-bold text-theme-primary pt-2 border-t border-theme-input">
-                        <span>Grand Total</span>
-                        <span>₹{{ order.grand_total }}</span>
+                    <div class="flex justify-between font-bold text-theme-primary pt-2 border-t border-theme-input bg-theme-input/5 px-2 -mx-2 rounded-lg">
+                        <span class="text-secondary">Net Amount</span>
+                        <span>₹{{ order.final_amount }}</span>
                     </div>
-                    <div class="flex justify-between text-theme-secondary pt-2">
+                    <div class="flex justify-between text-theme-secondary pt-2 px-1">
                         <span>Advance Paid</span>
                         <span class="text-theme-primary">₹{{ order.advance_paid }}</span>
                     </div>
-                    <div class="flex justify-between text-theme-muted text-xs mt-1 italic">
+                    <div class="flex justify-between text-theme-muted text-[10px] mt-1 italic px-1">
                         <span>Payment Method</span>
                         <span>{{ order.get_payment_method_display }}</span>
                     </div>
@@ -195,7 +211,7 @@
                     <div class="absolute top-0 right-0 w-24 h-24  rounded-full -mr-12 -mt-12 blur-xl"></div>
                     <div class="flex justify-between items-end relative z-10">
                         <div>
-                            <span class="text-[10px] font-bold text-theme-muted uppercase tracking-widest block mb-1">Balance Due</span>
+                            <span class="text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Balance Due</span>
                             <span class="font-serif text-3xl font-bold tracking-tight">₹{{ balance_due|floatformat:2 }}</span>
                         </div>
                         <span class="material-symbols-outlined text-theme-muted text-4xl">payments</span>
@@ -203,15 +219,30 @@
                 </div>
 
                 {% if balance_due > 0 %}
-                <form method="POST" action="{% url 'order_detail' order.id %}" class="space-y-4">
+                <form method="POST" action="{% url 'order_detail' order.id %}" class="space-y-4 mb-6">
+                    {% csrf_token %}
+                    <div class="grid grid-cols-12 gap-2">
+                        <div class="col-span-8">
+                            <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-1 px-1">Apply Discount</label>
+                            <input type="number" step="0.01" max="{{ balance_due }}" name="additional_discount" placeholder="0.00" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-3 py-2 text-sm focus:outline-none focus:border-secondary/50 text-theme-primary font-bold transition-all" required>
+                        </div>
+                        <div class="col-span-4 flex items-end">
+                            <button type="submit" class="w-full px-4 py-2 rounded-[12px] font-bold text-sm bg-theme-input text-theme-primary border border-theme-input hover:bg-theme-input/80 transition-all !h-[38px]">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <form method="POST" action="{% url 'order_detail' order.id %}" class="space-y-4 border-t border-theme-input pt-6">
                     {% csrf_token %}
                     <div class="grid grid-cols-12 gap-2">
                         <div class="col-span-7">
-                            <label class="block text-[10px] font-bold text-theme-muted uppercase tracking-widest mb-1 px-1">Amount</label>
+                            <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-1 px-1">Amount</label>
                             <input type="number" step="0.01" max="{{ balance_due }}" name="additional_payment" placeholder="0.00" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-3 py-2 text-sm focus:outline-none focus:border-secondary/50 text-theme-primary font-bold transition-all" required>
                         </div>
                         <div class="col-span-5">
-                            <label class="block text-[10px] font-bold text-theme-muted uppercase tracking-widest mb-1 px-1">Method</label>
+                            <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-1 px-1">Method</label>
                             <div class="srdc-dropdown w-full z-10">
                                 <input type="checkbox" id="detail-payment-method">
                                 <input type="hidden" name="payment_method" value="{{ order.payment_method }}">
@@ -241,6 +272,256 @@
                 {% endif %}
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4" style="display:none !important;">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+    <!-- Modal Card -->
+    <div class="relative z-10 glass-panel w-full max-w-md p-8 rounded-[24px] border border-red-500/30 shadow-2xl">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-14 h-14 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-red-400 text-3xl">delete_forever</span>
+            </div>
+            <div>
+                <h3 class="font-serif text-xl font-bold text-slate-900 dark:text-white">Delete Order?</h3>
+                <p class="text-sm text-slate-500 dark:text-white/50 mt-0.5">This action cannot be undone.</p>
+            </div>
+        </div>
+        <div class="bg-red-500/10 border border-red-500/20 rounded-[14px] p-4 mb-6">
+            <p class="text-sm text-red-300 leading-relaxed">
+                You are about to permanently delete order
+                <span class="font-bold text-red-200">{{ order.order_number }}</span>
+                for <span class="font-bold text-red-200">{{ order.customer.full_name }}</span>.
+                All order items and billing records for this order will be removed.
+            </p>
+        </div>
+        <div class="flex gap-3">
+            <button type="button" onclick="closeDeleteModal()" class="flex-1 px-6 py-3 rounded-[12px] font-bold text-sm text-slate-600 dark:text-white/70 border border-slate-300 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 transition-all">
+                Cancel
+            </button>
+            <form method="POST" action="{% url 'order_delete' order.id %}" class="flex-1">
+                {% csrf_token %}
+                <button type="submit" class="w-full px-6 py-3 rounded-[12px] font-bold text-sm bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30 hover:text-red-200 transition-all">
+                    Yes, Delete Permanently
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openDeleteModal() {
+    var modal = document.getElementById('deleteModal');
+    modal.style.setProperty('display', 'flex', 'important');
+    document.body.style.overflow = 'hidden';
+}
+function closeDeleteModal() {
+    var modal = document.getElementById('deleteModal');
+    modal.style.setProperty('display', 'none', 'important');
+    document.body.style.overflow = '';
+}
+function openEditOrderModal() {
+    var modal = document.getElementById('editOrderModal');
+    modal.style.setProperty('display', 'flex', 'important');
+    document.body.style.overflow = 'hidden';
+}
+function closeEditOrderModal() {
+    var modal = document.getElementById('editOrderModal');
+    modal.style.setProperty('display', 'none', 'important');
+    document.body.style.overflow = '';
+}
+function openEditItemModal(itemId) {
+    var modal = document.getElementById('editItemModal-' + itemId);
+    if(modal) {
+        modal.style.setProperty('display', 'flex', 'important');
+        document.body.style.overflow = 'hidden';
+    }
+}
+function closeEditItemModal(itemId) {
+    var modal = document.getElementById('editItemModal-' + itemId);
+    if(modal) {
+        modal.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+    }
+}
+function openEditDiscountModal() {
+    var modal = document.getElementById('editDiscountModal');
+    modal.style.setProperty('display', 'flex', 'important');
+    document.body.style.overflow = 'hidden';
+}
+function closeEditDiscountModal() {
+    var modal = document.getElementById('editDiscountModal');
+    modal.style.setProperty('display', 'none', 'important');
+    document.body.style.overflow = '';
+}
+function toggleSampleInModal(checkbox, itemId) {
+    const grid = document.getElementById(`measure-grid-${itemId}`);
+    if (checkbox.checked) {
+        grid.classList.add('hidden');
+    } else {
+        grid.classList.remove('hidden');
+    }
+}
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDeleteModal();
+        closeEditOrderModal();
+        closeEditDiscountModal();
+        document.querySelectorAll('[id^="editItemModal-"]').forEach(m => m.style.setProperty('display', 'none', 'important'));
+        document.body.style.overflow = '';
+    }
+});
+</script>
+
+<!-- Edit Order Info Modal -->
+<div id="editOrderModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4" style="display:none !important;">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeEditOrderModal()"></div>
+    <div class="relative z-10 glass-panel w-full max-w-2xl p-6 md:p-8 rounded-[24px] border border-theme-input shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <h3 class="font-serif text-2xl font-bold text-theme-primary mb-6 flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary">edit_document</span>
+            Edit Order Info
+        </h3>
+        <form method="POST" action="{% url 'order_edit_info' order.id %}">
+            {% csrf_token %}
+            <div class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Customer Name</label>
+                        <input type="text" name="customer_name" value="{{ order.customer.full_name }}" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Phone</label>
+                        <input type="text" name="customer_phone" value="{{ order.customer.phone }}" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">City</label>
+                        <input type="text" name="customer_city" value="{{ order.customer.city }}" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Salesperson</label>
+                        <select name="salesperson" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all appearance-none cursor-pointer">
+                            <option value="">None</option>
+                            {% for sp in salespeople %}
+                            <option value="{{ sp.id }}" {% if order.salesperson.id == sp.id %}selected{% endif %}>{{ sp.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Order Notes</label>
+                    <textarea name="notes" rows="3" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all resize-none">{{ order.notes }}</textarea>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button type="button" onclick="closeEditOrderModal()" class="flex-1 px-6 py-3 rounded-[12px] font-bold text-sm text-theme-secondary border border-theme-input hover:bg-theme-input hover:text-theme-primary transition-all">Cancel</button>
+                <button type="submit" class="flex-1 btn-premium !py-3">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Garment Modals -->
+{% for item in items %}
+<div id="editItemModal-{{ item.id }}" class="fixed inset-0 z-[9999] flex items-center justify-center p-4" style="display:none !important;">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeEditItemModal('{{ item.id }}')"></div>
+    <div class="relative z-10 glass-panel w-full max-w-3xl p-6 md:p-8 rounded-[24px] border border-theme-input shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <h3 class="font-serif text-2xl font-bold text-theme-primary mb-6 flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary">checkroom</span>
+            Edit Garment
+        </h3>
+        <form method="POST" action="{% url 'order_item_edit' order.id item.id %}">
+            {% csrf_token %}
+            <div class="space-y-6">
+                <!-- Item Basic Info -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Description</label>
+                        <input type="text" name="description" value="{{ item.description }}" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Qty</label>
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all text-center" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Rate (₹)</label>
+                            <input type="number" step="0.01" name="rate" value="{{ item.rate }}" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all text-center" required>
+                        </div>
+                    </div>
+                </div>
+
+                {% if item.measurement %}
+                <div class="border-t border-theme-input pt-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h4 class="font-serif text-lg font-bold text-theme-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-theme-secondary text-xl">straighten</span>
+                            Measurement Values
+                        </h4>
+                        
+                        <!-- Sample Product Toggle -->
+                        <div class="flex items-center gap-3 bg-secondary/5 border border-secondary/20 px-4 py-2 rounded-full">
+                            <span class="text-[10px] font-bold text-secondary uppercase tracking-widest">Sample Product</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_sample_product" class="sr-only peer" 
+                                    {% if item.measurement.is_sample_product %}checked{% endif %}
+                                    onchange="toggleSampleInModal(this, '{{ item.id }}')">
+                                <div class="w-9 h-5 bg-slate-200 dark:bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="measure-grid-{{ item.id }}" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 {% if item.measurement.is_sample_product %}hidden{% endif %}">
+                        {% for cat, params in garment_parameters.items %}
+                            {% if cat == item.garment_category %}
+                                {% for param in params %}
+                                <div>
+                                    <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">{{ param }}</label>
+                                    <input type="text" name="measure_{{ param }}" value="{% for k,v in item.measurement.values.items %}{% if k == param %}{{ v }}{% endif %}{% endfor %}" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-3 py-2 text-sm focus:outline-none focus:border-secondary/50 text-theme-primary transition-all">
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="pt-2">
+                    <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Measurement Notes</label>
+                    <textarea name="measurement_notes" rows="2" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all resize-none">{{ item.measurement.notes }}</textarea>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="flex gap-3 mt-8 pt-4 border-t border-theme-input">
+                <button type="button" onclick="closeEditItemModal('{{ item.id }}')" class="flex-1 px-6 py-3 rounded-[12px] font-bold text-sm text-theme-secondary border border-theme-input hover:bg-theme-input hover:text-theme-primary transition-all">Cancel</button>
+                <button type="submit" class="flex-1 btn-premium !py-3">Save Garment</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endfor %}
+<!-- Edit Discount Modal -->
+<div id="editDiscountModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4" style="display:none !important;">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeEditDiscountModal()"></div>
+    <div class="relative z-10 glass-panel w-full max-w-md p-8 rounded-[24px] border border-theme-input shadow-2xl">
+        <h3 class="font-serif text-xl font-bold text-theme-primary mb-6 flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary">sell</span>
+            Edit Total Discount
+        </h3>
+        <form method="POST" action="{% url 'order_detail' order.id %}">
+            {% csrf_token %}
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Total Discount Amount (₹)</label>
+                <input type="number" step="0.01" max="{{ order.subtotal }}" name="total_discount" value="{{ order.discount_amount }}" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary font-bold transition-all" required>
+                <p class="text-[10px] text-theme-secondary mt-2 px-1">Subtotal: ₹{{ order.subtotal }}</p>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeEditDiscountModal()" class="flex-1 px-6 py-3 rounded-[12px] font-bold text-sm text-theme-secondary border border-theme-input hover:bg-theme-input transition-all">Cancel</button>
+                <button type="submit" class="flex-1 btn-premium !py-3">Save Discount</button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

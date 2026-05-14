@@ -18,11 +18,11 @@
         box-shadow: var(--card-hover-shadow);
     }
     .score-card__label {
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.15em;
-        color: var(--text-muted);
+        color: var(--text-secondary);
         margin-bottom: 8px;
     }
     .score-card__value {
@@ -67,7 +67,7 @@
         color: var(--text-primary);
         margin-bottom: 20px;
     }
-    .movement-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 8px; margin-top: 16px; }
+    .movement-label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-secondary); margin-bottom: 8px; margin-top: 16px; }
     .movement-label:first-child { margin-top: 0; }
     .movement-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; color: var(--text-amber-700 dark:text-secondary); }
     .movement-row span:last-child { font-weight: 700; }
@@ -112,7 +112,7 @@
         <div class="score-card">
             <div class="score-card__label">Total Revenue</div>
             <div class="score-card__value">{{ total_revenue_fmt }}</div>
-            <div class="score-card__sub">Gross billing</div>
+            <div class="score-card__sub">Net billing</div>
         </div>
         <div class="score-card">
             <div class="score-card__label">Avg Order Value</div>
@@ -141,16 +141,16 @@
         <div class="score-card">
             <div class="score-card__label">Advance Received</div>
             <div class="score-card__value">{{ total_advance_fmt }}</div>
-                <div class="score-card__sub flex gap-4 mt-2">
-                <div>
-                    <span class="text-[10px] uppercase tracking-wider text-theme-muted block mb-0.5">Cash</span>
-                    <span class="text-emerald-500 dark:text-emerald-400 font-bold text-sm">{{ cash_adv_fmt }}</span>
+                <div class="score-card__sub flex gap-8 mt-4">
+                    <div class="cursor-pointer hover:bg-theme-input/20 p-2 -m-2 rounded-lg transition-all group" onclick="showAdvanceDetails('cash')">
+                        <span class="text-[10px] uppercase tracking-widest text-theme-secondary block mb-1 group-hover:text-emerald-500 transition-colors">Cash</span>
+                        <span class="text-emerald-500 dark:text-emerald-400 font-black text-base">{{ cash_adv_fmt }}</span>
+                    </div>
+                    <div class="cursor-pointer hover:bg-theme-input/20 p-2 -m-2 rounded-lg transition-all group" onclick="showAdvanceDetails('online')">
+                        <span class="text-[10px] uppercase tracking-widest text-theme-secondary block mb-1 group-hover:text-blue-500 transition-colors">Online</span>
+                        <span class="text-blue-500 dark:text-blue-400 font-black text-base">{{ online_adv_fmt }}</span>
+                    </div>
                 </div>
-                <div>
-                    <span class="text-[10px] uppercase tracking-wider text-theme-muted block mb-0.5">Online</span>
-                    <span class="text-blue-500 dark:text-blue-400 font-bold text-sm">{{ online_adv_fmt }}</span>
-                </div>
-            </div>
         </div>
         <div class="score-card">
             <div class="score-card__label">Pending Payments</div>
@@ -218,10 +218,85 @@
     </div>
 </div>
 
-<!-- ═══ CHART.JS INITIALIZATION ═══ -->
+<!-- Advance Details Modal -->
+<div id="advanceModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <div class="bg-theme-glass backdrop-blur-2xl rounded-[24px] shadow-2xl w-full max-w-lg transform scale-95 opacity-0 transition-all duration-300 overflow-hidden border border-theme-input" id="advanceModalCard">
+        <div class="bg-theme-input p-6 border-b border-theme-input flex justify-between items-center">
+            <div>
+                <h3 class="font-serif text-xl font-bold text-theme-primary" id="advanceModalTitle">Payment Details</h3>
+                <p class="text-[10px] text-theme-secondary font-black uppercase tracking-[0.2em] mt-1" id="advanceModalSubtitle">Bill-wise breakdown</p>
+            </div>
+            <button onclick="closeAdvanceModal()" class="text-theme-muted hover:text-theme-primary p-2 rounded-full hover:bg-theme-input/50 transition-all">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar bg-theme-input/20">
+            <div id="advanceModalContent" class="space-y-3">
+                <!-- Content injected here -->
+            </div>
+        </div>
+        <div class="p-4 bg-theme-input border-t border-theme-input flex justify-end">
+            <button onclick="closeAdvanceModal()" class="px-6 py-2.5 rounded-xl bg-theme-input text-theme-secondary font-black text-[10px] uppercase tracking-widest border border-theme-input hover:text-theme-primary transition-all">Close</button>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     let revenueTrendChart, productPerfChart;
+
+    // ─── Advance Details Logic ───
+    const cashOrders = {{ cash_orders_json|safe }};
+    const onlineOrders = {{ online_orders_json|safe }};
+
+    window.showAdvanceDetails = function(type) {
+        const modal = document.getElementById('advanceModal');
+        const card = document.getElementById('advanceModalCard');
+        const title = document.getElementById('advanceModalTitle');
+        const content = document.getElementById('advanceModalContent');
+        
+        const data = type === 'cash' ? cashOrders : onlineOrders;
+        title.textContent = (type === 'cash' ? 'Cash' : 'Online') + ' Advance Payments';
+        
+        if (data.length === 0) {
+            content.innerHTML = '<p class="text-center text-theme-muted py-8 italic">No payments found in this period.</p>';
+        } else {
+            let html = '';
+            data.forEach(item => {
+                html += `
+                    <div class="flex items-center justify-between p-4 bg-theme-input/40 rounded-xl border border-theme-input/50 hover:border-theme-primary/30 transition-all">
+                        <div>
+                            <p class="text-[10px] font-black text-theme-secondary uppercase tracking-widest">${item.id}</p>
+                            <p class="font-bold text-theme-primary mt-0.5">${item.name}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-black text-theme-primary text-base">₹${item.amount.toLocaleString('en-IN')}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            content.innerHTML = html;
+        }
+
+        modal.classList.remove('pointer-events-none');
+        modal.classList.add('opacity-100');
+        card.classList.remove('scale-95', 'opacity-0');
+        card.classList.add('scale-100', 'opacity-100');
+    };
+
+    window.closeAdvanceModal = function() {
+        const modal = document.getElementById('advanceModal');
+        const card = document.getElementById('advanceModalCard');
+        modal.classList.add('pointer-events-none');
+        modal.classList.remove('opacity-100');
+        card.classList.add('scale-95', 'opacity-0');
+        card.classList.remove('scale-100', 'opacity-100');
+    };
+
+    // Close on backdrop click
+    document.getElementById('advanceModal').onclick = function(e) {
+        if (e.target === this) window.closeAdvanceModal();
+    };
 
     function getChartColors() {
         const isDark = document.body.classList.contains('dark-mode');

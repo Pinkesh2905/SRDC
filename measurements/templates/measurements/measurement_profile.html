@@ -243,6 +243,7 @@
         const options = getOptionsHTML(garmentType);
         const selectedLabel = globalCategories.find(cat => cat.value === garmentType)?.label || 'Select Garment...';
         const notesValue = measurementData && measurementData.notes ? measurementData.notes : '';
+        const isSample = measurementData && measurementData.is_sample_product ? true : false;
 
         const blockHTML = `
             <div id="${blockId}" class="glass-panel p-6 mb-6 relative group transition-all duration-300 hover:border-secondary/20 border-theme-input bg-theme-input/20">
@@ -259,7 +260,7 @@
                         </button>
                         <input type="hidden" name="bill_garment" value="${garmentCounter}" class="bill-hidden-input">
                         
-                        <span class="text-[10px] font-black text-theme-muted tracking-[0.2em]">#${garmentCounter.toString().padStart(2, '0')}</span>
+                        <span class="text-xs font-black text-theme-secondary tracking-[0.2em]">#${garmentCounter.toString().padStart(2, '0')}</span>
                         
                         <!-- Premium Dropdown -->
                         <div class="srdc-dropdown flex-1 min-w-[200px] srdc-dropdown--glass">
@@ -273,13 +274,21 @@
                                 ${options}
                             </ul>
                         </div>
+                        <!-- Toggle for Sample Product -->
+                        <div class="flex items-center gap-2 ml-4 self-center whitespace-nowrap">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_sample_${garmentCounter}" class="sr-only peer" onchange="toggleSampleProduct(this, '${blockId}')" ${isSample ? 'checked' : ''}>
+                                <div class="w-9 h-5 bg-theme-input peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+                                <span class="ml-2 text-[10px] font-black text-theme-secondary uppercase tracking-[0.1em]">Sample Product</span>
+                            </label>
+                        </div>
                     </div>
                     <button type="button" onclick="removeGarmentBlock('${blockId}')" class="text-theme-muted hover:text-theme-primary hover:bg-theme-input transition-all p-2 rounded-full">
                         <span class="material-symbols-outlined text-lg">close</span>
                     </button>
                 </div>
                 
-                <div id="grid-${blockId}" class="w-full">
+                <div id="grid-${blockId}" class="w-full" style="${isSample ? 'display:none;' : ''}">
                     <div class="text-[10px] font-black text-theme-muted uppercase tracking-[0.3em] py-8 flex flex-col items-center justify-center gap-3 bg-theme-input rounded-2xl border border-dashed border-theme-input">
                         <span class="material-symbols-outlined text-2xl opacity-20">info</span>
                         Select a garment to start
@@ -287,7 +296,7 @@
                 </div>
                 
                 <div class="mt-6">
-                    <label class="text-[10px] font-black text-theme-secondary uppercase tracking-[0.2em] pl-1 mb-2 block">Measurement Notes</label>
+                    <label class="text-xs font-black text-theme-primary uppercase tracking-[0.2em] pl-1 mb-2 block">Measurement Notes</label>
                     <textarea name="notes_${garmentCounter}" 
                               class="w-full bg-theme-input border-theme-input rounded-xl p-4 focus:border-secondary/20 focus:ring-4 focus:ring-secondary/5 focus:text-theme-primary text-theme-primary placeholder-theme text-sm font-medium transition-all shadow-inner" 
                               rows="1" 
@@ -353,7 +362,7 @@
             
             gridHTML += `
                 <div class="flex flex-col space-y-2">
-                    <label class="text-[10px] font-black text-theme-secondary uppercase tracking-[0.2em] pl-1 flex items-center justify-between">
+                    <label class="text-xs font-black text-theme-primary uppercase tracking-[0.2em] pl-1 flex items-center justify-between">
                         <span class="truncate pr-1" title="${param}">${param}</span>
                     </label>
                     <input type="number" step="0.25" 
@@ -374,6 +383,15 @@
             </div>
         </div>`;
         gridContainer.innerHTML = gridHTML;
+    }
+
+    function toggleSampleProduct(checkbox, blockId) {
+        const grid = document.getElementById(`grid-${blockId}`);
+        if (checkbox.checked) {
+            grid.style.display = 'none';
+        } else {
+            grid.style.display = 'block';
+        }
     }
 
     function toggleBill(btn) {
@@ -451,7 +469,7 @@
                                 </div>
                                 <div>
                                     <h4 class="font-black text-theme-primary text-base group-hover:text-secondary transition-colors">${c.full_name}</h4>
-                                    <p class="text-[10px] font-bold text-theme-secondary uppercase tracking-widest mt-0.5">${c.phone}${c.city ? ' · ' + c.city : ''}</p>
+                                    <p class="text-[11px] font-bold text-theme-primary uppercase tracking-widest mt-0.5">${c.phone}${c.city ? ' · ' + c.city : ''}</p>
                                 </div>
                             </div>
                         </div>
@@ -486,7 +504,7 @@
 
         const statusEl = document.getElementById('search-status');
         statusEl.textContent = `✓ PROFILE "${customer.full_name.toUpperCase()}" ACTIVE`;
-        statusEl.className = 'text-[10px] font-black mt-4 px-4 text-green-400 tracking-[0.2em] block';
+        statusEl.className = 'text-xs font-black mt-4 px-4 text-green-400 tracking-[0.2em] block';
         statusEl.classList.remove('hidden');
 
         const container = document.getElementById('garments-container');
@@ -527,7 +545,7 @@
         suggestions.forEach(s => {
             const chip = document.createElement('button');
             chip.type = 'button';
-            chip.className = "px-4 py-2 rounded-full border border-theme-input text-[10px] font-black text-theme-secondary uppercase tracking-widest hover:border-secondary hover:text-theme-primary hover:bg-secondary/10 transition-all";
+            chip.className = "px-4 py-2 rounded-full border border-theme-input text-xs font-black text-theme-primary uppercase tracking-widest hover:border-secondary hover:text-theme-primary hover:bg-secondary/10 transition-all";
             chip.textContent = s;
             chip.onclick = () => {
                 input.value = s;

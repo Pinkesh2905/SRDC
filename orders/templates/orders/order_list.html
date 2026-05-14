@@ -23,7 +23,7 @@
     <form method="GET" action="{% url 'order_list' %}" class="glass-panel p-4 sm:p-6 mb-6 relative z-20">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(240px,1.7fr)_minmax(132px,1fr)_minmax(150px,1fr)_minmax(150px,1fr)_minmax(132px,1fr)_minmax(280px,1.5fr)] gap-4 items-end">
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Search Directory</label>
+                <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Search Directory</label>
                 <div class="relative">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-white/40">search</span>
                     <input name="q" value="{{ q|default:'' }}" class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-[12px] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:text-white/20 focus:outline-none focus:border-secondary/50 transition-all" placeholder="Order, customer, phone" type="search">
@@ -31,7 +31,7 @@
             </div>
             
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Status</label>
+                <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Status</label>
                 <div class="srdc-dropdown">
                     <input type="checkbox" id="status-dropdown">
                     <input type="hidden" name="status" value="{{ current_status|default:'' }}">
@@ -57,7 +57,7 @@
             </div>
 
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Delivery Date</label>
+                <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Delivery Date</label>
                 <div class="srdc-datepicker">
                     <input type="hidden" name="delivery_date" value="{% if delivery_date %}{{ delivery_date|date:'Y-m-d' }}{% endif %}">
                     <div class="srdc-datepicker__face">
@@ -75,7 +75,7 @@
             </div>
 
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Return Date</label>
+                <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Return Date</label>
                 <div class="srdc-datepicker">
                     <input type="hidden" name="return_date" value="{% if return_date %}{{ return_date|date:'Y-m-d' }}{% endif %}">
                     <div class="srdc-datepicker__face">
@@ -93,7 +93,7 @@
             </div>
 
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest mb-2 px-1">Red Flag</label>
+                <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Red Flag</label>
                 <div class="srdc-dropdown">
                     <input type="checkbox" id="redflag-dropdown">
                     <input type="hidden" name="red_flag" value="{{ red_flag|default:'' }}">
@@ -161,7 +161,7 @@
                             <td class="px-8 py-5 text-amber-700 dark:text-secondary text-sm whitespace-nowrap text-center font-bold">{{ order.return_date|date:"M d, Y" }}</td>
                             <td class="px-8 py-5 font-bold text-slate-900 dark:text-white text-sm whitespace-nowrap">₹{{ order.grand_total }}</td>
                         <td class="px-8 py-5">
-                            <span class="inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
                                 {% if order.status == 'delivered' %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
                                 {% elif order.status == 'ready' %}bg-blue-500/20 text-blue-400 border border-blue-500/30
                                 {% elif order.status == 'cutting' %}bg-orange-500/20 text-orange-400 border border-orange-500/30
@@ -180,6 +180,9 @@
                                 <a href="{% url 'order_detail' order.id %}" class="text-slate-500 dark:text-white/40 hover:text-white transition-colors" title="Update Order">
                                     <span class="material-symbols-outlined text-xl">edit</span>
                                 </a>
+                                <button type="button" onclick="openListDeleteModal('{{ order.id }}', '{{ order.order_number }}', '{{ order.customer.full_name|escapejs }}')" class="text-red-400/60 hover:text-red-400 transition-colors" title="Delete Order">
+                                    <span class="material-symbols-outlined text-xl">delete_forever</span>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -205,13 +208,13 @@
                             {% endif %}
                         </div>
                         <div class="flex items-center gap-2">
-                            <div class="w-6 h-6 rounded-full bg-secondary/20 text-secondary border border-secondary/30 flex items-center justify-center text-[10px] font-bold">
+                            <div class="w-6 h-6 rounded-full bg-secondary/20 text-secondary border border-secondary/30 flex items-center justify-center text-xs font-bold">
                                 {{ order.customer.full_name|slice:":1"|upper }}
                             </div>
                             <span class="font-bold text-slate-900 dark:text-white text-sm leading-tight">{{ order.customer.full_name }}</span>
                         </div>
                     </div>
-                    <span class="shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
+                    <span class="shrink-0 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider
                         {% if order.status == 'delivered' %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
                         {% elif order.status == 'ready' %}bg-blue-500/20 text-blue-400 border border-blue-500/30
                         {% elif order.status == 'cutting' %}bg-orange-500/20 text-orange-400 border border-orange-500/30
@@ -242,6 +245,9 @@
                             <span class="material-symbols-outlined text-[16px]">manage_history</span>
                             Manage
                         </a>
+                        <button type="button" onclick="openListDeleteModal('{{ order.id }}', '{{ order.order_number }}', '{{ order.customer.full_name|escapejs }}')" class="flex items-center gap-1 px-3 py-2 rounded-[12px] text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-all" title="Delete">
+                            <span class="material-symbols-outlined text-[16px]">delete_forever</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -256,7 +262,7 @@
     <!-- Pagination if needed -->
     {% if is_paginated %}
     <div class="glass-panel mt-6 px-8 py-4 flex items-center justify-between">
-        <span class="text-xs font-bold text-slate-500 dark:text-white/40 uppercase tracking-widest">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+        <span class="text-xs font-bold text-theme-secondary uppercase tracking-widest">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
         <div class="flex gap-2">
             {% if page_obj.has_previous %}
             <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" class="p-2 rounded-[12px] border border-slate-300 dark:border-white/10 bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white hover:bg-white/10 transition-colors">
@@ -272,4 +278,58 @@
     </div>
     {% endif %}
 </div>
+
+<!-- List-level Delete Confirmation Modal (shared across all rows) -->
+<div id="listDeleteModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4" style="display:none !important;">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeListDeleteModal()"></div>
+    <div class="relative z-10 glass-panel w-full max-w-md p-8 rounded-[24px] border border-red-500/30 shadow-2xl">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-14 h-14 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-red-400 text-3xl">delete_forever</span>
+            </div>
+            <div>
+                <h3 class="font-serif text-xl font-bold text-slate-900 dark:text-white">Delete Order?</h3>
+                <p class="text-sm text-slate-500 dark:text-white/50 mt-0.5">This action cannot be undone.</p>
+            </div>
+        </div>
+        <div class="bg-red-500/10 border border-red-500/20 rounded-[14px] p-4 mb-6">
+            <p class="text-sm text-red-300 leading-relaxed">
+                Permanently delete order
+                <span id="modalOrderNumber" class="font-bold text-red-200"></span>
+                for <span id="modalCustomerName" class="font-bold text-red-200"></span>?
+                All items and billing records will be removed.
+            </p>
+        </div>
+        <div class="flex gap-3">
+            <button type="button" onclick="closeListDeleteModal()" class="flex-1 px-6 py-3 rounded-[12px] font-bold text-sm text-slate-600 dark:text-white/70 border border-slate-300 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 transition-all">
+                Cancel
+            </button>
+            <form id="listDeleteForm" method="POST" action="" class="flex-1">
+                {% csrf_token %}
+                <button type="submit" class="w-full px-6 py-3 rounded-[12px] font-bold text-sm bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30 hover:text-red-200 transition-all">
+                    Yes, Delete Permanently
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openListDeleteModal(orderId, orderNumber, customerName) {
+    document.getElementById('modalOrderNumber').textContent = orderNumber;
+    document.getElementById('modalCustomerName').textContent = customerName;
+    document.getElementById('listDeleteForm').action = '/orders/' + orderId + '/delete/';
+    var modal = document.getElementById('listDeleteModal');
+    modal.style.setProperty('display', 'flex', 'important');
+    document.body.style.overflow = 'hidden';
+}
+function closeListDeleteModal() {
+    var modal = document.getElementById('listDeleteModal');
+    modal.style.setProperty('display', 'none', 'important');
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeListDeleteModal();
+});
+</script>
 {% endblock %}

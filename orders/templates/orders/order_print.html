@@ -416,10 +416,24 @@
         <div class="p-6 space-y-8">
             {% for m in measurements %}
             <div class="w-full border border-gray-200 bg-white shadow-sm">
-                <div class="bg-stone-100 text-gray-700 font-invoice-accent p-3 flex justify-between items-center border-b border-gray-200">
-                    <span class="uppercase tracking-wider font-bold">{{ m.category_display }}</span>
-                    <span class="text-xs font-body-sm tracking-normal font-medium">Bill No: {{ order.id|stringformat:"03d" }} | {{ order.customer.full_name|title }}</span>
+                <div class="bg-stone-100 text-gray-700 font-invoice-accent p-3 flex justify-between items-start border-b border-gray-200">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="uppercase tracking-wider font-bold">{{ m.category_display }}</span>
+                        {% if m.notes %}
+                        <span class="text-sm font-body-sm text-primary/60 italic font-normal tracking-normal normal-case">📝 {{ m.notes }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-xs font-body-sm tracking-normal font-medium shrink-0 ml-4">Bill No: {{ order.id|stringformat:"03d" }} | {{ order.customer.full_name|title }}</span>
                 </div>
+                {% if m.is_sample_product %}
+                <div class="p-8 text-center bg-stone-50 border-t border-gray-100">
+                    <div class="flex flex-col items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-secondary text-4xl">inventory_2</span>
+                        <p class="font-headline-md text-secondary uppercase tracking-widest text-lg">Sample product for measurement</p>
+                        <p class="text-xs font-body-sm text-primary/60 italic">No detailed measurements required as sample was provided.</p>
+                    </div>
+                </div>
+                {% else %}
                 <div class="grid grid-cols-3 gap-y-3 gap-x-4 p-4">
                     {% for param in m.data %}
                     <div class="flex flex-col border-b border-gray-200 pb-2">
@@ -428,6 +442,7 @@
                     </div>
                     {% endfor %}
                 </div>
+                {% endif %}
             </div>
             {% endfor %}
             

@@ -17,7 +17,8 @@ def api_get_customer_by_phone(request, phone):
         for m in measurements:
             measurement_data[m.garment_category] = {
                 'values': m.values,
-                'notes': m.notes
+                'notes': m.notes,
+                'is_sample_product': m.is_sample_product
             }
 
         return JsonResponse({
@@ -54,7 +55,8 @@ def api_search_customers(request):
         for m in measurements_qs:
             measurement_data[m.garment_category] = {
                 'values': m.values,
-                'notes': m.notes
+                'notes': m.notes,
+                'is_sample_product': m.is_sample_product
             }
             garment_list.append(m.garment_category)
 

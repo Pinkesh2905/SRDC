@@ -83,7 +83,7 @@ def dashboard(request):
 
     # ─── SCORECARD ROW 1 ───
     total_orders = period_qs.count()
-    total_revenue = float(period_qs.aggregate(t=Sum('grand_total'))['t'] or 0)
+    total_revenue = float(period_qs.aggregate(t=Sum('final_amount'))['t'] or 0)
     avg_order_value = total_revenue / total_orders if total_orders else 0
 
     top_product = period_items.values('description').annotate(
@@ -106,8 +106,19 @@ def dashboard(request):
     total_advance = float(adv['total'] or 0)
     avg_advance = float(adv['avg'] or 0)
 
-    cash_adv = float(period_qs.filter(payment_method='cash').aggregate(t=Sum('advance_paid'))['t'] or 0)
-    online_adv = total_advance - cash_adv
+    cash_adv_qs = period_qs.filter(payment_method='cash', advance_paid__gt=0)
+    cash_adv = float(cash_adv_qs.aggregate(t=Sum('advance_paid'))['t'] or 0)
+    cash_orders_list = [
+        {'id': o['order_number'], 'name': o['customer__full_name'], 'amount': float(o['advance_paid'])}
+        for o in cash_adv_qs.values('order_number', 'customer__full_name', 'advance_paid').order_by('-created_at')
+    ]
+
+    online_adv_qs = period_qs.exclude(payment_method='cash').filter(advance_paid__gt=0)
+    online_adv = float(online_adv_qs.aggregate(t=Sum('advance_paid'))['t'] or 0)
+    online_orders_list = [
+        {'id': o['order_number'], 'name': o['customer__full_name'], 'amount': float(o['advance_paid'])}
+        for o in online_adv_qs.values('order_number', 'customer__full_name', 'advance_paid').order_by('-created_at')
+    ]
 
     pend = period_qs.annotate(
         bal=F('final_amount') - F('advance_paid')
@@ -118,7 +129,7 @@ def dashboard(request):
     # ─── REVENUE TREND ───
     daily_qs = period_qs.annotate(
         date=TruncDate('created_at')
-    ).values('date').annotate(rev=Sum('grand_total')).order_by('date')
+    ).values('date').annotate(rev=Sum('final_amount')).order_by('date')
     daily_map = {r['date']: float(r['rev'] or 0) for r in daily_qs}
 
     trend_labels, trend_data = [], []
@@ -136,7 +147,7 @@ def dashboard(request):
     top_customers = [
         {'name': tc['customer__full_name'], 'amount': format_inr(tc['spent'])}
         for tc in period_qs.values('customer__full_name').annotate(
-            spent=Sum('grand_total')
+            spent=Sum('final_amount')
         ).order_by('-spent')[:5]
     ]
 
@@ -166,6 +177,8 @@ def dashboard(request):
         'total_advance_fmt': format_inr(total_advance),
         'cash_adv_fmt': format_inr(cash_adv),
         'online_adv_fmt': format_inr(online_adv),
+        'cash_orders_json': json.dumps(cash_orders_list),
+        'online_orders_json': json.dumps(online_orders_list),
         'avg_advance_fmt': format_inr(avg_advance),
         'total_pending_fmt': format_inr(total_pending),
         'avg_pending_fmt': format_inr(avg_pending),

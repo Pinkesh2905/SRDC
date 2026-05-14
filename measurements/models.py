@@ -68,6 +68,7 @@ class Measurement(models.Model):
     garment_category = models.CharField(max_length=50)
     values = models.JSONField(default=dict)
     notes = models.TextField(blank=True)
+    is_sample_product = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

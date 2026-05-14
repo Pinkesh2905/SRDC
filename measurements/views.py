@@ -54,13 +54,15 @@ def measurement_profile(request):
                     measure_values[param] = val
                     
             # Save or Update Measurement
-            if measure_values:
+            is_sample = request.POST.get(f'is_sample_{block_id}') == 'on'
+            if measure_values or is_sample:
                 measurement, m_created = Measurement.objects.update_or_create(
                     customer=customer,
                     garment_category=garment_type,
                     defaults={
-                        'values': measure_values,
+                        'values': measure_values if not is_sample else {},
                         'notes': (request.POST.get(f'notes_{block_id}') or '').strip(),
+                        'is_sample_product': is_sample,
                     }
                 )
                 
