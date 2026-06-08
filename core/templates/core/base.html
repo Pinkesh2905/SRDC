@@ -1108,12 +1108,18 @@
                         if (isChecking) {
                             // Exclusive open: close all others
                             document.querySelectorAll('.srdc-dropdown input[type="checkbox"]').forEach(cb => {
-                                if (cb !== checkbox) cb.checked = false;
+                                if (cb !== checkbox && cb.checked) {
+                                    cb.checked = false;
+                                    cb.dispatchEvent(new Event('change', { bubbles: true }));
+                                }
                             });
                             document.querySelectorAll('.srdc-datepicker__popup').forEach(p => p.classList.remove('show'));
                         }
                         
-                        checkbox.checked = isChecking;
+                        if (checkbox.checked !== isChecking) {
+                            checkbox.checked = isChecking;
+                            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
                     });
                 }
 
@@ -1134,7 +1140,10 @@
                         }
                         if (faceText) faceText.textContent = text;
                         
-                        if (checkbox) checkbox.checked = false;
+                        if (checkbox && checkbox.checked) {
+                            checkbox.checked = false;
+                            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
                         
                         items.forEach(i => i.classList.remove('bg-secondary/10', 'font-bold'));
                         item.classList.add('bg-secondary/10', 'font-bold');
@@ -1471,7 +1480,12 @@
 
         // Global click handler to close everything
         document.addEventListener('click', () => {
-            document.querySelectorAll('.srdc-dropdown input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.srdc-dropdown input[type="checkbox"]').forEach(cb => {
+                if (cb.checked) {
+                    cb.checked = false;
+                    cb.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
             document.querySelectorAll('.srdc-datepicker__popup').forEach(p => p.classList.remove('show'));
         });
 
