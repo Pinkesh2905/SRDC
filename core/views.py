@@ -92,10 +92,10 @@ def dashboard(request):
 
     # ─── SCORECARD ROW 2 ───
     period_cids = list(period_qs.values_list('customer_id', flat=True).distinct())
-    repeat_customers = sum(
-        1 for cid in period_cids
-        if Order.objects.filter(customer_id=cid, created_at__date__lt=start_date).exists()
-    )
+    repeat_customers = Order.objects.filter(
+        customer_id__in=period_cids,
+        created_at__date__lt=start_date
+    ).values('customer_id').distinct().count()
     new_customers = len(period_cids) - repeat_customers
 
     top_rev_product = period_items.values('description').annotate(

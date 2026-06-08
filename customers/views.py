@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Count
 from .models import Customer
 from .utils import normalize_phone
 from measurements.models import Measurement
@@ -44,12 +44,12 @@ def api_search_customers(request):
     normalized_q = normalize_phone(q)
     customers = Customer.objects.filter(
         Q(full_name__icontains=q) | Q(phone__icontains=normalized_q or q)
-    ).order_by('-created_at')[:10]
+    ).prefetch_related('measurements').order_by('-created_at')[:10]
 
     results = []
     for c in customers:
-        # Get measurement categories for this customer
-        measurements_qs = Measurement.objects.filter(customer=c)
+        # Get measurement categories for this customer (loads from prefetched relations)
+        measurements_qs = c.measurements.all()
         measurement_data = {}
         garment_list = []
         for m in measurements_qs:
@@ -75,7 +75,7 @@ from django.core.paginator import Paginator
 
 @login_required
 def customer_list(request):
-    customers = Customer.objects.all().order_by('-created_at')
+    customers = Customer.objects.annotate(num_orders=Count('orders')).order_by('-created_at')
     
     # Simple search
     q = request.GET.get('q')

@@ -8,5 +8,9 @@ print("Before load:", os.environ.get("DATABASE_URL"))
 load_dotenv(BASE_DIR / ".env")
 print("After load:", os.environ.get("DATABASE_URL"))
 
-import dj_database_url
-print("Parsed:", dj_database_url.parse(os.environ.get("DATABASE_URL") or ""))
+db_url = os.environ.get("DATABASE_URL")
+if db_url:
+    import dj_database_url
+    print("Parsed:", dj_database_url.parse(db_url))
+else:
+    print("DATABASE_URL is empty, skipping parse.")

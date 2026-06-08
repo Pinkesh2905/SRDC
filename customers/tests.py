@@ -24,4 +24,4 @@ class CustomerViewTests(TestCase):
         data = response.json()
         self.assertTrue(data['success'])
         self.assertEqual(data['customer']['phone'], '9876543210')
-        self.assertEqual(data['measurements']['shirt']['Length'], '40')
+        self.assertEqual(data['measurements']['shirt']['values']['Length'], '40')
