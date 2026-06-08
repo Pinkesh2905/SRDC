@@ -181,15 +181,15 @@
                                         
                                         <!-- Custom Dropdown Menu -->
                                         <div id="pay-method-menu-{{ order.id }}"
-                                             class="hidden absolute left-0 mt-1.5 w-24 rounded-lg bg-slate-900 border border-white/10 shadow-2xl z-50 overflow-hidden py-1 divide-y divide-white/5">
+                                             class="hidden absolute left-0 mt-1.5 w-24 rounded-lg shadow-2xl z-50 overflow-hidden py-1 divide-y divide-white/5 custom-dropdown-menu">
                                             <button type="button" onclick="selectPayMethodShortcut({{ order.id }}, 'cash', 'Cash')"
-                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors">Cash</button>
+                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold transition-colors custom-dropdown-item">Cash</button>
                                             <button type="button" onclick="selectPayMethodShortcut({{ order.id }}, 'upi', 'UPI')"
-                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors">UPI</button>
+                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold transition-colors custom-dropdown-item">UPI</button>
                                             <button type="button" onclick="selectPayMethodShortcut({{ order.id }}, 'card', 'Card')"
-                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors">Card</button>
+                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold transition-colors custom-dropdown-item">Card</button>
                                             <button type="button" onclick="selectPayMethodShortcut({{ order.id }}, 'bank_transfer', 'Bank')"
-                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors">Bank</button>
+                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold transition-colors custom-dropdown-item">Bank</button>
                                         </div>
                                     </div>
 
@@ -227,10 +227,10 @@
                                     
                                     <!-- Dropdown list of statuses -->
                                     <div id="status-dropdown-menu-{{ order.id }}" 
-                                         class="hidden absolute left-0 mt-2 w-44 rounded-xl bg-slate-900 border border-white/10 shadow-2xl z-50 overflow-hidden divide-y divide-white/5 py-1">
+                                         class="hidden absolute left-0 mt-2 w-44 rounded-xl bg-slate-900 border border-white/10 shadow-2xl z-50 overflow-hidden divide-y divide-white/5 py-1 custom-dropdown-menu">
                                         {% for val, label in statuses %}
                                         <button type="button" onclick="selectStatusShortcut({{ order.id }}, '{{ val }}')" 
-                                                class="w-full text-left px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors flex items-center justify-between">
+                                                class="w-full text-left px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors flex items-center justify-between custom-dropdown-item">
                                             {{ label }}
                                             {% if order.status == val %}
                                             <span class="material-symbols-outlined text-xs text-secondary">check</span>
@@ -489,23 +489,60 @@ body.dark-mode .status-badge-fallback {
     color: #cbd5e1 !important;
     border: 1px solid rgba(148, 163, 184, 0.35) !important;
 }
+
+/* Custom Dropdown Menu styles using App Theme variables */
+.custom-dropdown-menu {
+    background-color: var(--dropdown-bg) !important;
+    border: 1px solid var(--glass-border) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+}
+.custom-dropdown-item {
+    color: var(--text-primary) !important;
+}
+.custom-dropdown-item:hover {
+    background-color: var(--dropdown-item-hover) !important;
+    color: var(--text-primary) !important;
+}
+body.dark-mode .custom-dropdown-menu {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
 </style>
 
 <script>
+// Helper to dynamically set high z-index stacking on the active row to prevent dropdown clipping
+function setActiveRowStacking(element, isOpen) {
+    const row = element.closest('tr');
+    if (!row) return;
+    if (isOpen) {
+        document.querySelectorAll('table tbody tr').forEach(r => {
+            r.classList.remove('relative', 'z-50');
+        });
+        row.classList.add('relative', 'z-50');
+    } else {
+        row.classList.remove('relative', 'z-50');
+    }
+}
+
 // Toggle status dropdown menu visibility
 function toggleStatusDropdown(event, orderId) {
     event.stopPropagation();
     
+    const menu = document.getElementById(`status-dropdown-menu-${orderId}`);
+    const isOpening = menu && menu.classList.contains('hidden');
+    
     // Close other dropdowns
-    document.querySelectorAll('[id^="status-dropdown-menu-"]').forEach(menu => {
-        if (menu.id !== `status-dropdown-menu-${orderId}`) {
-            menu.classList.add('hidden');
+    document.querySelectorAll('[id^="status-dropdown-menu-"]').forEach(m => {
+        if (m.id !== `status-dropdown-menu-${orderId}`) {
+            m.classList.add('hidden');
         }
     });
+    document.querySelectorAll('[id^="pay-method-menu-"]').forEach(m => m.classList.add('hidden'));
     
-    const menu = document.getElementById(`status-dropdown-menu-${orderId}`);
     if (menu) {
         menu.classList.toggle('hidden');
+        setActiveRowStacking(event.currentTarget, isOpening);
     }
 }
 
@@ -527,9 +564,13 @@ function toggleStatusDropdownMobile(event, orderId) {
 
 // Close all open status and payment method menus when clicking outside
 document.addEventListener('click', function(event) {
+    let closedAny = false;
     if (!event.target.closest('.status-dropdown-container') && !event.target.closest('.status-dropdown-container-mobile')) {
         document.querySelectorAll('[id^="status-dropdown-menu-"]').forEach(menu => {
-            menu.classList.add('hidden');
+            if (!menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+                closedAny = true;
+            }
         });
         document.querySelectorAll('[id^="status-dropdown-menu-mobile-"]').forEach(menu => {
             menu.classList.add('hidden');
@@ -537,7 +578,16 @@ document.addEventListener('click', function(event) {
     }
     if (!event.target.closest('.pay-method-dropdown-container')) {
         document.querySelectorAll('[id^="pay-method-menu-"]').forEach(menu => {
-            menu.classList.add('hidden');
+            if (!menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+                closedAny = true;
+            }
+        });
+    }
+    // Remove active row stacking on close
+    if (closedAny || (!event.target.closest('.status-dropdown-container') && !event.target.closest('.pay-method-dropdown-container'))) {
+        document.querySelectorAll('table tbody tr').forEach(r => {
+            r.classList.remove('relative', 'z-50');
         });
     }
 });
@@ -546,20 +596,23 @@ document.addEventListener('click', function(event) {
 function togglePayMethodDropdown(event, orderId) {
     event.stopPropagation();
     
+    const menu = document.getElementById(`pay-method-menu-${orderId}`);
+    const isOpening = menu && menu.classList.contains('hidden');
+    
     // Close other payment method dropdowns
-    document.querySelectorAll('[id^="pay-method-menu-"]').forEach(menu => {
-        if (menu.id !== `pay-method-menu-${orderId}`) {
-            menu.classList.add('hidden');
+    document.querySelectorAll('[id^="pay-method-menu-"]').forEach(m => {
+        if (m.id !== `pay-method-menu-${orderId}`) {
+            m.classList.add('hidden');
         }
     });
     // Close status dropdowns as well
-    document.querySelectorAll('[id^="status-dropdown-menu-"]').forEach(menu => {
-        menu.classList.add('hidden');
+    document.querySelectorAll('[id^="status-dropdown-menu-"]').forEach(m => {
+        m.classList.add('hidden');
     });
     
-    const menu = document.getElementById(`pay-method-menu-${orderId}`);
     if (menu) {
         menu.classList.toggle('hidden');
+        setActiveRowStacking(event.currentTarget, isOpening);
     }
 }
 
@@ -571,7 +624,10 @@ function selectPayMethodShortcut(orderId, val, label) {
     
     if (hiddenInput) hiddenInput.value = val;
     if (labelSpan) labelSpan.textContent = label;
-    if (menu) menu.classList.add('hidden');
+    if (menu) {
+        menu.classList.add('hidden');
+        setActiveRowStacking(menu, false);
+    }
 }
 
 // Update the UI representation of a status badge (desktop & mobile)
