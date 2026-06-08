@@ -188,3 +188,67 @@ class OrderViewTests(TestCase):
         self.assertContains(response, matching.order_number)
         self.assertContains(response, 'Rs 1200.00')
         self.assertNotContains(response, 'SRD-20260503-004')
+
+    def test_api_update_order_shortcut_status_success(self):
+        self.client.force_login(self.user)
+        order = Order.objects.create(
+            order_number='SRD-20260503-100',
+            customer=self.customer,
+            booking_date='2026-05-03',
+            delivery_date='2026-05-10',
+            status='pending',
+        )
+        response = self.client.post(reverse('api_update_order_shortcut', args=[order.id]), {
+            'status': 'in_progress'
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data['success'])
+        self.assertEqual(data['status'], 'in_progress')
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'in_progress')
+
+    def test_api_update_order_shortcut_payment_success(self):
+        self.client.force_login(self.user)
+        order = Order.objects.create(
+            order_number='SRD-20260503-101',
+            customer=self.customer,
+            booking_date='2026-05-03',
+            delivery_date='2026-05-10',
+            final_amount=Decimal('1000.00'),
+            advance_paid=Decimal('200.00'),
+            grand_total=Decimal('800.00'),
+        )
+        response = self.client.post(reverse('api_update_order_shortcut', args=[order.id]), {
+            'payment_amount': '300.00',
+            'payment_method': 'upi'
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data['success'])
+        self.assertEqual(data['grand_total'], '500.00')
+        order.refresh_from_db()
+        self.assertEqual(order.advance_paid, Decimal('500.00'))
+        self.assertEqual(order.grand_total, Decimal('500.00'))
+        self.assertEqual(order.payment_method, 'upi')
+
+    def test_api_update_order_shortcut_validation_error(self):
+        self.client.force_login(self.user)
+        order = Order.objects.create(
+            order_number='SRD-20260503-102',
+            customer=self.customer,
+            booking_date='2026-05-03',
+            delivery_date='2026-05-10',
+            final_amount=Decimal('1000.00'),
+            advance_paid=Decimal('200.00'),
+            grand_total=Decimal('800.00'),
+        )
+        # Payment above balance due
+        response = self.client.post(reverse('api_update_order_shortcut', args=[order.id]), {
+            'payment_amount': '900.00',
+            'payment_method': 'upi'
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertFalse(data['success'])
+        self.assertIn('errors', data)

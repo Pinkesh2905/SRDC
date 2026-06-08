@@ -11,4 +11,5 @@ urlpatterns = [
     path('<int:order_id>/item/<int:item_id>/edit/', views.order_item_edit, name='order_item_edit'),
     path('<int:order_id>/print/', views.order_print, name='order_print'),
     path('<int:order_id>/delete/', views.order_delete, name='order_delete'),
+    path('api/<int:order_id>/update-shortcut/', views.api_update_order_shortcut, name='api_update_order_shortcut'),
 ]

@@ -134,6 +134,7 @@
                             <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider text-center text-amber-700 dark:text-amber-400">Delivery Date</th>
                             <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider text-center text-amber-700 dark:text-secondary">Return Date</th>
                             <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider">Amount</th>
+                            <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider">Quick Pay</th>
                             <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider">Status</th>
                             <th class="px-8 py-4 font-serif font-semibold text-sm uppercase tracking-wider text-right">Actions</th>
                         </tr>
@@ -159,19 +160,65 @@
                             </td>
                             <td class="px-8 py-5 text-amber-700 dark:text-amber-400 text-sm whitespace-nowrap text-center font-bold">{{ order.delivery_date|date:"M d, Y" }}</td>
                             <td class="px-8 py-5 text-amber-700 dark:text-secondary text-sm whitespace-nowrap text-center font-bold">{{ order.return_date|date:"M d, Y" }}</td>
-                            <td class="px-8 py-5 font-bold text-slate-900 dark:text-white text-sm whitespace-nowrap">₹{{ order.grand_total }}</td>
-                        <td class="px-8 py-5">
-                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
-                                {% if order.status == 'delivered' %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
-                                {% elif order.status == 'ready' %}bg-blue-500/20 text-blue-400 border border-blue-500/30
-                                {% elif order.status == 'cutting' %}bg-orange-500/20 text-orange-400 border border-orange-500/30
-                                {% elif order.status == 'pending' %}bg-amber-500/20 text-amber-400 border border-amber-500/30
-                                {% elif order.status == 'processing' %}bg-indigo-500/20 text-indigo-400 border border-indigo-500/30
-                                {% elif order.status == 'cancelled' %}bg-rose-500/20 text-rose-400 border border-rose-500/30
-                                {% else %}bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-white/60 border border-slate-300 dark:border-white/10{% endif %}">
-                                {{ order.get_status_display }}
-                            </span>
-                        </td>
+                            <td id="order-amount-{{ order.id }}" class="px-8 py-5 font-bold text-slate-900 dark:text-white text-sm whitespace-nowrap">₹{{ order.grand_total }}</td>
+                            
+                            <!-- Quick Pay Column -->
+                            <td class="px-8 py-5 text-sm whitespace-nowrap" id="quick-pay-cell-{{ order.id }}">
+                                <div class="flex items-center gap-2 {% if order.grand_total == 0 %}hidden{% endif %}" id="quick-pay-form-{{ order.id }}">
+                                    <input type="number" step="0.01" min="0.01" max="{{ order.grand_total }}" 
+                                           class="w-20 px-2 py-1 bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-[8px] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-secondary/50 placeholder-slate-400" 
+                                           placeholder="Amt" id="pay-amount-{{ order.id }}">
+                                    <select id="pay-method-{{ order.id }}" class="px-2 py-1 text-xs bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-[8px] text-slate-900 dark:text-white focus:outline-none focus:border-secondary/50">
+                                        <option value="cash">Cash</option>
+                                        <option value="upi">UPI</option>
+                                        <option value="card">Card</option>
+                                        <option value="bank_transfer">Bank</option>
+                                    </select>
+                                    <button type="button" onclick="submitQuickPay({{ order.id }})" 
+                                            class="w-7 h-7 rounded-full bg-secondary text-primary hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-md shadow-secondary/10" 
+                                            title="Record Payment">
+                                        <span class="material-symbols-outlined text-sm font-bold">check</span>
+                                    </button>
+                                </div>
+                                <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wide {% if order.grand_total > 0 %}hidden{% endif %}" id="paid-badge-{{ order.id }}">
+                                    Fully Paid
+                                </span>
+                            </td>
+                            
+                            <!-- Status Column with Shortcut Dropdown -->
+                            <td class="px-8 py-5">
+                                <div class="relative inline-block text-left status-dropdown-container" id="status-container-{{ order.id }}">
+                                    <button type="button" onclick="toggleStatusDropdown(event, {{ order.id }})" 
+                                            class="inline-flex items-center gap-1.5 focus:outline-none hover:opacity-85 transition-all"
+                                            id="status-badge-btn-{{ order.id }}">
+                                        <span id="status-badge-{{ order.id }}" class="inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer
+                                            {% if order.status == 'delivered' %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
+                                            {% elif order.status == 'ready' %}bg-blue-500/20 text-blue-400 border border-blue-500/30
+                                            {% elif order.status == 'cutting' %}bg-orange-500/20 text-orange-400 border border-orange-500/30
+                                            {% elif order.status == 'pending' %}bg-amber-500/20 text-amber-400 border border-amber-500/30
+                                            {% elif order.status == 'processing' %}bg-indigo-500/20 text-indigo-400 border border-indigo-500/30
+                                            {% elif order.status == 'cancelled' %}bg-rose-500/20 text-rose-400 border border-rose-500/30
+                                            {% else %}bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-white/60 border border-slate-300 dark:border-white/10{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                        <span class="material-symbols-outlined text-[14px] text-slate-500 dark:text-white/30">expand_more</span>
+                                    </button>
+                                    
+                                    <!-- Dropdown list of statuses -->
+                                    <div id="status-dropdown-menu-{{ order.id }}" 
+                                         class="hidden absolute left-0 mt-2 w-44 rounded-xl bg-slate-900 border border-white/10 shadow-2xl z-50 overflow-hidden divide-y divide-white/5 py-1">
+                                        {% for val, label in statuses %}
+                                        <button type="button" onclick="selectStatusShortcut({{ order.id }}, '{{ val }}')" 
+                                                class="w-full text-left px-4 py-2 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors flex items-center justify-between">
+                                            {{ label }}
+                                            {% if order.status == val %}
+                                            <span class="material-symbols-outlined text-xs text-secondary">check</span>
+                                            {% endif %}
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </td>
                         <td class="px-8 py-5 text-right">
                             <div class="flex justify-end gap-2">
                                 <a href="{% url 'order_detail' order.id %}" class="text-slate-500 dark:text-white/40 hover:text-white transition-colors" title="View Details">
@@ -188,7 +235,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="px-8 py-12 text-center text-slate-500 dark:text-white/40 italic">No orders found matching your filters.</td>
+                        <td colspan="8" class="px-8 py-12 text-center text-slate-500 dark:text-white/40 italic">No orders found matching your filters.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -214,16 +261,38 @@
                             <span class="font-bold text-slate-900 dark:text-white text-sm leading-tight">{{ order.customer.full_name }}</span>
                         </div>
                     </div>
-                    <span class="shrink-0 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider
-                        {% if order.status == 'delivered' %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
-                        {% elif order.status == 'ready' %}bg-blue-500/20 text-blue-400 border border-blue-500/30
-                        {% elif order.status == 'cutting' %}bg-orange-500/20 text-orange-400 border border-orange-500/30
-                        {% elif order.status == 'pending' %}bg-amber-500/20 text-amber-400 border border-amber-500/30
-                        {% elif order.status == 'processing' %}bg-indigo-500/20 text-indigo-400 border border-indigo-500/30
-                        {% elif order.status == 'cancelled' %}bg-rose-500/20 text-rose-400 border border-rose-500/30
-                        {% else %}bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-white/60 border border-slate-300 dark:border-white/10{% endif %}">
-                        {{ order.get_status_display }}
-                    </span>
+                    <!-- Status Badge (Mobile Dropdown) -->
+                    <div class="relative inline-block text-left status-dropdown-container-mobile" id="status-container-mobile-{{ order.id }}">
+                        <button type="button" onclick="toggleStatusDropdownMobile(event, {{ order.id }})" 
+                                class="inline-flex items-center gap-1 focus:outline-none hover:opacity-85 transition-all"
+                                id="status-badge-btn-mobile-{{ order.id }}">
+                            <span id="status-badge-mobile-{{ order.id }}" class="shrink-0 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider
+                                {% if order.status == 'delivered' %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
+                                {% elif order.status == 'ready' %}bg-blue-500/20 text-blue-400 border border-blue-500/30
+                                {% elif order.status == 'cutting' %}bg-orange-500/20 text-orange-400 border border-orange-500/30
+                                {% elif order.status == 'pending' %}bg-amber-500/20 text-amber-400 border border-amber-500/30
+                                {% elif order.status == 'processing' %}bg-indigo-500/20 text-indigo-400 border border-indigo-500/30
+                                {% elif order.status == 'cancelled' %}bg-rose-500/20 text-rose-400 border border-rose-500/30
+                                {% else %}bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-white/60 border border-slate-300 dark:border-white/10{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                            <span class="material-symbols-outlined text-[12px] text-slate-500 dark:text-white/30">expand_more</span>
+                        </button>
+                        
+                        <!-- Dropdown list of statuses for Mobile -->
+                        <div id="status-dropdown-menu-mobile-{{ order.id }}" 
+                             class="hidden absolute right-0 mt-2 w-40 rounded-xl bg-slate-900 border border-white/10 shadow-2xl z-50 overflow-hidden divide-y divide-white/5 py-1">
+                            {% for val, label in statuses %}
+                            <button type="button" onclick="selectStatusShortcut({{ order.id }}, '{{ val }}')" 
+                                    class="w-full text-left px-3 py-2 text-[10px] font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors flex items-center justify-between">
+                                {{ label }}
+                                {% if order.status == val %}
+                                <span class="material-symbols-outlined text-[10px] text-secondary">check</span>
+                                {% endif %}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="flex justify-between items-end">
@@ -238,7 +307,32 @@
                                 Ret: {{ order.return_date|date:"M d, Y" }}
                             </div>
                         </div>
-                        <div class="font-bold text-lg text-slate-900 dark:text-white">₹{{ order.grand_total }}</div>
+                        <div class="flex items-center justify-between w-full mt-1.5 gap-2">
+                            <div>
+                                <div class="font-bold text-lg text-slate-900 dark:text-white" id="order-amount-mobile-{{ order.id }}">₹{{ order.grand_total }}</div>
+                            </div>
+                            
+                            <!-- Mobile Quick Pay Form -->
+                            <div id="quick-pay-mobile-wrapper-{{ order.id }}" class="flex items-center gap-1.5 bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-[12px] p-1 {% if order.grand_total == 0 %}hidden{% endif %}">
+                                <input type="number" step="0.01" min="0.01" max="{{ order.grand_total }}"
+                                       class="w-14 px-1 py-0.5 bg-transparent border-0 rounded text-[10px] text-slate-900 dark:text-white focus:outline-none focus:ring-0 placeholder-slate-400"
+                                       placeholder="Pay" id="pay-amount-mobile-{{ order.id }}">
+                                <select id="pay-method-mobile-{{ order.id }}" class="px-1 py-0.5 text-[9px] bg-transparent border-0 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-0">
+                                    <option value="cash">Cash</option>
+                                    <option value="upi">UPI</option>
+                                    <option value="card">Card</option>
+                                    <option value="bank_transfer">Bank</option>
+                                </select>
+                                <button type="button" onclick="submitQuickPayMobile({{ order.id }})"
+                                        class="w-6 h-6 rounded-full bg-secondary text-primary flex items-center justify-center shadow active:scale-90 transition-transform"
+                                        title="Pay">
+                                    <span class="material-symbols-outlined text-xs font-bold">check</span>
+                                </button>
+                            </div>
+                            <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wide {% if order.grand_total > 0 %}hidden{% endif %}" id="paid-badge-mobile-{{ order.id }}">
+                                Fully Paid
+                            </span>
+                        </div>
                     </div>
                     <div class="flex items-center gap-2">
                         <a href="{% url 'order_detail' order.id %}" class="flex items-center gap-1.5 px-4 py-2 btn-premium text-xs">
@@ -331,5 +425,323 @@ function closeListDeleteModal() {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeListDeleteModal();
 });
+</script>
+
+<style>
+/* Toast Notification styles */
+#toast-container {
+    transition: all 0.3s ease;
+}
+.toast-slide-in {
+    animation: toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+</style>
+
+<script>
+// Toggle status dropdown menu visibility
+function toggleStatusDropdown(event, orderId) {
+    event.stopPropagation();
+    
+    // Close other dropdowns
+    document.querySelectorAll('[id^="status-dropdown-menu-"]').forEach(menu => {
+        if (menu.id !== `status-dropdown-menu-${orderId}`) {
+            menu.classList.add('hidden');
+        }
+    });
+    
+    const menu = document.getElementById(`status-dropdown-menu-${orderId}`);
+    if (menu) {
+        menu.classList.toggle('hidden');
+    }
+}
+
+function toggleStatusDropdownMobile(event, orderId) {
+    event.stopPropagation();
+    
+    // Close other dropdowns
+    document.querySelectorAll('[id^="status-dropdown-menu-mobile-"]').forEach(menu => {
+        if (menu.id !== `status-dropdown-menu-mobile-${orderId}`) {
+            menu.classList.add('hidden');
+        }
+    });
+    
+    const menu = document.getElementById(`status-dropdown-menu-mobile-${orderId}`);
+    if (menu) {
+        menu.classList.toggle('hidden');
+    }
+}
+
+// Close all open status menus when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.status-dropdown-container') && !event.target.closest('.status-dropdown-container-mobile')) {
+        document.querySelectorAll('[id^="status-dropdown-menu-"]').forEach(menu => {
+            menu.classList.add('hidden');
+        });
+        document.querySelectorAll('[id^="status-dropdown-menu-mobile-"]').forEach(menu => {
+            menu.classList.add('hidden');
+        });
+    }
+});
+
+// Update the UI representation of a status badge (desktop & mobile)
+function updateStatusBadgeUI(orderId, status, display) {
+    const badge = document.getElementById(`status-badge-${orderId}`);
+    const badgeMobile = document.getElementById(`status-badge-mobile-${orderId}`);
+    
+    const statusClasses = {
+        'delivered': ['bg-emerald-500/20', 'text-emerald-400', 'border', 'border-emerald-500/30'],
+        'ready': ['bg-blue-500/20', 'text-blue-400', 'border', 'border-blue-500/30'],
+        'cutting': ['bg-orange-500/20', 'text-orange-400', 'border', 'border-orange-500/30'],
+        'pending': ['bg-amber-500/20', 'text-amber-400', 'border', 'border-amber-500/30'],
+        'processing': ['bg-indigo-500/20', 'text-indigo-400', 'border', 'border-indigo-500/30'],
+        'cancelled': ['bg-rose-500/20', 'text-rose-400', 'border', 'border-rose-500/30'],
+        'returned': ['bg-purple-500/20', 'text-purple-400', 'border', 'border-purple-500/30']
+    };
+    
+    const defaultClasses = ['bg-slate-200', 'dark:bg-white/10', 'text-slate-600', 'dark:text-white/60', 'border', 'border-slate-300', 'dark:border-white/10'];
+    const targetClasses = statusClasses[status] || defaultClasses;
+    
+    const applyToBadge = (el, isMobile) => {
+        if (!el) return;
+        el.className = isMobile 
+            ? 'shrink-0 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider' 
+            : 'inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer';
+        targetClasses.forEach(cls => el.classList.add(cls));
+        el.textContent = display;
+    };
+    
+    applyToBadge(badge, false);
+    applyToBadge(badgeMobile, true);
+    
+    // Update active check indicators in lists
+    updateDropdownCheckmarks(orderId, status);
+}
+
+function updateDropdownCheckmarks(orderId, currentStatus) {
+    const selectCheckmark = (menuId, isMobile) => {
+        const menu = document.getElementById(menuId);
+        if (!menu) return;
+        menu.querySelectorAll('button').forEach(btn => {
+            const check = btn.querySelector('.material-symbols-outlined');
+            if (check) check.remove();
+            
+            const onClickAttr = btn.getAttribute('onclick');
+            if (onClickAttr && onClickAttr.includes(`'${currentStatus}'`)) {
+                const span = document.createElement('span');
+                span.className = isMobile 
+                    ? 'material-symbols-outlined text-[10px] text-secondary' 
+                    : 'material-symbols-outlined text-xs text-secondary';
+                span.textContent = 'check';
+                btn.appendChild(span);
+            }
+        });
+    };
+    
+    selectCheckmark(`status-dropdown-menu-${orderId}`, false);
+    selectCheckmark(`status-dropdown-menu-mobile-${orderId}`, true);
+}
+
+// Select status shortcut via Fetch API POST
+function selectStatusShortcut(orderId, newStatus) {
+    const formData = new FormData();
+    formData.append('status', newStatus);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    fetch(`/orders/api/${orderId}/update-shortcut/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateStatusBadgeUI(orderId, data.status, data.status_display);
+            showNotification('Status updated successfully!', 'success');
+        } else {
+            showNotification(data.errors.join('; '), 'error');
+        }
+    })
+    .catch(err => {
+        showNotification('Error updating status.', 'error');
+        console.error(err);
+    });
+}
+
+// Submit quick pay (desktop)
+function submitQuickPay(orderId) {
+    const amountInput = document.getElementById(`pay-amount-${orderId}`);
+    const methodSelect = document.getElementById(`pay-method-${orderId}`);
+    const amountVal = amountInput.value.trim();
+    const methodVal = methodSelect.value;
+    
+    if (!amountVal || parseFloat(amountVal) <= 0) {
+        showNotification('Please enter a valid payment amount.', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('payment_amount', amountVal);
+    formData.append('payment_method', methodVal);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    
+    fetch(`/orders/api/${orderId}/update-shortcut/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update remaining balance amount cells
+            const amountCell = document.getElementById(`order-amount-${orderId}`);
+            if (amountCell) amountCell.textContent = `₹${parseFloat(data.grand_total).toFixed(2)}`;
+            
+            const amountCellMobile = document.getElementById(`order-amount-mobile-${orderId}`);
+            if (amountCellMobile) amountCellMobile.textContent = `₹${parseFloat(data.grand_total).toFixed(2)}`;
+            
+            // Reset and update input limits
+            amountInput.value = '';
+            amountInput.max = data.grand_total;
+            
+            const mobileInput = document.getElementById(`pay-amount-mobile-${orderId}`);
+            if (mobileInput) {
+                mobileInput.value = '';
+                mobileInput.max = data.grand_total;
+            }
+            
+            // If completely paid, hide forms and show paid badges
+            if (parseFloat(data.grand_total) === 0) {
+                const formDiv = document.getElementById(`quick-pay-form-${orderId}`);
+                if (formDiv) formDiv.classList.add('hidden');
+                const badge = document.getElementById(`paid-badge-${orderId}`);
+                if (badge) badge.classList.remove('hidden');
+                
+                const formDivMobile = document.getElementById(`quick-pay-mobile-wrapper-${orderId}`);
+                if (formDivMobile) formDivMobile.classList.add('hidden');
+                const badgeMobile = document.getElementById(`paid-badge-mobile-${orderId}`);
+                if (badgeMobile) badgeMobile.classList.remove('hidden');
+            }
+            
+            showNotification('Payment recorded successfully!', 'success');
+        } else {
+            showNotification(data.errors.join('; '), 'error');
+        }
+    })
+    .catch(err => {
+        showNotification('Error processing payment.', 'error');
+        console.error(err);
+    });
+}
+
+// Submit quick pay (mobile)
+function submitQuickPayMobile(orderId) {
+    const amountInput = document.getElementById(`pay-amount-mobile-${orderId}`);
+    const methodSelect = document.getElementById(`pay-method-mobile-${orderId}`);
+    const amountVal = amountInput.value.trim();
+    const methodVal = methodSelect.value;
+    
+    if (!amountVal || parseFloat(amountVal) <= 0) {
+        showNotification('Please enter a valid payment amount.', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('payment_amount', amountVal);
+    formData.append('payment_method', methodVal);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    
+    fetch(`/orders/api/${orderId}/update-shortcut/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const amountCell = document.getElementById(`order-amount-${orderId}`);
+            if (amountCell) amountCell.textContent = `₹${parseFloat(data.grand_total).toFixed(2)}`;
+            
+            const amountCellMobile = document.getElementById(`order-amount-mobile-${orderId}`);
+            if (amountCellMobile) amountCellMobile.textContent = `₹${parseFloat(data.grand_total).toFixed(2)}`;
+            
+            amountInput.value = '';
+            amountInput.max = data.grand_total;
+            
+            const desktopInput = document.getElementById(`pay-amount-${orderId}`);
+            if (desktopInput) {
+                desktopInput.value = '';
+                desktopInput.max = data.grand_total;
+            }
+            
+            if (parseFloat(data.grand_total) === 0) {
+                const formDiv = document.getElementById(`quick-pay-form-${orderId}`);
+                if (formDiv) formDiv.classList.add('hidden');
+                const badge = document.getElementById(`paid-badge-${orderId}`);
+                if (badge) badge.classList.remove('hidden');
+                
+                const formDivMobile = document.getElementById(`quick-pay-mobile-wrapper-${orderId}`);
+                if (formDivMobile) formDivMobile.classList.add('hidden');
+                const badgeMobile = document.getElementById(`paid-badge-mobile-${orderId}`);
+                if (badgeMobile) badgeMobile.classList.remove('hidden');
+            }
+            
+            showNotification('Payment recorded successfully!', 'success');
+        } else {
+            showNotification(data.errors.join('; '), 'error');
+        }
+    })
+    .catch(err => {
+        showNotification('Error processing payment.', 'error');
+        console.error(err);
+    });
+}
+
+// Show premium toast notification
+function showNotification(message, type = 'success') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'fixed top-6 right-6 z-[99999] flex flex-col gap-3 pointer-events-none';
+        document.body.appendChild(container);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `px-5 py-3 rounded-[14px] text-xs font-bold shadow-2xl flex items-center gap-2 pointer-events-auto border backdrop-blur-md toast-slide-in`;
+    
+    if (type === 'success') {
+        toast.className += ' bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        toast.innerHTML = `<span class="material-symbols-outlined text-[16px]">check_circle</span> <span>${message}</span>`;
+    } else {
+        toast.className += ' bg-rose-500/10 text-rose-400 border-rose-500/20';
+        toast.innerHTML = `<span class="material-symbols-outlined text-[16px]">error</span> <span>${message}</span>`;
+    }
+    
+    container.appendChild(toast);
+    
+    // Auto-remove after 3.5s
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px) scale(0.95)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3500);
+}
 </script>
 {% endblock %}

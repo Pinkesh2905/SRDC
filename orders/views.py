@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -336,3 +338,43 @@ def order_item_edit(request, order_id, item_id):
         except ValidationError as exc:
             messages.error(request, '; '.join(exc.messages))
     return redirect('order_detail', order_id=order_id)
+
+
+@login_required
+@require_POST
+def api_update_order_shortcut(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Extract data from POST
+    status = request.POST.get('status')
+    payment_amount_str = request.POST.get('payment_amount')
+    payment_method = request.POST.get('payment_method')
+    
+    post_data = {}
+    if status:
+        post_data['status'] = status
+    if payment_amount_str:
+        post_data['additional_payment'] = payment_amount_str
+    if payment_method:
+        post_data['payment_method'] = payment_method
+        
+    errors = []
+    if post_data:
+        try:
+            update_order_from_post(order, post_data)
+        except ValidationError as exc:
+            errors.extend(exc.messages)
+            
+    if errors:
+        return JsonResponse({'success': False, 'errors': errors})
+        
+    return JsonResponse({
+        'success': True,
+        'order_id': order.id,
+        'grand_total': str(order.grand_total),
+        'status': order.status,
+        'status_display': order.get_status_display(),
+        'advance_paid': str(order.advance_paid),
+        'payment_method': order.payment_method,
+        'payment_method_display': order.get_payment_method_display(),
+    })
