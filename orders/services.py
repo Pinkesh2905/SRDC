@@ -47,8 +47,8 @@ def parse_items(post_data, customer):
             raise ValidationError('Quantity must be at least 1.')
 
         rate = money(rates[index] if index < len(rates) else 0)
-        if rate <= 0:
-            raise ValidationError('Item rate must be greater than 0.')
+        if rate < 0:
+            raise ValidationError('Item rate cannot be negative.')
 
         garment_category = categories[index] if index < len(categories) else ''
         all_categories = dict(get_all_garment_categories()).keys()

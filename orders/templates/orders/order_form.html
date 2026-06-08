@@ -192,10 +192,16 @@
                             <span class="material-symbols-outlined text-secondary">receipt_long</span>
                             <h3 class="font-serif text-xl sm:text-2xl font-semibold text-theme-primary">Invoice Items</h3>
                         </div>
-                        <button type="button" id="add-item-btn" class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20 rounded-[12px] text-xs sm:text-sm font-bold transition-all">
-                            <span class="material-symbols-outlined text-sm">add_circle</span>
-                            Add Item
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" id="bundle-items-btn" class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-theme-input text-theme-primary border border-theme-input hover:bg-theme-input/80 rounded-[12px] text-xs sm:text-sm font-bold transition-all" title="Bundle Selected Items">
+                                <span class="material-symbols-outlined text-sm text-secondary">category</span>
+                                <span class="hidden sm:inline">Bundle Selected</span>
+                            </button>
+                            <button type="button" id="add-item-btn" class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20 rounded-[12px] text-xs sm:text-sm font-bold transition-all">
+                                <span class="material-symbols-outlined text-sm">add_circle</span>
+                                Add Item
+                            </button>
+                        </div>
                     </div>
                     
                     <!-- Desktop Header (Hidden on Mobile) -->
@@ -209,13 +215,16 @@
                     <div id="invoice-items-body" class="divide-y divide-theme">
                         {% for item in selected_items %}
                         <div class="item-row group p-4 md:p-0 md:grid md:grid-cols-12 md:gap-4 md:items-center relative hover:bg-theme-input/20 transition-all duration-300">
-                            <div class="col-span-6 md:p-4">
-                                <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Item Description</label>
-                                <input type="hidden" name="item_garment_category[]" value="{{ item.type }}">
-                                <input type="text" name="item_description[]" class="w-full bg-theme-input border border-theme-input rounded-[16px] p-3 font-semibold text-theme-primary text-sm sm:text-base placeholder-theme focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all shadow-sm" value="{{ item.label }}" placeholder="e.g. Custom Shirt" required>
+                            <div class="col-span-6 md:p-4 flex items-center gap-3">
+                                <input type="checkbox" class="bundle-checkbox w-5 h-5 rounded border-theme-input bg-theme-input/50 cursor-pointer text-secondary focus:ring-secondary/50">
+                                <div class="w-full">
+                                    <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Item Description</label>
+                                    <input type="hidden" name="item_garment_category[]" value="{{ item.type }}">
+                                    <input type="text" name="item_description[]" class="w-full bg-theme-input border border-theme-input rounded-[16px] p-3 font-semibold text-theme-primary text-sm sm:text-base placeholder-theme focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all shadow-sm desc-input" value="{{ item.label }}" placeholder="e.g. Custom Shirt" required>
+                                </div>
                             </div>
 
-                            <div class="grid grid-cols-3 gap-4 mt-4 md:mt-0 md:col-span-6 md:grid-cols-6 md:items-center md:pr-4">
+                            <div class="grid grid-cols-3 gap-4 mt-4 md:mt-0 md:col-span-6 md:grid-cols-6 md:items-center md:pr-14">
                                 <div class="col-span-1 md:col-span-2 md:text-right">
                                     <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Qty</label>
                                     <input type="number" name="item_qty[]" class="w-full md:w-24 bg-theme-input border border-theme-input rounded-[16px] p-3 text-right qty-input text-sm sm:text-base text-theme-primary focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all" value="{{ item.qty }}" min="1" required>
@@ -231,7 +240,7 @@
                             </div>
                             
                             <div class="mt-4 md:mt-0 md:absolute md:right-4 md:top-1/2 md:-translate-y-1/2">
-                                <button type="button" class="remove-item-btn w-full md:w-auto flex items-center justify-center gap-2 md:block p-2.5 text-theme-muted hover:text-red-500 hover:bg-red-500/10 md:opacity-0 md:group-hover:opacity-100 transition-all border border-theme-input md:border-none rounded-[16px] bg-theme-input md:bg-transparent">
+                                <button type="button" class="remove-item-btn w-full md:w-auto flex items-center justify-center gap-2 md:block p-2.5 text-theme-secondary hover:text-red-500 hover:bg-red-500/10 transition-all border border-theme-input md:border-none rounded-[16px] bg-theme-input md:bg-transparent">
                                     <span class="material-symbols-outlined text-xl">delete_outline</span>
                                     <span class="md:hidden text-xs font-bold uppercase">Remove Item</span>
                                 </button>
@@ -247,13 +256,16 @@
                     <!-- Hidden template for new rows -->
                     <template id="row-template">
                         <div class="item-row group p-4 md:p-0 md:grid md:grid-cols-12 md:gap-4 md:items-center relative hover:bg-theme-input/20 transition-all duration-300">
-                            <div class="col-span-6 md:p-4">
-                                <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Item Description</label>
-                                <input type="hidden" name="item_garment_category[]" value="">
-                                <input type="text" name="item_description[]" class="w-full bg-theme-input border border-theme-input rounded-[16px] p-3 font-semibold text-theme-primary text-sm sm:text-base placeholder-theme focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all shadow-sm" placeholder="e.g. Custom Shirt" required>
+                            <div class="col-span-6 md:p-4 flex items-center gap-3">
+                                <input type="checkbox" class="bundle-checkbox w-5 h-5 rounded border-theme-input bg-theme-input/50 cursor-pointer text-secondary focus:ring-secondary/50">
+                                <div class="w-full">
+                                    <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Item Description</label>
+                                    <input type="hidden" name="item_garment_category[]" value="">
+                                    <input type="text" name="item_description[]" class="w-full bg-theme-input border border-theme-input rounded-[16px] p-3 font-semibold text-theme-primary text-sm sm:text-base placeholder-theme focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all shadow-sm desc-input" placeholder="e.g. Custom Shirt" required>
+                                </div>
                             </div>
 
-                            <div class="grid grid-cols-3 gap-4 mt-4 md:mt-0 md:col-span-6 md:grid-cols-6 md:items-center md:pr-4">
+                            <div class="grid grid-cols-3 gap-4 mt-4 md:mt-0 md:col-span-6 md:grid-cols-6 md:items-center md:pr-14">
                                 <div class="col-span-1 md:col-span-2 md:text-right">
                                     <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Qty</label>
                                     <input type="number" name="item_qty[]" class="w-full md:w-24 bg-theme-input border border-theme-input rounded-[16px] p-3 text-right qty-input text-sm sm:text-base text-theme-primary focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all" value="1" min="1" required>
@@ -269,7 +281,7 @@
                             </div>
                             
                             <div class="mt-4 md:mt-0 md:absolute md:right-4 md:top-1/2 md:-translate-y-1/2">
-                                <button type="button" class="remove-item-btn w-full md:w-auto flex items-center justify-center gap-2 md:block p-2.5 text-theme-muted hover:text-red-500 hover:bg-red-500/10 md:opacity-0 md:group-hover:opacity-100 transition-all border border-theme-input md:border-none rounded-[16px] bg-theme-input md:bg-transparent">
+                                <button type="button" class="remove-item-btn w-full md:w-auto flex items-center justify-center gap-2 md:block p-2.5 text-theme-secondary hover:text-red-500 hover:bg-red-500/10 transition-all border border-theme-input md:border-none rounded-[16px] bg-theme-input md:bg-transparent">
                                     <span class="material-symbols-outlined text-xl">delete_outline</span>
                                     <span class="md:hidden text-xs font-bold uppercase">Remove Item</span>
                                 </button>
@@ -472,6 +484,25 @@
             const removeBtn = e.target.closest('.remove-item-btn');
             if (removeBtn) {
                 const row = removeBtn.closest('.item-row');
+                
+                // If it's a bundle, un-bundle the linked items
+                if (row.dataset.isBundle) {
+                    const bundleId = row.dataset.isBundle;
+                    document.querySelectorAll(`.item-row[data-bundled-in="${bundleId}"]`).forEach(bundledRow => {
+                        bundledRow.removeAttribute('data-bundled-in');
+                        bundledRow.style.opacity = '1';
+                        bundledRow.style.marginLeft = '0';
+                        bundledRow.classList.remove('bg-theme-input/10');
+                        bundledRow.querySelector('.rate-input').readOnly = false;
+                        bundledRow.querySelector('.qty-input').readOnly = false;
+                        const cb = bundledRow.querySelector('.bundle-checkbox');
+                        if (cb) {
+                            cb.style.display = 'block';
+                            cb.checked = false;
+                        }
+                    });
+                }
+                
                 row.remove();
                 if (document.querySelectorAll('.item-row').length === 0) {
                     itemsBody.innerHTML = `
@@ -483,6 +514,68 @@
                 calculateTotals();
             }
         });
+
+        const bundleBtn = document.getElementById('bundle-items-btn');
+        if (bundleBtn) {
+            bundleBtn.addEventListener('click', () => {
+                const selectedCheckboxes = document.querySelectorAll('.bundle-checkbox:checked');
+                if (selectedCheckboxes.length < 2) {
+                    alert('Please select at least 2 items to bundle.');
+                    return;
+                }
+
+                const bundleId = 'bundle-' + Date.now();
+                const descriptions = [];
+                let sumAmount = 0;
+
+                selectedCheckboxes.forEach(cb => {
+                    const row = cb.closest('.item-row');
+                    row.setAttribute('data-bundled-in', bundleId);
+                    row.style.opacity = '0.6';
+                    row.style.marginLeft = '2rem';
+                    row.classList.add('bg-theme-input/10');
+                    
+                    const desc = row.querySelector('.desc-input').value;
+                    if (desc) descriptions.push(desc);
+
+                    const rateInput = row.querySelector('.rate-input');
+                    const qtyInput = row.querySelector('.qty-input');
+                    
+                    const qty = parseFloat(qtyInput.value) || 1;
+                    const rate = parseFloat(rateInput.value) || 0;
+                    sumAmount += (qty * rate);
+
+                    rateInput.value = '0.00';
+                    rateInput.readOnly = true;
+                    qtyInput.readOnly = true;
+
+                    cb.style.display = 'none'; // hide checkbox
+                });
+
+                // Create bundle row
+                const clone = rowTemplate.content.cloneNode(true);
+                const bundleRow = clone.querySelector('.item-row');
+                bundleRow.setAttribute('data-is-bundle', bundleId);
+                bundleRow.querySelector('.desc-input').value = `Bundle: ${descriptions.join(' + ')}`;
+                
+                // Set the summed amount and quantity to 1
+                bundleRow.querySelector('.rate-input').value = sumAmount.toFixed(2);
+                bundleRow.querySelector('.qty-input').value = 1;
+                
+                // Remove checkbox from bundle row itself
+                const bundleCb = bundleRow.querySelector('.bundle-checkbox');
+                if (bundleCb) bundleCb.remove();
+                
+                // Add visual distinction to the bundle row
+                bundleRow.classList.add('border-l-4', 'border-secondary', 'bg-theme-input/20');
+                
+                // Insert bundle row before the first selected item
+                const firstSelectedRow = selectedCheckboxes[0].closest('.item-row');
+                itemsBody.insertBefore(bundleRow, firstSelectedRow);
+                
+                calculateTotals();
+            });
+        }
 
         addItemBtn.addEventListener('click', addItemRow);
         discountInput.addEventListener('input', calculateTotals);
