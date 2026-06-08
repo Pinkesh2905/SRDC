@@ -216,7 +216,7 @@
                         {% for item in selected_items %}
                         <div class="item-row group p-4 md:p-0 md:grid md:grid-cols-12 md:gap-4 md:items-center relative hover:bg-theme-input/20 transition-all duration-300">
                             <div class="col-span-6 md:p-4 flex items-center gap-3">
-                                <input type="checkbox" class="bundle-checkbox w-5 h-5 rounded border-theme-input bg-theme-input/50 cursor-pointer text-secondary focus:ring-secondary/50">
+                                <input type="checkbox" class="bundle-checkbox w-5 h-5 rounded border-2 border-theme-secondary/50 bg-theme-input/50 cursor-pointer text-secondary focus:ring-secondary/50">
                                 <div class="w-full">
                                     <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Item Description</label>
                                     <input type="hidden" name="item_garment_category[]" value="{{ item.type }}">
@@ -257,7 +257,7 @@
                     <template id="row-template">
                         <div class="item-row group p-4 md:p-0 md:grid md:grid-cols-12 md:gap-4 md:items-center relative hover:bg-theme-input/20 transition-all duration-300">
                             <div class="col-span-6 md:p-4 flex items-center gap-3">
-                                <input type="checkbox" class="bundle-checkbox w-5 h-5 rounded border-theme-input bg-theme-input/50 cursor-pointer text-secondary focus:ring-secondary/50">
+                                <input type="checkbox" class="bundle-checkbox w-5 h-5 rounded border-2 border-theme-secondary/50 bg-theme-input/50 cursor-pointer text-secondary focus:ring-secondary/50">
                                 <div class="w-full">
                                     <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Item Description</label>
                                     <input type="hidden" name="item_garment_category[]" value="">
@@ -550,6 +550,7 @@
                     qtyInput.readOnly = true;
 
                     cb.style.display = 'none'; // hide checkbox
+                    cb.checked = false; // uncheck so they aren't grabbed by future bundles
                 });
 
                 // Create bundle row
