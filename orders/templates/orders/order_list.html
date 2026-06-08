@@ -166,16 +166,35 @@
                             <td class="px-3 py-3 text-sm whitespace-nowrap" id="quick-pay-cell-{{ order.id }}">
                                 <div class="flex items-center gap-2 {% if order.grand_total == 0 %}hidden{% endif %}" id="quick-pay-form-{{ order.id }}">
                                     <input type="number" step="0.01" min="0.01" max="{{ order.grand_total }}" 
-                                           class="w-16 px-1.5 py-0.5 bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-[8px] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-secondary/50 placeholder-slate-400" 
+                                           class="w-[70px] px-2 py-1 bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-[8px] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 transition-all placeholder:text-slate-500/50" 
                                            placeholder="Amt" id="pay-amount-{{ order.id }}">
-                                    <select id="pay-method-{{ order.id }}" class="px-1.5 py-0.5 text-xs bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-[8px] text-slate-900 dark:text-white focus:outline-none focus:border-secondary/50">
-                                        <option value="cash">Cash</option>
-                                        <option value="upi">UPI</option>
-                                        <option value="card">Card</option>
-                                        <option value="bank_transfer">Bank</option>
-                                    </select>
+                                    
+                                    <!-- Custom Payment Method Dropdown -->
+                                    <div class="relative inline-block text-left pay-method-dropdown-container" id="pay-method-container-{{ order.id }}">
+                                        <button type="button" onclick="togglePayMethodDropdown(event, {{ order.id }})"
+                                                class="px-2 py-1 text-xs bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-[8px] text-slate-900 dark:text-white focus:outline-none focus:border-secondary/50 flex items-center gap-1 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+                                                id="pay-method-btn-{{ order.id }}">
+                                            <span id="pay-method-label-{{ order.id }}">Cash</span>
+                                            <span class="material-symbols-outlined text-[12px] text-slate-500 dark:text-white/30">expand_more</span>
+                                        </button>
+                                        <input type="hidden" id="pay-method-{{ order.id }}" value="cash">
+                                        
+                                        <!-- Custom Dropdown Menu -->
+                                        <div id="pay-method-menu-{{ order.id }}"
+                                             class="hidden absolute left-0 mt-1.5 w-24 rounded-lg bg-slate-900 border border-white/10 shadow-2xl z-50 overflow-hidden py-1 divide-y divide-white/5">
+                                            <button type="button" onclick="selectPayMethodShortcut({{ order.id }}, 'cash', 'Cash')"
+                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors">Cash</button>
+                                            <button type="button" onclick="selectPayMethodShortcut({{ order.id }}, 'upi', 'UPI')"
+                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors">UPI</button>
+                                            <button type="button" onclick="selectPayMethodShortcut({{ order.id }}, 'card', 'Card')"
+                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors">Card</button>
+                                            <button type="button" onclick="selectPayMethodShortcut({{ order.id }}, 'bank_transfer', 'Bank')"
+                                                    class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-colors">Bank</button>
+                                        </div>
+                                    </div>
+
                                     <button type="button" onclick="submitQuickPay({{ order.id }})" 
-                                            class="w-6 h-6 rounded-full bg-secondary text-primary hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-md shadow-secondary/10" 
+                                            class="w-6 h-6 rounded-full bg-secondary text-primary hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-md shadow-secondary/10 shrink-0" 
                                             title="Record Payment">
                                         <span class="material-symbols-outlined text-[13px] font-bold">check</span>
                                     </button>
@@ -449,6 +468,27 @@ document.addEventListener('keydown', function(e) {
         transform: translateY(0) scale(1);
     }
 }
+/* Custom status badge overrides to guarantee readability in dark/light mode */
+.status-badge-in-progress {
+    background: rgba(148, 163, 184, 0.15) !important;
+    color: #475569 !important;
+    border: 1px solid rgba(148, 163, 184, 0.3) !important;
+}
+body.dark-mode .status-badge-in-progress {
+    background: rgba(148, 163, 184, 0.2) !important;
+    color: #cbd5e1 !important;
+    border: 1px solid rgba(148, 163, 184, 0.4) !important;
+}
+.status-badge-fallback {
+    background: rgba(148, 163, 184, 0.1) !important;
+    color: #475569 !important;
+    border: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+body.dark-mode .status-badge-fallback {
+    background: rgba(148, 163, 184, 0.15) !important;
+    color: #cbd5e1 !important;
+    border: 1px solid rgba(148, 163, 184, 0.35) !important;
+}
 </style>
 
 <script>
@@ -485,7 +525,7 @@ function toggleStatusDropdownMobile(event, orderId) {
     }
 }
 
-// Close all open status menus when clicking outside
+// Close all open status and payment method menus when clicking outside
 document.addEventListener('click', function(event) {
     if (!event.target.closest('.status-dropdown-container') && !event.target.closest('.status-dropdown-container-mobile')) {
         document.querySelectorAll('[id^="status-dropdown-menu-"]').forEach(menu => {
@@ -495,7 +535,44 @@ document.addEventListener('click', function(event) {
             menu.classList.add('hidden');
         });
     }
+    if (!event.target.closest('.pay-method-dropdown-container')) {
+        document.querySelectorAll('[id^="pay-method-menu-"]').forEach(menu => {
+            menu.classList.add('hidden');
+        });
+    }
 });
+
+// Toggle payment method dropdown
+function togglePayMethodDropdown(event, orderId) {
+    event.stopPropagation();
+    
+    // Close other payment method dropdowns
+    document.querySelectorAll('[id^="pay-method-menu-"]').forEach(menu => {
+        if (menu.id !== `pay-method-menu-${orderId}`) {
+            menu.classList.add('hidden');
+        }
+    });
+    // Close status dropdowns as well
+    document.querySelectorAll('[id^="status-dropdown-menu-"]').forEach(menu => {
+        menu.classList.add('hidden');
+    });
+    
+    const menu = document.getElementById(`pay-method-menu-${orderId}`);
+    if (menu) {
+        menu.classList.toggle('hidden');
+    }
+}
+
+// Select custom payment method option
+function selectPayMethodShortcut(orderId, val, label) {
+    const hiddenInput = document.getElementById(`pay-method-${orderId}`);
+    const labelSpan = document.getElementById(`pay-method-label-${orderId}`);
+    const menu = document.getElementById(`pay-method-menu-${orderId}`);
+    
+    if (hiddenInput) hiddenInput.value = val;
+    if (labelSpan) labelSpan.textContent = label;
+    if (menu) menu.classList.add('hidden');
+}
 
 // Update the UI representation of a status badge (desktop & mobile)
 function updateStatusBadgeUI(orderId, status, display) {
@@ -587,9 +664,9 @@ function selectStatusShortcut(orderId, newStatus) {
 // Submit quick pay (desktop)
 function submitQuickPay(orderId) {
     const amountInput = document.getElementById(`pay-amount-${orderId}`);
-    const methodSelect = document.getElementById(`pay-method-${orderId}`);
+    const methodInput = document.getElementById(`pay-method-${orderId}`);
     const amountVal = amountInput.value.trim();
-    const methodVal = methodSelect.value;
+    const methodVal = methodInput ? methodInput.value : 'cash';
     
     if (!amountVal || parseFloat(amountVal) <= 0) {
         showNotification('Please enter a valid payment amount.', 'error');
@@ -621,6 +698,11 @@ function submitQuickPay(orderId) {
             // Reset and update input limits
             amountInput.value = '';
             amountInput.max = data.grand_total;
+            
+            // Reset custom dropdown value and label back to Cash
+            if (methodInput) methodInput.value = 'cash';
+            const labelSpan = document.getElementById(`pay-method-label-${orderId}`);
+            if (labelSpan) labelSpan.textContent = 'Cash';
             
             const mobileInput = document.getElementById(`pay-amount-mobile-${orderId}`);
             if (mobileInput) {
