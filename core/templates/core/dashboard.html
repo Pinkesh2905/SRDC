@@ -67,14 +67,13 @@
         color: var(--text-primary);
         margin-bottom: 20px;
     }
-    .movement-label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-secondary); margin-bottom: 8px; margin-top: 16px; }
+    .movement-label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; margin-top: 16px; }
     .movement-label:first-child { margin-top: 0; }
-    .movement-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; color: var(--text-amber-700 dark:text-secondary); }
+    .movement-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; }
     .movement-row span:last-child { font-weight: 700; }
-    .cust-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--table-row-border); font-size: 13px; }
+    .cust-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(122,31,24,0.1); font-size: 13px; }
     .cust-row:last-child { border-bottom: none; }
-    .cust-row .name { color: var(--text-amber-700 dark:text-secondary); }
-    .cust-row .amount { font-weight: 700; color: var(--text-primary); }
+    .cust-row .amount { font-weight: 700; }
 </style>
 {% endblock %}
 
@@ -185,8 +184,8 @@
             <div class="bottom-card__title">Top customers</div>
             {% for cust in top_customers %}
             <div class="cust-row">
-                <span class="name">{{ forloop.counter }}.&nbsp; {{ cust.name }}</span>
-                <span class="amount">{{ cust.amount }}</span>
+                <span class="name text-theme-secondary">{{ forloop.counter }}.&nbsp; {{ cust.name }}</span>
+                <span class="amount text-theme-primary">{{ cust.amount }}</span>
             </div>
             {% empty %}
             <p class="text-sm text-theme-muted italic text-center py-4">No data yet</p>
@@ -199,7 +198,7 @@
             <div class="movement-label">Fast Moving</div>
             {% for p in fast_moving %}
             <div class="movement-row">
-                <span>{{ p.description }}</span>
+                <span class="text-theme-secondary">{{ p.description }}</span>
                 <span class="text-emerald-400">{{ p.qty }} units</span>
             </div>
             {% empty %}
@@ -208,7 +207,7 @@
             <div class="movement-label">Slow Moving</div>
             {% for p in slow_moving %}
             <div class="movement-row">
-                <span>{{ p.description }}</span>
+                <span class="text-theme-secondary">{{ p.description }}</span>
                 <span class="text-red-400">{{ p.qty }} units</span>
             </div>
             {% empty %}
