@@ -92,6 +92,7 @@
                 <a href="?filter=today" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'today' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-theme-secondary hover:text-theme-primary{% endif %}">Today</a>
                 <a href="?filter=week" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'week' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-theme-secondary hover:text-theme-primary{% endif %}">7 Days</a>
                 <a href="?filter=month" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'month' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-theme-secondary hover:text-theme-primary{% endif %}">30 Days</a>
+                <a href="?filter=all" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'all' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-theme-secondary hover:text-theme-primary{% endif %}">All Time</a>
             </div>
             <a href="{% url 'measurement_profile' %}" class="btn-premium btn-premium--gold !py-0 h-[38px] px-5 !rounded-[10px] flex items-center justify-center">
                 <span class="btn-premium__label flex items-center gap-2 text-xs font-bold">

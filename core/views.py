@@ -56,6 +56,10 @@ def dashboard(request):
         start_date = today - timedelta(days=6)
         end_date = today
         period_name = "Last 7 days"
+    elif time_filter == 'all':
+        start_date = today - timedelta(days=36500) # 100 years
+        end_date = today
+        period_name = "All Time"
     elif time_filter == 'custom' and start_date_str and end_date_str:
         try:
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
