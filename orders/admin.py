@@ -16,13 +16,14 @@ class OrderAdmin(admin.ModelAdmin):
         'customer',
         'status',
         'is_red_flagged',
+        'is_urgent',
         'booking_date',
         'delivery_date',
         'final_amount',
         'advance_paid',
         'grand_total',
     )
-    list_filter = ('status', 'is_red_flagged', 'order_type', 'booking_date', 'delivery_date')
+    list_filter = ('status', 'is_red_flagged', 'is_urgent', 'order_type', 'booking_date', 'delivery_date')
     search_fields = ('order_number', 'customer__full_name', 'customer__phone')
     readonly_fields = ('order_number', 'subtotal', 'final_amount', 'grand_total', 'created_at', 'updated_at')
     inlines = [OrderItemInline]

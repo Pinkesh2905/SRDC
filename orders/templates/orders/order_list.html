@@ -146,7 +146,11 @@
                                 <div class="flex items-center gap-2">
                                     <a href="{% url 'order_detail' order.id %}" class="hover:underline">{{ order.order_number }}</a>
                                     {% if order.is_red_flagged %}
-                                    <span class="material-symbols-outlined text-red-400 text-[16px] animate-pulse-slow" title="Outsource Required">flag</span>
+                                        {% if order.is_urgent %}
+                                        <span class="material-symbols-outlined text-orange-500 text-sm md:text-base animate-pulse cursor-help" title="Outsource Required - URGENT">local_fire_department</span>
+                                        {% else %}
+                                        <span class="material-symbols-outlined text-red-500 text-sm md:text-base animate-pulse cursor-help" title="Outsource Required">flag</span>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </td>
@@ -266,7 +270,11 @@
                         <div class="flex items-center gap-2">
                             <a href="{% url 'order_detail' order.id %}" class="font-mono text-slate-900 dark:text-white font-bold text-sm block hover:underline">{{ order.order_number }}</a>
                             {% if order.is_red_flagged %}
-                            <span class="material-symbols-outlined text-red-400 text-[14px] animate-pulse-slow" title="Outsource Required">flag</span>
+                                {% if order.is_urgent %}
+                                <span class="material-symbols-outlined text-orange-500 text-sm animate-pulse" title="Urgent">local_fire_department</span>
+                                {% else %}
+                                <span class="material-symbols-outlined text-red-500 text-sm animate-pulse" title="Outsource Required">flag</span>
+                                {% endif %}
                             {% endif %}
                         </div>
                         <div class="flex items-center gap-2">

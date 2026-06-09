@@ -140,6 +140,28 @@
                 </div>
             </div>
 
+            {% if order.is_red_flagged %}
+            <!-- Urgent Toggle -->
+            <div class="glass-panel p-6 relative z-10 border {% if order.is_urgent %}border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent{% else %}border-theme-input{% endif %}">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-serif text-lg font-semibold text-theme-primary mb-1 flex items-center gap-2">
+                            <span class="material-symbols-outlined {% if order.is_urgent %}text-orange-500{% else %}text-theme-muted{% endif %}">priority_high</span>
+                            Priority
+                        </h3>
+                        <p class="text-xs text-theme-secondary uppercase tracking-widest">Urgent Fulfillment</p>
+                    </div>
+                    <form method="POST" action="{% url 'order_detail' order.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="toggle_urgent" value="1">
+                        <button type="submit" class="px-4 py-2 rounded-full font-bold text-xs transition-all {% if order.is_urgent %}bg-orange-500/20 text-orange-500 border border-orange-500/30 hover:bg-orange-500/30{% else %} text-theme-secondary border border-theme-input hover:bg-theme-input hover:text-theme-primary{% endif %}">
+                            {% if order.is_urgent %}Turn Off{% else %}Turn On{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Customer Summary -->
             <div class="glass-panel p-6 relative z-10">
                 <h3 class="font-serif text-lg font-semibold text-theme-primary mb-4">Customer</h3>

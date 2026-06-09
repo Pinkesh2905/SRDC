@@ -302,8 +302,25 @@
                         </div>
                         <div class="flex items-center mt-2">
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" name="is_red_flagged" class="sr-only peer">
+                                <input type="checkbox" name="is_red_flagged" id="is_red_flagged_checkbox" class="sr-only peer" {% if order and order.is_red_flagged %}checked{% endif %}>
                                 <div class="w-14 h-7 bg-theme-input peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-600 shadow-inner"></div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Urgent Sub-Toggle (Hidden by default) -->
+                    <div id="urgent-toggle-container" class="mt-4 pt-4 border-t border-red-500/20 hidden flex items-start justify-between relative z-10 transition-all">
+                        <div class="flex items-center gap-3 pl-8">
+                            <span class="material-symbols-outlined text-orange-500 text-2xl">priority_high</span>
+                            <div>
+                                <h4 class="font-serif text-lg font-semibold text-theme-primary">🔥 Is it Urgent?</h4>
+                                <p class="text-xs text-theme-secondary mt-1 max-w-md">Mark if this outsourced item requires priority processing.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center mt-1">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_urgent" id="is_urgent_checkbox" class="sr-only peer" {% if order and order.is_urgent %}checked{% endif %}>
+                                <div class="w-12 h-6 bg-theme-input peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500 shadow-inner"></div>
                             </label>
                         </div>
                     </div>
@@ -618,6 +635,26 @@
                     if (headerDay) headerDay.textContent = "Select Date";
                     if (headerMonth) headerMonth.textContent = "---";
                 }
+            }
+        }
+        
+        // Red Flag -> Urgent Toggle Logic
+        const mainFlagCheckbox = document.getElementById('is_red_flagged_checkbox');
+        const urgentContainer = document.getElementById('urgent-toggle-container');
+        const urgentCheckbox = document.getElementById('is_urgent_checkbox');
+        
+        if (mainFlagCheckbox && urgentContainer) {
+            mainFlagCheckbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    urgentContainer.classList.remove('hidden');
+                } else {
+                    urgentContainer.classList.add('hidden');
+                    if (urgentCheckbox) urgentCheckbox.checked = false;
+                }
+            });
+            // Initial check for edit mode
+            if (mainFlagCheckbox.checked) {
+                urgentContainer.classList.remove('hidden');
             }
         }
 

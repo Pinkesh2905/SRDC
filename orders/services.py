@@ -139,6 +139,7 @@ def create_order_from_post(post_data, customer):
             raise ValidationError('Return date cannot be before delivery date.')
     balance_due = (final_amount - advance_paid).quantize(MONEY)
     is_red_flagged = post_data.get('is_red_flagged') == 'on'
+    is_urgent = is_red_flagged and (post_data.get('is_urgent') == 'on')
 
     order = Order.objects.create(
         order_number=f"TMP-{uuid4().hex[:12]}",
@@ -159,6 +160,7 @@ def create_order_from_post(post_data, customer):
         return_date=return_date,
         notes=(post_data.get('notes') or '').strip(),
         is_red_flagged=is_red_flagged,
+        is_urgent=is_urgent,
     )
     order.assign_order_number()
 
@@ -181,7 +183,14 @@ def update_order_from_post(order, post_data):
 
     if 'toggle_red_flag' in post_data:
         order.is_red_flagged = not order.is_red_flagged
+        if not order.is_red_flagged:
+            order.is_urgent = False
+            changed.append('is_urgent')
         changed.append('is_red_flagged')
+        
+    if 'toggle_urgent' in post_data and order.is_red_flagged:
+        order.is_urgent = not order.is_urgent
+        changed.append('is_urgent')
 
     total_discount = post_data.get('total_discount')
     if total_discount is not None:

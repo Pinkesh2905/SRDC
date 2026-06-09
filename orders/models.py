@@ -39,6 +39,11 @@ class Order(models.Model):
         verbose_name="Red Flag (Outsource Required)",
         help_text="Mark if the garment/catalog is unavailable in-store and must be ordered from a 3rd party."
     )
+    is_urgent = models.BooleanField(
+        default=False,
+        verbose_name="Urgent",
+        help_text="Mark if this outsourced order requires urgent processing."
+    )
     is_buy_back = models.BooleanField(
         default=False,
         verbose_name="Buy Back",

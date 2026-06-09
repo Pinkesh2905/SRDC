@@ -261,7 +261,7 @@
                     <td>{{ order.return_date|date:"d M Y"|default:"-" }}</td>
                     <td class="right">Rs {{ order.grand_total }}</td>
                     <td class="center"><span class="status">{{ order.get_status_display }}</span></td>
-                    <td class="center">{% if order.is_red_flagged %}Yes{% else %}-{% endif %}</td>
+                    <td class="center">{% if order.is_red_flagged %}{% if order.is_urgent %}Urgent{% else %}Yes{% endif %}{% else %}-{% endif %}</td>
                 </tr>
                 {% empty %}
                 <tr>
