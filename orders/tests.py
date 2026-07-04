@@ -295,3 +295,103 @@ class OrderViewTests(TestCase):
         self.assertEqual(items[0].measurement.notes, 'Shirt 1')
         self.assertEqual(items[1].measurement.id, m2.id)
         self.assertEqual(items[1].measurement.notes, 'Shirt 2')
+
+    def test_order_creation_fallback_clones_shared_measurements(self):
+        self.client.force_login(self.user)
+        salesperson = Salesperson.objects.create(full_name='Kiran Patel', employee_code='SP-001')
+        
+        # Only 1 shirt measurement exists
+        m = Measurement.objects.create(
+            customer=self.customer,
+            garment_category='shirt',
+            values={'Length': '40', 'Chest': '38'},
+            notes='Original Shirt'
+        )
+        
+        # Post 2 shirt items, both without explicit measurement IDs
+        response = self.client.post(reverse('order_create'), {
+            'customer_id': self.customer.id,
+            'salesperson': salesperson.id,
+            'item_garment_category[]': ['shirt', 'shirt'],
+            'item_measurement_id[]': ['', ''],
+            'item_description[]': ['Shirt A', 'Shirt B'],
+            'item_qty[]': ['1', '1'],
+            'item_rate[]': ['800.00', '900.00'],
+            'discount': '0.00',
+            'advance_paid': '100.00',
+        })
+        
+        order = Order.objects.get(customer=self.customer)
+        items = list(order.items.order_by('id'))
+        self.assertEqual(len(items), 2)
+        
+        # First item should use the original measurement
+        self.assertEqual(items[0].measurement.id, m.id)
+        # Second item should use a cloned, separate measurement
+        self.assertNotEqual(items[1].measurement.id, m.id)
+        self.assertEqual(items[1].measurement.garment_category, 'shirt')
+        self.assertEqual(items[1].measurement.values, m.values)
+
+    def test_order_item_edit_clones_shared_measurement(self):
+        self.client.force_login(self.user)
+        
+        # Create a single shared measurement
+        m = Measurement.objects.create(
+            customer=self.customer,
+            garment_category='shirt',
+            values={'Length': '40', 'Chest': '38'},
+            notes='Shared Shirt'
+        )
+        
+        order = Order.objects.create(
+            order_number='SRD-test-edit',
+            customer=self.customer,
+            booking_date='2026-05-03',
+            delivery_date='2026-05-10',
+        )
+        
+        # 2 OrderItems share the same measurement ID
+        item1 = OrderItem.objects.create(
+            order=order,
+            garment_category='shirt',
+            measurement=m,
+            description='Shirt 1',
+            quantity=1,
+            rate=Decimal('500.00'),
+            total_amount=Decimal('500.00')
+        )
+        item2 = OrderItem.objects.create(
+            order=order,
+            garment_category='shirt',
+            measurement=m,
+            description='Shirt 2',
+            quantity=1,
+            rate=Decimal('500.00'),
+            total_amount=Decimal('500.00')
+        )
+        
+        # Post edit to item2 only, changing Length from 40 to 42
+        response = self.client.post(reverse('order_item_edit', args=[order.id, item2.id]), {
+            'description': 'Shirt 2 Updated',
+            'quantity': '1',
+            'rate': '500.00',
+            'is_sample_product': 'off',
+            'measure_Length': '42',
+            'measure_Chest': '38',
+            'measurement_notes': 'Only item 2 updated'
+        })
+        
+        # Verify item2's measurement is cloned and updated, while item1 is unchanged
+        item1.refresh_from_db()
+        item2.refresh_from_db()
+        
+        self.assertNotEqual(item1.measurement.id, item2.measurement.id)
+        
+        # Item 1 measurement remains 40
+        self.assertEqual(item1.measurement.values.get('Length'), '40')
+        self.assertEqual(item1.measurement.notes, 'Shared Shirt')
+        
+        # Item 2 measurement is now 42
+        self.assertEqual(item2.measurement.values.get('Length'), '42')
+        self.assertEqual(item2.measurement.notes, 'Only item 2 updated')
+

@@ -34,6 +34,8 @@ def parse_items(post_data, customer):
     rates = post_data.getlist('item_rate[]')
     measurement_ids = post_data.getlist('item_measurement_id[]')
     items = []
+    # Track measurement IDs already assigned in this order to prevent sharing
+    used_measurement_ids = set()
 
     for index, description in enumerate(descriptions):
         description = (description or '').strip()
@@ -69,6 +71,20 @@ def parse_items(post_data, customer):
                 customer=customer,
                 garment_category=garment_category,
             ).order_by('-updated_at').first()
+
+        # If this measurement was already assigned to a previous item in this
+        # order, clone it so each item gets its own distinct record.
+        if measurement and measurement.id in used_measurement_ids:
+            measurement = Measurement.objects.create(
+                customer=customer,
+                garment_category=measurement.garment_category,
+                values=dict(measurement.values) if measurement.values else {},
+                notes=measurement.notes,
+                is_sample_product=measurement.is_sample_product,
+            )
+
+        if measurement:
+            used_measurement_ids.add(measurement.id)
 
         items.append({
             'garment_category': garment_category or None,
@@ -376,6 +392,22 @@ def update_order_item_from_post(item, post_data):
     # Update associated Measurement
     if item.measurement:
         measurement = item.measurement
+        
+        # Check if this measurement is shared by other OrderItems.
+        # If so, clone it first so edits don't affect the other items.
+        shared_count = OrderItem.objects.filter(measurement=measurement).exclude(id=item.id).count()
+        if shared_count > 0:
+            # Clone the measurement into a new independent record
+            measurement = Measurement.objects.create(
+                customer=measurement.customer,
+                garment_category=measurement.garment_category,
+                values=dict(measurement.values) if measurement.values else {},
+                notes=measurement.notes,
+                is_sample_product=measurement.is_sample_product,
+            )
+            item.measurement = measurement
+            item.save(update_fields=['measurement'])
+        
         m_changed = False
         
         m_notes = post_data.get('measurement_notes')
