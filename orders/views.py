@@ -153,10 +153,21 @@ def order_print(request, order_id):
                 
     amount_in_words = num2words(order.final_amount)
 
+    # Limit table rows to 6 (items + fillers) to prevent A5 page overflow
+    max_total_rows = 6
+    num_items = len(items)
+    num_fillers = max(0, max_total_rows - num_items)
+    filler_rows = range(num_fillers)
+
+    # Chunk measurements into groups of max 3 items
+    measurement_groups = [measurements[i:i+3] for i in range(0, len(measurements), 3)]
+
     context = {
         'order': order,
         'items': items,
         'measurements': measurements,
+        'measurement_groups': measurement_groups,
+        'filler_rows': filler_rows,
         'amount_in_words': amount_in_words,
     }
     return render(request, 'orders/order_print.html', context)

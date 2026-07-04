@@ -66,7 +66,7 @@
             .page-break { page-break-before: always; }
 
             /* Canvas fills the full A5 page — no forced break after */
-            #invoice-canvas {
+            #invoice-canvas, #invoice-canvas-bw {
                 border: none !important;
                 box-shadow: none !important;
                 max-width: 100% !important;
@@ -78,11 +78,18 @@
                 overflow: hidden !important;
                 page-break-inside: avoid;
             }
-            .measurements-canvas-block, #measurements-canvas {
+            .measurements-canvas-block {
                 border: none !important;
                 box-shadow: none !important;
                 max-width: 100% !important;
+                width: 100% !important;
+                height: 200mm !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
                 margin: 0 !important;
+                overflow: hidden !important;
+                page-break-inside: avoid;
             }
 
             /* ---- Header ---- */
@@ -216,48 +223,50 @@
 
 
     <!-- PAGES FOR MEASUREMENTS -->
-    {% if measurements %}
-    {% for m in measurements %}
+    {% if measurement_groups %}
+    {% for group in measurement_groups %}
     <div class="page-break w-full"></div>
-    <div class="paper-bg w-full max-w-[560px] bg-[#fffdfa] border border-gray-200 mx-auto shadow-md relative overflow-hidden measurements-canvas-block">
-        <div class="p-6 space-y-8">
+    <div class="paper-bg w-full max-w-[560px] bg-[#fffdfa] border border-gray-200 mx-auto shadow-md relative overflow-hidden measurements-canvas-block p-4 flex flex-col justify-between" style="min-height: 200mm; max-height: 200mm;">
+        <div class="space-y-4 flex-1">
+            {% for m in group %}
             <div class="w-full border border-gray-200 bg-white shadow-sm">
-                <div class="bg-stone-100 text-gray-700 font-invoice-accent p-3 flex justify-between items-start border-b border-gray-200">
+                <div class="bg-stone-100 text-gray-700 font-invoice-accent p-2 flex justify-between items-start border-b border-gray-200">
                     <div class="flex flex-col gap-0.5">
-                        <span class="uppercase tracking-wider font-bold">{{ m.category_display }}</span>
+                        <span class="uppercase tracking-wider font-bold text-xs">{{ m.category_display }}</span>
                         {% if m.notes %}
-                        <span class="text-sm font-body-sm text-primary/60 italic font-normal tracking-normal normal-case">📝 {{ m.notes }}</span>
+                        <span class="text-xs font-body-sm text-primary/60 italic font-normal tracking-normal normal-case">📝 {{ m.notes }}</span>
                         {% endif %}
                     </div>
-                    <span class="text-xs font-body-sm tracking-normal font-medium shrink-0 ml-4">Bill No: {{ order.id|stringformat:"03d" }} | {{ order.customer.full_name|title }}</span>
+                    <span class="text-[10px] font-body-sm tracking-normal font-medium shrink-0 ml-4">Bill No: {{ order.id|stringformat:"03d" }} | {{ order.customer.full_name|title }}</span>
                 </div>
                 {% if m.is_sample_product %}
-                <div class="p-8 text-center bg-stone-50 border-t border-gray-100">
-                    <div class="flex flex-col items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-secondary text-4xl">inventory_2</span>
-                        <p class="font-headline-md text-secondary uppercase tracking-widest text-lg">Sample product for measurement</p>
-                        <p class="text-xs font-body-sm text-primary/60 italic">No detailed measurements required as sample was provided.</p>
+                <div class="p-4 text-center bg-stone-50 border-t border-gray-100">
+                    <div class="flex flex-col items-center justify-center gap-1">
+                        <span class="material-symbols-outlined text-secondary text-2xl">inventory_2</span>
+                        <p class="font-headline-md text-secondary uppercase tracking-widest text-sm">Sample product for measurement</p>
+                        <p class="text-[10px] font-body-sm text-primary/60 italic">No detailed measurements required as sample was provided.</p>
                     </div>
                 </div>
                 {% else %}
-                <div class="grid grid-cols-3 gap-y-3 gap-x-4 p-4">
+                <div class="grid grid-cols-3 gap-y-2 gap-x-4 p-3 print:p-2">
                     {% for param in m.data %}
-                    <div class="flex flex-col border-b border-gray-200 pb-2">
-                        <span class="font-label-caps text-primary/70 uppercase mb-1 break-words leading-tight">{{ param.label }}</span>
-                        <span class="font-headline-md text-primary font-bold">{{ param.value }}</span>
+                    <div class="flex flex-col border-b border-gray-200 pb-1">
+                        <span class="font-label-caps text-primary/70 uppercase mb-0.5 break-words leading-tight text-[9px] print:text-[8px]">{{ param.label }}</span>
+                        <span class="font-headline-md text-primary font-bold text-sm print:text-xs">{{ param.value }}</span>
                     </div>
                     {% endfor %}
                 </div>
                 {% endif %}
             </div>
-            
-            {% if forloop.last and order.notes %}
-            <div class="mt-8 border border-gray-200 p-4 bg-white">
-                <h3 class="font-label-caps text-primary uppercase mb-2 border-b border-gray-200 pb-1">Special Order Notes:</h3>
-                <p class="font-body-base text-primary italic">{{ order.notes }}</p>
-            </div>
-            {% endif %}
+            {% endfor %}
         </div>
+        
+        {% if forloop.last and order.notes %}
+        <div class="mt-4 border border-gray-200 p-3 bg-white print:p-2">
+            <h3 class="font-label-caps text-primary uppercase mb-1 border-b border-gray-200 pb-0.5 text-xs print:text-[9px]">Special Order Notes:</h3>
+            <p class="font-body-base text-primary italic text-xs print:text-[10px]">{{ order.notes }}</p>
+        </div>
+        {% endif %}
     </div>
     {% endfor %}
     {% endif %}

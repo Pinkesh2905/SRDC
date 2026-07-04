@@ -110,7 +110,7 @@
                 <div class="p-4 text-center italic text-primary/60">No items in this order.</div>
                 {% endfor %}
                 <!-- Empty filler rows -->
-                {% for i in "1234" %}
+                {% for i in filler_rows %}
                 <div class="grid grid-cols-12 border-b border-gray-200">
                     <div class="col-span-1 p-3 font-body-base text-primary text-center">{{ forloop.counter|add:items.count }}</div>
                     <div class="col-span-5 p-3">
