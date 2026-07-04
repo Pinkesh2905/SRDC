@@ -66,7 +66,7 @@
                                 <a href="{% url 'customer_detail' customer.id %}" class="text-theme-secondary hover:text-theme-primary transition-colors" title="View Profile">
                                     <span class="material-symbols-outlined text-xl">visibility</span>
                                 </a>
-                                <a href="{% url 'measurement_profile' %}?phone={{ customer.phone }}" class="text-theme-secondary hover:text-theme-primary transition-colors" title="New Measurement / Order">
+                                <a href="{% url 'measurement_profile' %}?customer_id={{ customer.id }}" class="text-theme-secondary hover:text-theme-primary transition-colors" title="New Measurement / Order">
                                     <span class="material-symbols-outlined text-xl">straighten</span>
                                 </a>
                             </div>
@@ -112,7 +112,7 @@
                         <a href="{% url 'customer_detail' customer.id %}" class="p-2 text-theme-secondary border border-theme-input rounded-[12px] hover:bg-theme-input hover:text-theme-primary transition-colors">
                             <span class="material-symbols-outlined text-xl">visibility</span>
                         </a>
-                        <a href="{% url 'measurement_profile' %}?phone={{ customer.phone }}" class="btn-premium !py-2 !px-4 text-xs">
+                        <a href="{% url 'measurement_profile' %}?customer_id={{ customer.id }}" class="btn-premium !py-2 !px-4 text-xs">
                             <span class="material-symbols-outlined text-[16px]">straighten</span>
                             Measure
                         </a>

@@ -9,8 +9,11 @@ from measurements.models import Measurement
 @login_required
 def api_get_customer_by_phone(request, phone):
     phone = normalize_phone(phone)
-    try:
-        customer = Customer.objects.get(phone=phone)
+    customer = Customer.objects.filter(phone=phone).order_by('-updated_at').first()
+    if not customer and not phone.startswith('+'):
+        customer = Customer.objects.filter(phone__endswith=phone).order_by('-updated_at').first()
+
+    if customer:
         measurements = Measurement.objects.filter(customer=customer)
         
         measurement_data = {}
@@ -27,11 +30,11 @@ def api_get_customer_by_phone(request, phone):
                 'id': customer.id,
                 'full_name': customer.full_name,
                 'phone': customer.phone,
-                'city': customer.city,
+                'city': customer.city or '',
             },
             'measurements': measurement_data
         })
-    except Customer.DoesNotExist:
+    else:
         return JsonResponse({'success': False, 'message': 'Customer not found'})
 
 @login_required

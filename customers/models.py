@@ -3,7 +3,7 @@ from .utils import normalize_phone
 
 class Customer(models.Model):
     full_name = models.CharField(max_length=150)
-    phone = models.CharField(max_length=15, unique=True)
+    phone = models.CharField(max_length=15, db_index=True)
     alt_phone = models.CharField(max_length=15, blank=True)
     email = models.EmailField(blank=True)
     city = models.CharField(max_length=100, blank=True)

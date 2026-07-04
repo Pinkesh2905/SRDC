@@ -261,8 +261,20 @@ def update_order_info_from_post(order, post_data):
         customer_changed = True
         
     new_phone = post_data.get('customer_phone')
-    if new_phone and new_phone.strip() != customer.phone:
-        customer.phone = new_phone.strip()
+    if not new_phone or not new_phone.strip():
+        cc = post_data.get('customer_country_code', '').strip()
+        pl = post_data.get('customer_phone_local', '').strip()
+        if pl:
+            if cc and not cc.startswith('+'):
+                cc = '+' + cc
+            new_phone = cc + pl
+        else:
+            new_phone = ''
+
+    from customers.utils import normalize_phone
+    normalized_new_phone = normalize_phone(new_phone)
+    if normalized_new_phone and normalized_new_phone != customer.phone:
+        customer.phone = normalized_new_phone
         customer_changed = True
         
     new_city = post_data.get('customer_city')

@@ -347,9 +347,50 @@ function closeDeleteModal() {
 }
 function openEditOrderModal() {
     var modal = document.getElementById('editOrderModal');
+    const fullPhone = document.getElementById('edit_customer_phone').value;
+    const dropdown = document.getElementById('edit_customer_country_code');
+    const localInput = document.getElementById('edit_customer_phone_local');
+    
+    if (dropdown && localInput) {
+        if (fullPhone.startsWith('+')) {
+            const prefixes = ['+971', '+973', '+974', '+965', '+968', '+966', '+91', '+44', '+61', '+64', '+65', '+49', '+33', '+1'];
+            let matched = false;
+            for (const p of prefixes) {
+                if (fullPhone.startsWith(p)) {
+                    dropdown.value = p;
+                    localInput.value = fullPhone.substring(p.length);
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                dropdown.value = '+91';
+                localInput.value = fullPhone;
+            }
+        } else {
+            dropdown.value = '+91';
+            localInput.value = fullPhone;
+        }
+    }
     modal.style.setProperty('display', 'flex', 'important');
     document.body.style.overflow = 'hidden';
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const dropdown = document.getElementById('edit_customer_country_code');
+    const localInput = document.getElementById('edit_customer_phone_local');
+    const hiddenInput = document.getElementById('edit_customer_phone');
+    
+    function updateHiddenPhone() {
+        if (dropdown && localInput && hiddenInput) {
+            const localVal = localInput.value.trim();
+            hiddenInput.value = localVal ? (dropdown.value + localVal) : '';
+        }
+    }
+    
+    if (dropdown) dropdown.addEventListener('change', updateHiddenPhone);
+    if (localInput) localInput.addEventListener('input', updateHiddenPhone);
+});
 function closeEditOrderModal() {
     var modal = document.getElementById('editOrderModal');
     modal.style.setProperty('display', 'none', 'important');
@@ -416,7 +457,26 @@ document.addEventListener('keydown', function(e) {
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">Phone</label>
-                        <input type="text" name="customer_phone" value="{{ order.customer.phone }}" class="w-full bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all">
+                        <div class="flex gap-2">
+                            <select id="edit_customer_country_code" name="customer_country_code" 
+                                    class="w-[100px] bg-theme-input border border-theme-input rounded-[12px] px-2 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all cursor-pointer">
+                                <option value="+91">🇮🇳 +91</option>
+                                <option value="+1">🇺🇸 +1</option>
+                                <option value="+44">🇬🇧 +44</option>
+                                <option value="+971">🇦🇪 +971</option>
+                                <option value="+61">🇦🇺 +61</option>
+                                <option value="+966">🇸🇦 +966</option>
+                                <option value="+974">🇶🇦 +974</option>
+                                <option value="+965">🇰🇼 +965</option>
+                                <option value="+968">🇴🇲 +968</option>
+                                <option value="+973">🇧🇭 +973</option>
+                                <option value="+49">🇩🇪 +49</option>
+                                <option value="+65">🇸🇬 +65</option>
+                                <option value="+64">🇳🇿 +64</option>
+                            </select>
+                            <input type="text" id="edit_customer_phone_local" name="customer_phone_local" class="flex-1 bg-theme-input border border-theme-input rounded-[12px] px-4 py-3 focus:outline-none focus:border-secondary/50 text-theme-primary transition-all">
+                        </div>
+                        <input type="hidden" id="edit_customer_phone" name="customer_phone" value="{{ order.customer.phone }}">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-theme-secondary uppercase tracking-widest mb-2 px-1">City</label>

@@ -23,5 +23,5 @@ class CustomerViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertTrue(data['success'])
-        self.assertEqual(data['customer']['phone'], '9876543210')
+        self.assertEqual(data['customer']['phone'], '+919876543210')
         self.assertEqual(data['measurements']['shirt']['values']['Length'], '40')

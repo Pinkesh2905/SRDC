@@ -44,7 +44,7 @@
                     <div class="invoice-field">
                         <span class="invoice-field-label">Phone</span>
                         <div class="invoice-field-value font-body-base">
-                            +91 {{ order.customer.phone|slice:"0:5" }} {{ order.customer.phone|slice:"5:10" }}
+                            {{ order.customer.phone }}
                         </div>
                     </div>
                 </div>

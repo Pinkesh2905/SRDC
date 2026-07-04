@@ -13,24 +13,47 @@ import json
 def measurement_profile(request):
     if request.method == 'POST':
         # 1. Get or Create Customer
-        customer_phone = normalize_phone(request.POST.get('customer_phone'))
+        customer_phone = request.POST.get('customer_phone')
+        if not customer_phone or not customer_phone.strip():
+            country_code = (request.POST.get('customer_country_code') or '').strip()
+            phone_local = (request.POST.get('customer_phone_local') or '').strip()
+            if phone_local:
+                if country_code and not country_code.startswith('+'):
+                    country_code = '+' + country_code
+                customer_phone = country_code + phone_local
+            else:
+                customer_phone = ''
+
+        customer_phone = normalize_phone(customer_phone)
         customer_name = (request.POST.get('customer_name') or '').strip()
         customer_city = (request.POST.get('customer_city') or '').strip()
         if not customer_phone or not customer_name:
             messages.error(request, 'Customer name and phone are required.')
             return redirect('measurement_profile')
         
-        customer, created = Customer.objects.get_or_create(
-            phone=customer_phone,
-            defaults={'full_name': customer_name, 'city': customer_city}
-        )
-        if not created:
-            # Update info if changed
-            if customer_name:
-                customer.full_name = customer_name
-            if customer_city:
+        customer_id = request.POST.get('customer_id')
+        created = False
+        if customer_id:
+            customer = get_object_or_404(Customer, id=customer_id)
+            customer.phone = customer_phone
+            customer.full_name = customer_name
+            if customer_city is not None:
                 customer.city = customer_city
             customer.save()
+        else:
+            # Look up customer by BOTH phone and name to reuse
+            customer = Customer.objects.filter(phone=customer_phone, full_name=customer_name).first()
+            if not customer:
+                customer = Customer.objects.create(
+                    phone=customer_phone,
+                    full_name=customer_name,
+                    city=customer_city
+                )
+                created = True
+            else:
+                if customer_city:
+                    customer.city = customer_city
+                    customer.save(update_fields=['city'])
 
         # 2. Extract selected garments to bill
         selected_to_bill = request.POST.getlist('bill_garment') # list of block IDs like "1", "2"
@@ -73,7 +96,7 @@ def measurement_profile(request):
         # 4. Redirect to Billing or stay on profile
         if 'save_garment' in request.POST:
             messages.success(request, 'Measurements saved successfully.')
-            url = reverse('measurement_profile') + f"?phone={urllib.parse.quote(customer.phone)}"
+            url = reverse('measurement_profile') + f"?customer_id={customer.id}"
             return redirect(url)
 
         # Redirect to Billing
@@ -84,10 +107,42 @@ def measurement_profile(request):
 
     # GET request - render the page
     initial_phone = normalize_phone(request.GET.get('phone'))
+    customer_id = request.GET.get('customer_id')
+    initial_customer = None
+
+    if customer_id:
+        try:
+            initial_customer = Customer.objects.get(id=customer_id)
+        except Customer.DoesNotExist:
+            pass
+    elif initial_phone:
+        customers = Customer.objects.filter(phone=initial_phone)
+        if customers.count() == 1:
+            initial_customer = customers.first()
+
+    initial_customer_data = None
+    if initial_customer:
+        measurements = Measurement.objects.filter(customer=initial_customer)
+        measurement_data = {}
+        for m in measurements:
+            measurement_data[m.garment_category] = {
+                'values': m.values,
+                'notes': m.notes,
+                'is_sample_product': m.is_sample_product
+            }
+        initial_customer_data = {
+            'id': initial_customer.id,
+            'full_name': initial_customer.full_name,
+            'phone': initial_customer.phone,
+            'city': initial_customer.city or '',
+            'measurements': measurement_data
+        }
+
     context = {
         'garment_categories': get_all_garment_categories(),
         'garment_parameters': get_all_garment_parameters(),
         'initial_phone': initial_phone,
+        'initial_customer': initial_customer_data,
     }
     return render(request, 'measurements/measurement_profile.html', context)
 

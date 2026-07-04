@@ -14,7 +14,7 @@
             </div>
         </div>
         <div>
-            <a href="{% url 'measurement_profile' %}?phone={{ customer.phone }}" class="btn-premium btn-premium--gold w-full sm:w-auto">
+            <a href="{% url 'measurement_profile' %}?customer_id={{ customer.id }}" class="btn-premium btn-premium--gold w-full sm:w-auto">
                 <span class="btn-premium__label flex items-center gap-2">
                     <span class="material-symbols-outlined text-[20px]">straighten</span>
                     New Order / Measure
