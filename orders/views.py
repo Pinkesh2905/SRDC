@@ -114,25 +114,38 @@ def order_print(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     items = order.items.all()
     
-    # Get measurements for the categories in this order
-    garment_categories = [item.garment_category for item in items if item.garment_category]
+    # Get measurements for each item in the order
     measurements = []
-    if garment_categories:
-        from measurements.models import Measurement, get_all_garment_parameters, get_all_garment_categories
-        all_params = get_all_garment_parameters()
-        all_cats = dict(get_all_garment_categories())
-        # Fetch the customer's active measurement for each garment category
-        for cat in set(garment_categories):
-            m = Measurement.objects.filter(customer=order.customer, garment_category=cat).order_by('-updated_at').first()
+    from measurements.models import get_all_garment_parameters, get_all_garment_categories
+    all_params = get_all_garment_parameters()
+    all_cats = dict(get_all_garment_categories())
+
+    for item in items:
+        m = item.measurement
+        if m:
+            params = all_params.get(m.garment_category, [])
+            ordered_values = []
+            for p in params:
+                ordered_values.append({'label': p, 'value': m.values.get(p, '-')})
+            
+            measurements.append({
+                'category_display': all_cats.get(m.garment_category, m.garment_category.title()),
+                'data': ordered_values,
+                'notes': m.notes,
+                'is_sample_product': m.is_sample_product
+            })
+        elif item.garment_category:
+            # Fallback for legacy items
+            from measurements.models import Measurement
+            m = Measurement.objects.filter(customer=order.customer, garment_category=item.garment_category).order_by('-updated_at').first()
             if m:
-                # Get the ordered parameters so we can display them correctly
-                params = all_params.get(cat, [])
+                params = all_params.get(item.garment_category, [])
                 ordered_values = []
                 for p in params:
                     ordered_values.append({'label': p, 'value': m.values.get(p, '-')})
                 
                 measurements.append({
-                    'category_display': all_cats.get(cat, cat.title()),
+                    'category_display': all_cats.get(item.garment_category, item.garment_category.title()),
                     'data': ordered_values,
                     'notes': m.notes,
                     'is_sample_product': m.is_sample_product

@@ -78,7 +78,7 @@
                 overflow: hidden !important;
                 page-break-inside: avoid;
             }
-            #measurements-canvas {
+            .measurements-canvas-block, #measurements-canvas {
                 border: none !important;
                 box-shadow: none !important;
                 max-width: 100% !important;
@@ -215,12 +215,12 @@
     </div>
 
 
-    <!-- PAGE 3: MEASUREMENTS -->
+    <!-- PAGES FOR MEASUREMENTS -->
     {% if measurements %}
+    {% for m in measurements %}
     <div class="page-break w-full"></div>
-    <div class="paper-bg w-full max-w-[560px] bg-[#fffdfa] border border-gray-200 mx-auto shadow-md relative overflow-hidden" id="measurements-canvas">
+    <div class="paper-bg w-full max-w-[560px] bg-[#fffdfa] border border-gray-200 mx-auto shadow-md relative overflow-hidden measurements-canvas-block">
         <div class="p-6 space-y-8">
-            {% for m in measurements %}
             <div class="w-full border border-gray-200 bg-white shadow-sm">
                 <div class="bg-stone-100 text-gray-700 font-invoice-accent p-3 flex justify-between items-start border-b border-gray-200">
                     <div class="flex flex-col gap-0.5">
@@ -250,9 +250,8 @@
                 </div>
                 {% endif %}
             </div>
-            {% endfor %}
             
-            {% if order.notes %}
+            {% if forloop.last and order.notes %}
             <div class="mt-8 border border-gray-200 p-4 bg-white">
                 <h3 class="font-label-caps text-primary uppercase mb-2 border-b border-gray-200 pb-1">Special Order Notes:</h3>
                 <p class="font-body-base text-primary italic">{{ order.notes }}</p>
@@ -260,6 +259,7 @@
             {% endif %}
         </div>
     </div>
+    {% endfor %}
     {% endif %}
 
 </body>
