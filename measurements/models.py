@@ -73,12 +73,7 @@ class Measurement(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['customer', 'garment_category'],
-                name='unique_measurement_per_customer_garment',
-            )
-        ]
+        pass
 
     def __str__(self):
         cat_dict = dict(get_all_garment_categories())

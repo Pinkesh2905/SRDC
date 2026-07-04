@@ -220,6 +220,7 @@
                                 <div class="w-full">
                                     <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Item Description</label>
                                     <input type="hidden" name="item_garment_category[]" value="{{ item.type }}">
+                                    <input type="hidden" name="item_measurement_id[]" value="{{ item.measurement_id }}">
                                     <input type="text" name="item_description[]" class="w-full bg-theme-input border border-theme-input rounded-[16px] p-3 font-semibold text-theme-primary text-sm sm:text-base placeholder-theme focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all shadow-sm desc-input" value="{{ item.label }}" placeholder="e.g. Custom Shirt" required>
                                 </div>
                             </div>
@@ -261,6 +262,7 @@
                                 <div class="w-full">
                                     <label class="md:hidden text-xs font-bold text-theme-secondary uppercase tracking-widest block mb-1">Item Description</label>
                                     <input type="hidden" name="item_garment_category[]" value="">
+                                    <input type="hidden" name="item_measurement_id[]" value="">
                                     <input type="text" name="item_description[]" class="w-full bg-theme-input border border-theme-input rounded-[16px] p-3 font-semibold text-theme-primary text-sm sm:text-base placeholder-theme focus:outline-none focus:border-secondary/30 focus:ring-1 focus:ring-secondary/20 transition-all shadow-sm desc-input" placeholder="e.g. Custom Shirt" required>
                                 </div>
                             </div>

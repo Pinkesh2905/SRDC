@@ -17,12 +17,21 @@ def api_get_customer_by_phone(request, phone):
         measurements = Measurement.objects.filter(customer=customer)
         
         measurement_data = {}
+        measurement_list = []
         for m in measurements:
             measurement_data[m.garment_category] = {
+                'id': m.id,
                 'values': m.values,
                 'notes': m.notes,
                 'is_sample_product': m.is_sample_product
             }
+            measurement_list.append({
+                'id': m.id,
+                'category': m.garment_category,
+                'values': m.values,
+                'notes': m.notes,
+                'is_sample_product': m.is_sample_product
+            })
 
         return JsonResponse({
             'success': True,
@@ -32,7 +41,8 @@ def api_get_customer_by_phone(request, phone):
                 'phone': customer.phone,
                 'city': customer.city or '',
             },
-            'measurements': measurement_data
+            'measurements': measurement_data,
+            'measurement_list': measurement_list,
         })
     else:
         return JsonResponse({'success': False, 'message': 'Customer not found'})
@@ -54,13 +64,22 @@ def api_search_customers(request):
         # Get measurement categories for this customer (loads from prefetched relations)
         measurements_qs = c.measurements.all()
         measurement_data = {}
+        measurement_list = []
         garment_list = []
         for m in measurements_qs:
             measurement_data[m.garment_category] = {
+                'id': m.id,
                 'values': m.values,
                 'notes': m.notes,
                 'is_sample_product': m.is_sample_product
             }
+            measurement_list.append({
+                'id': m.id,
+                'category': m.garment_category,
+                'values': m.values,
+                'notes': m.notes,
+                'is_sample_product': m.is_sample_product
+            })
             garment_list.append(m.garment_category)
 
         results.append({
@@ -70,6 +89,7 @@ def api_search_customers(request):
             'city': c.city or '',
             'garments': garment_list,
             'measurements': measurement_data,
+            'measurement_list': measurement_list,
         })
 
     return JsonResponse({'results': results})

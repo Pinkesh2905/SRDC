@@ -11,11 +11,12 @@ class MeasurementTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='admin', password='pass')
 
-    def test_one_measurement_per_customer_and_garment(self):
+    def test_multiple_measurements_allowed(self):
         customer = Customer.objects.create(full_name='Rajesh Kumar', phone='9876543210')
-        Measurement.objects.create(customer=customer, garment_category='shirt', values={'Length': '40'})
-        with self.assertRaises(IntegrityError):
-            Measurement.objects.create(customer=customer, garment_category='shirt', values={'Length': '41'})
+        m1 = Measurement.objects.create(customer=customer, garment_category='shirt', values={'Length': '40'})
+        m2 = Measurement.objects.create(customer=customer, garment_category='shirt', values={'Length': '41'})
+        self.assertNotEqual(m1.id, m2.id)
+        self.assertEqual(Measurement.objects.filter(customer=customer, garment_category='shirt').count(), 2)
 
     def test_measurement_post_creates_customer_and_redirects_to_billing(self):
         self.client.force_login(self.user)
@@ -36,7 +37,7 @@ class MeasurementTests(TestCase):
         self.assertEqual(measurement.notes, 'Slim fit')
         self.assertRedirects(
             response,
-            f"{reverse('order_create')}?customer_id={customer.id}&garments=shirt",
+            f"{reverse('order_create')}?customer_id={customer.id}&measurements={measurement.id}",
             fetch_redirect_response=False,
         )
 
@@ -77,8 +78,9 @@ class MeasurementTests(TestCase):
         customer = Customer.objects.get(phone='+12025550143')
         self.assertEqual(customer.full_name, 'US Customer')
         self.assertEqual(customer.city, 'New York')
+        measurement = Measurement.objects.get(customer=customer, garment_category='pant')
         self.assertRedirects(
             response,
-            f"{reverse('order_create')}?customer_id={customer.id}&garments=pant",
+            f"{reverse('order_create')}?customer_id={customer.id}&measurements={measurement.id}",
             fetch_redirect_response=False,
         )

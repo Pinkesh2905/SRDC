@@ -77,21 +77,34 @@ def measurement_profile(request):
                     measure_values[param] = val
                     
             # Save or Update Measurement
+            m_id = request.POST.get(f'measurement_id_{block_id}')
             is_sample = request.POST.get(f'is_sample_{block_id}') == 'on'
+            
+            defaults = {
+                'values': measure_values if not is_sample else {},
+                'notes': (request.POST.get(f'notes_{block_id}') or '').strip(),
+                'is_sample_product': is_sample,
+                'garment_category': garment_type,
+            }
+            
+            measurement = None
             if measure_values or is_sample:
-                measurement, m_created = Measurement.objects.update_or_create(
-                    customer=customer,
-                    garment_category=garment_type,
-                    defaults={
-                        'values': measure_values if not is_sample else {},
-                        'notes': (request.POST.get(f'notes_{block_id}') or '').strip(),
-                        'is_sample_product': is_sample,
-                    }
-                )
+                if m_id:
+                    measurement = Measurement.objects.filter(id=m_id, customer=customer).first()
+                    if measurement:
+                        for k, v in defaults.items():
+                            setattr(measurement, k, v)
+                        measurement.save()
                 
-            # If this block was selected for billing, add its type
-            if block_id in selected_to_bill:
-                garments_to_bill.append(garment_type)
+                if not measurement:
+                    measurement = Measurement.objects.create(
+                        customer=customer,
+                        **defaults
+                    )
+                
+            # If this block was selected for billing, add its ID
+            if block_id in selected_to_bill and measurement:
+                garments_to_bill.append(str(measurement.id))
 
         # 4. Redirect to Billing or stay on profile
         if 'save_garment' in request.POST:
@@ -100,9 +113,9 @@ def measurement_profile(request):
             return redirect(url)
 
         # Redirect to Billing
-        # We pass customer_id and selected garments in the query string
-        garments_qs = ",".join(garments_to_bill)
-        url = reverse('order_create') + f"?customer_id={customer.id}&garments={urllib.parse.quote(garments_qs)}"
+        # We pass customer_id and selected measurement IDs in the query string
+        measurements_qs = ",".join(garments_to_bill)
+        url = reverse('order_create') + f"?customer_id={customer.id}&measurements={urllib.parse.quote(measurements_qs)}"
         return redirect(url)
 
     # GET request - render the page
@@ -124,18 +137,28 @@ def measurement_profile(request):
     if initial_customer:
         measurements = Measurement.objects.filter(customer=initial_customer)
         measurement_data = {}
+        measurement_list = []
         for m in measurements:
             measurement_data[m.garment_category] = {
+                'id': m.id,
                 'values': m.values,
                 'notes': m.notes,
                 'is_sample_product': m.is_sample_product
             }
+            measurement_list.append({
+                'id': m.id,
+                'category': m.garment_category,
+                'values': m.values,
+                'notes': m.notes,
+                'is_sample_product': m.is_sample_product
+            })
         initial_customer_data = {
             'id': initial_customer.id,
             'full_name': initial_customer.full_name,
             'phone': initial_customer.phone,
             'city': initial_customer.city or '',
-            'measurements': measurement_data
+            'measurements': measurement_data,
+            'measurement_list': measurement_list
         }
 
     context = {

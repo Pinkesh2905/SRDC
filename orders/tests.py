@@ -252,3 +252,46 @@ class OrderViewTests(TestCase):
         data = response.json()
         self.assertFalse(data['success'])
         self.assertIn('errors', data)
+
+    def test_order_creation_with_duplicate_categories_and_different_measurements(self):
+        self.client.force_login(self.user)
+        salesperson = Salesperson.objects.create(full_name='Kiran Patel', employee_code='SP-001')
+        
+        # Create 2 distinct measurements for self.customer for garment_category = 'shirt'
+        m1 = Measurement.objects.create(
+            customer=self.customer,
+            garment_category='shirt',
+            values={'Length': '40', 'Chest': '38'},
+            notes='Shirt 1'
+        )
+        m2 = Measurement.objects.create(
+            customer=self.customer,
+            garment_category='shirt',
+            values={'Length': '42', 'Chest': '40'},
+            notes='Shirt 2'
+        )
+        
+        # Post to order_create, passing item_measurement_id[] explicitly
+        response = self.client.post(reverse('order_create'), {
+            'customer_id': self.customer.id,
+            'salesperson': salesperson.id,
+            'item_garment_category[]': ['shirt', 'shirt'],
+            'item_measurement_id[]': [str(m1.id), str(m2.id)],
+            'item_description[]': ['Shirt style A', 'Shirt style B'],
+            'item_qty[]': ['1', '1'],
+            'item_rate[]': ['800.00', '900.00'],
+            'discount': '0.00',
+            'advance_paid': '100.00',
+        })
+        
+        # Assert order was created and redirected
+        order = Order.objects.get(customer=self.customer)
+        self.assertRedirects(response, reverse('order_print', args=[order.id]))
+        self.assertEqual(order.items.count(), 2)
+        
+        # Verify items point to distinct measurement records
+        items = list(order.items.order_by('id'))
+        self.assertEqual(items[0].measurement.id, m1.id)
+        self.assertEqual(items[0].measurement.notes, 'Shirt 1')
+        self.assertEqual(items[1].measurement.id, m2.id)
+        self.assertEqual(items[1].measurement.notes, 'Shirt 2')

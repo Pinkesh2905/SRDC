@@ -24,37 +24,57 @@ def order_create(request):
         except ValidationError as exc:
             messages.error(request, '; '.join(exc.messages))
             garments = ','.join(request.POST.getlist('item_garment_category[]'))
-            return redirect(f"{reverse('order_create')}?customer_id={customer.id}&garments={garments}")
+            measurements = ','.join(request.POST.getlist('item_measurement_id[]'))
+            return redirect(f"{reverse('order_create')}?customer_id={customer.id}&garments={garments}&measurements={measurements}")
         return redirect(reverse('order_print', args=[order.id]))
 
     customer_id = request.GET.get('customer_id')
     garments_qs = request.GET.get('garments', '')
+    measurements_qs = request.GET.get('measurements', '')
     
     if not customer_id:
         # If accessed directly, redirect back to measurements profile
         return redirect(reverse('measurement_profile'))
         
     customer = get_object_or_404(Customer, id=customer_id)
-    garment_types = garments_qs.split(',') if garments_qs else []
     order_type = request.GET.get('order_type') or OrderType.STITCHING
     
     # Generate temporary order number for display (will be finalized on save)
     today = timezone.localdate().strftime('%Y%m%d')
     mock_order_id = f"SRD-{today}-auto"
 
+    from measurements.models import Measurement
     # Build initial list of items
     selected_items = []
-    for gtype in garment_types:
-        if not gtype: continue
-        # Get human readable label
-        all_cats = dict(get_all_garment_categories())
-        label = all_cats.get(gtype, gtype.title())
-        selected_items.append({
-            'type': gtype,
-            'label': label,
-            'qty': 1,
-            'rate': ''
-        })
+    all_cats = dict(get_all_garment_categories())
+
+    if measurements_qs:
+        measurement_ids = [x.strip() for x in measurements_qs.split(',') if x.strip()]
+        for m_id in measurement_ids:
+            try:
+                m = Measurement.objects.get(id=m_id, customer=customer)
+                label = all_cats.get(m.garment_category, m.garment_category.title())
+                selected_items.append({
+                    'type': m.garment_category,
+                    'label': label,
+                    'qty': 1,
+                    'rate': '',
+                    'measurement_id': m.id
+                })
+            except (Measurement.DoesNotExist, ValueError):
+                continue
+    else:
+        garment_types = garments_qs.split(',') if garments_qs else []
+        for gtype in garment_types:
+            if not gtype: continue
+            label = all_cats.get(gtype, gtype.title())
+            selected_items.append({
+                'type': gtype,
+                'label': label,
+                'qty': 1,
+                'rate': '',
+                'measurement_id': ''
+            })
 
     context = {
         'customer': customer,

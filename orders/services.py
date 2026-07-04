@@ -32,6 +32,7 @@ def parse_items(post_data, customer):
     descriptions = post_data.getlist('item_description[]')
     qtys = post_data.getlist('item_qty[]')
     rates = post_data.getlist('item_rate[]')
+    measurement_ids = post_data.getlist('item_measurement_id[]')
     items = []
 
     for index, description in enumerate(descriptions):
@@ -55,8 +56,15 @@ def parse_items(post_data, customer):
         if garment_category and garment_category not in all_categories:
             raise ValidationError('Invalid garment category selected.')
 
+        measurement_id = measurement_ids[index] if index < len(measurement_ids) else ''
         measurement = None
-        if garment_category:
+        if measurement_id:
+            try:
+                measurement = Measurement.objects.filter(id=measurement_id, customer=customer).first()
+            except ValueError:
+                pass
+        
+        if not measurement and garment_category:
             measurement = Measurement.objects.filter(
                 customer=customer,
                 garment_category=garment_category,

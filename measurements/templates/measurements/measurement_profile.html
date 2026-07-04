@@ -300,7 +300,7 @@
         });
     }
 
-    function addGarmentBlock(garmentType = '', measurementData = null) {
+    function addGarmentBlock(garmentType = '', measurementData = null, measurementId = '') {
         document.getElementById('empty-garment-state').style.display = 'none';
         garmentCounter++;
         const blockId = `garment-block-${garmentCounter}`;
@@ -313,6 +313,7 @@
         const blockHTML = `
             <div id="${blockId}" class="glass-panel p-6 mb-6 relative group transition-all duration-300 hover:border-secondary/20 border-theme-input bg-theme-input/20">
                 <input type="hidden" name="garment_block_id" value="${garmentCounter}">
+                <input type="hidden" name="measurement_id_${garmentCounter}" value="${measurementId}">
                 
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b border-theme-input pb-5 gap-4">
                     <div class="flex items-center gap-4 w-full lg:w-3/4">
@@ -579,9 +580,17 @@
         });
 
         let hasMeasurements = false;
-        for (const [garmentType, values] of Object.entries(customer.measurements)) {
-            addGarmentBlock(garmentType, values);
-            hasMeasurements = true;
+        const measurementsToLoad = customer.measurement_list || [];
+        if (measurementsToLoad.length > 0) {
+            measurementsToLoad.forEach(m => {
+                addGarmentBlock(m.category, m, m.id);
+                hasMeasurements = true;
+            });
+        } else {
+            for (const [garmentType, m] of Object.entries(customer.measurements)) {
+                addGarmentBlock(garmentType, m, m.id || '');
+                hasMeasurements = true;
+            }
         }
 
         if (!hasMeasurements) {
