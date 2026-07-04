@@ -226,11 +226,11 @@
     {% if measurement_groups %}
     {% for group in measurement_groups %}
     <div class="page-break w-full"></div>
-    <div class="paper-bg w-full max-w-[560px] bg-[#fffdfa] border border-gray-200 mx-auto shadow-md relative overflow-hidden measurements-canvas-block p-3.5 flex flex-col justify-between" style="min-height: 200mm; max-height: 200mm;">
-        <div class="space-y-3 flex-1">
+    <div class="paper-bg w-full max-w-[560px] bg-[#fffdfa] border border-gray-200 mx-auto shadow-md relative overflow-hidden measurements-canvas-block p-4 flex flex-col justify-between" style="min-height: 200mm; max-height: 200mm;">
+        <div class="flex-1 flex flex-col justify-between gap-3.5">
             {% for m in group %}
-            <div class="w-full border border-gray-200 bg-white shadow-sm">
-                <div class="bg-stone-100 text-gray-700 font-invoice-accent py-1.5 px-2.5 flex justify-between items-start border-b border-gray-200">
+            <div class="w-full border border-gray-200 bg-white shadow-sm flex-1 max-h-[240px] flex flex-col justify-between">
+                <div class="bg-stone-100 text-gray-700 font-invoice-accent py-2 px-3 flex justify-between items-center border-b border-gray-200 flex-shrink-0">
                     <div class="flex flex-col gap-0.5">
                         <span class="uppercase tracking-wider font-bold text-xs print:text-[10px]">{{ m.category_display }}</span>
                         {% if m.notes %}
@@ -240,17 +240,17 @@
                     <span class="text-[10px] font-body-sm tracking-normal font-medium shrink-0 ml-4 print:text-[9px]">Bill No: {{ order.id|stringformat:"03d" }} | {{ order.customer.full_name|title }}</span>
                 </div>
                 {% if m.is_sample_product %}
-                <div class="p-3 text-center bg-stone-50 border-t border-gray-100">
+                <div class="p-4 text-center bg-stone-50 border-t border-gray-100 flex-1 flex flex-col justify-center items-center">
                     <div class="flex flex-col items-center justify-center gap-1">
-                        <span class="material-symbols-outlined text-secondary text-2xl">inventory_2</span>
+                        <span class="material-symbols-outlined text-secondary text-3xl">inventory_2</span>
                         <p class="font-headline-md text-secondary uppercase tracking-widest text-xs">Sample product for measurement</p>
                         <p class="text-[9px] font-body-sm text-primary/60 italic">No detailed measurements required as sample was provided.</p>
                     </div>
                 </div>
                 {% else %}
-                <div class="grid grid-cols-4 gap-y-1.5 gap-x-3 p-2.5 print:p-2">
+                <div class="flex-1 grid grid-cols-4 items-stretch content-around gap-y-2 gap-x-3.5 p-3 print:p-2.5">
                     {% for param in m.data %}
-                    <div class="flex flex-col border-b border-gray-100 pb-0.5">
+                    <div class="flex flex-col justify-center border-b border-gray-100 pb-1 h-full">
                         <span class="font-label-caps text-primary/70 uppercase mb-0.5 break-words leading-tight text-[9px] print:text-[7.5px]">{{ param.label }}</span>
                         <span class="font-headline-md text-primary font-bold text-xs print:text-[11px]">{{ param.value }}</span>
                     </div>
@@ -262,7 +262,7 @@
         </div>
         
         {% if forloop.last and order.notes %}
-        <div class="mt-3 border border-gray-200 p-2.5 bg-white print:p-2">
+        <div class="mt-3.5 border border-gray-200 p-2.5 bg-white print:p-2 flex-shrink-0">
             <h3 class="font-label-caps text-primary uppercase mb-1 border-b border-gray-200 pb-0.5 text-xs print:text-[9px]">Special Order Notes:</h3>
             <p class="font-body-base text-primary italic text-xs print:text-[10px]">{{ order.notes }}</p>
         </div>
