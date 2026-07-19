@@ -11,6 +11,7 @@ from django.utils.dateparse import parse_date
 from measurements.models import get_all_garment_categories
 from customers.models import Customer
 from salesperson.models import Salesperson
+from django.core.paginator import Paginator
 from .models import Order, OrderItem, OrderStatus, OrderType
 from .services import create_order_from_post, update_order_from_post, update_order_info_from_post, update_order_item_from_post
 
@@ -224,10 +225,27 @@ def filtered_orders_from_request(request):
 
 @login_required
 def order_list(request):
-    orders, filters_context = filtered_orders_from_request(request)
+    orders_qs, filters_context = filtered_orders_from_request(request)
+
+    paginator = Paginator(orders_qs, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Build query string for pagination links (excluding 'page' itself)
+    query_dict = request.GET.copy()
+    if 'page' in query_dict:
+        del query_dict['page']
+    
+    query_string = query_dict.urlencode()
+    if query_string:
+        query_string = '&' + query_string
 
     context = {
-        'orders': orders,
+        'orders': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'paginator': paginator,
+        'query_string': query_string,
         **filters_context,
     }
     return render(request, 'orders/order_list.html', context)
