@@ -241,13 +241,13 @@
                         <td class="px-3 py-3 text-right">
                             <div class="flex justify-end gap-2">
                                 <a href="{% url 'order_detail' order.id %}" class="text-slate-500 dark:text-white/40 hover:text-white transition-colors" title="View Details">
-                                    <span class="material-symbols-outlined text-xl">visibility</span>
+                                    <span class="material-symbols-outlined text-xl" translate="no">visibility</span>
                                 </a>
                                 <a href="{% url 'order_detail' order.id %}" class="text-slate-500 dark:text-white/40 hover:text-white transition-colors" title="Update Order">
-                                    <span class="material-symbols-outlined text-xl">edit</span>
+                                    <span class="material-symbols-outlined text-xl" translate="no">edit</span>
                                 </a>
                                 <button type="button" onclick="openListDeleteModal('{{ order.id }}', '{{ order.order_number }}', '{{ order.customer.full_name|escapejs }}')" class="text-red-400/60 hover:text-red-400 transition-colors" title="Delete Order">
-                                    <span class="material-symbols-outlined text-xl">delete_forever</span>
+                                    <span class="material-symbols-outlined text-xl notranslate" translate="no">delete_forever</span>
                                 </button>
                             </div>
                         </td>
@@ -365,7 +365,7 @@
                             Manage
                         </a>
                         <button type="button" onclick="openListDeleteModal('{{ order.id }}', '{{ order.order_number }}', '{{ order.customer.full_name|escapejs }}')" class="flex items-center gap-1 px-3 py-2 rounded-[12px] text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-all" title="Delete">
-                            <span class="material-symbols-outlined text-[16px]">delete_forever</span>
+                            <span class="material-symbols-outlined text-[16px] notranslate" translate="no">delete_forever</span>
                         </button>
                     </div>
                 </div>
