@@ -1016,6 +1016,10 @@
                 <span class="material-symbols-outlined">receipt_long</span>
                 <span class="text-sm">Orders</span>
             </a>
+            <a class="app-nav-link relative flex items-center gap-4 py-3 px-0 rounded-lg {% if request.resolver_match.url_name == 'payments' %}is-active{% endif %}" href="{% url 'payments' %}">
+                <span class="material-symbols-outlined">payments</span>
+                <span class="text-sm">Payments</span>
+            </a>
             <a class="app-nav-link relative flex items-center gap-4 py-3 px-0 rounded-lg {% if request.resolver_match.url_name == 'salesperson_dashboard' %}is-active{% endif %}" href="{% url 'salesperson_dashboard' %}">
                 <span class="material-symbols-outlined">badge</span>
                 <span class="text-sm">Salespeople</span>

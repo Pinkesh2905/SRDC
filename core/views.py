@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from customers.models import Customer
 from customers.utils import normalize_phone
-from orders.models import Order, OrderItem, OrderStatus
+from orders.models import Order, OrderItem, OrderStatus, PaymentMethod
 import json
 
 
@@ -169,6 +169,14 @@ def dashboard(request):
     fast_moving = all_prods[:3]
     slow_moving = list(reversed(all_prods[-3:])) if len(all_prods) > 3 else []
 
+    # ─── TOP REVENUED PRODUCTS ───
+    top_revenued_products = [
+        {'name': p['description'], 'revenue': format_inr(p['rev'])}
+        for p in period_items.values('description').annotate(
+            rev=Sum('total_amount')
+        ).order_by('-rev')[:5]
+    ]
+
     context = {
         'time_filter': time_filter,
         'period_name': period_name,
@@ -205,6 +213,7 @@ def dashboard(request):
         'top_customers': top_customers,
         'fast_moving': fast_moving,
         'slow_moving': slow_moving,
+        'top_revenued_products': top_revenued_products,
     }
     return render(request, 'core/dashboard.html', context)
 
@@ -300,3 +309,71 @@ def signup(request):
         'is_first_setup': not existing_users,
     }
     return render(request, 'registration/signup.html', context)
+
+
+@login_required
+def payments_view(request):
+    today = timezone.localdate()
+    time_filter = request.GET.get('filter', 'month')
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+
+    if time_filter == 'today':
+        start_date, end_date = today, today
+        period_name = "Today"
+    elif time_filter == 'week':
+        start_date = today - timedelta(days=6)
+        end_date = today
+        period_name = "Last 7 days"
+    elif time_filter == 'all':
+        start_date = today - timedelta(days=36500)
+        end_date = today
+        period_name = "All Time"
+    elif time_filter == 'custom' and start_date_str and end_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            period_name = f"{start_date.strftime('%d %b')} – {end_date.strftime('%d %b')}"
+        except ValueError:
+            start_date = today - timedelta(days=29)
+            end_date, period_name, time_filter = today, "Last 30 days", 'month'
+    else:
+        time_filter = 'month'
+        start_date = today - timedelta(days=29)
+        end_date = today
+        period_name = "Last 30 days"
+
+    if start_date > end_date:
+        start_date, end_date = end_date, start_date
+
+    period_qs = Order.objects.filter(
+        created_at__date__gte=start_date, created_at__date__lte=end_date
+    )
+
+    cash_orders_qs = period_qs.filter(payment_method=PaymentMethod.CASH, advance_paid__gt=0).order_by('-created_at')
+    upi_orders_qs = period_qs.filter(payment_method=PaymentMethod.UPI, advance_paid__gt=0).order_by('-created_at')
+
+    cash_orders = [
+        {'id': o.order_number, 'name': o.customer.full_name, 'date': o.created_at, 'amount': format_inr(o.advance_paid)}
+        for o in cash_orders_qs
+    ]
+    upi_orders = [
+        {'id': o.order_number, 'name': o.customer.full_name, 'date': o.created_at, 'amount': format_inr(o.advance_paid)}
+        for o in upi_orders_qs
+    ]
+
+    total_cash = float(cash_orders_qs.aggregate(t=Sum('advance_paid'))['t'] or 0)
+    total_upi = float(upi_orders_qs.aggregate(t=Sum('advance_paid'))['t'] or 0)
+
+    context = {
+        'time_filter': time_filter,
+        'period_name': period_name,
+        'start_date_str': start_date_str or '',
+        'end_date_str': end_date_str or '',
+        'cash_orders': cash_orders,
+        'upi_orders': upi_orders,
+        'total_cash': format_inr(total_cash),
+        'total_upi': format_inr(total_upi),
+    }
+    return render(request, 'core/payments.html', context)
+

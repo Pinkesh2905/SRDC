@@ -36,7 +36,7 @@
     .score-card__sub {
         font-size: 12px;
         font-weight: 500;
-        color: var(--text-amber-700 dark:text-secondary);
+        color: var(--text-secondary);
         margin-top: 4px;
     }
     .chart-card {
@@ -178,7 +178,7 @@
     </div>
 
     <!-- ═══ BOTTOM ROW ═══ -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6">
 
         <!-- Top Customers -->
         <div class="bottom-card">
@@ -213,6 +213,19 @@
             </div>
             {% empty %}
             <p class="text-xs text-theme-muted italic">No data</p>
+            {% endfor %}
+        </div>
+
+        <!-- Top Revenued Products -->
+        <div class="bottom-card">
+            <div class="bottom-card__title">Top revenued products</div>
+            {% for prod in top_revenued_products %}
+            <div class="cust-row">
+                <span class="name text-theme-secondary">{{ forloop.counter }}.&nbsp; {{ prod.name }}</span>
+                <span class="amount text-theme-primary">{{ prod.revenue }}</span>
+            </div>
+            {% empty %}
+            <p class="text-sm text-theme-muted italic text-center py-4">No data yet</p>
             {% endfor %}
         </div>
     </div>

@@ -1,0 +1,146 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Payments Breakdown | SRDC Admin{% endblock %}
+
+{% block extra_head %}
+<style>
+    .score-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid var(--glass-border);
+        border-radius: 14px;
+        padding: 20px 24px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .score-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--card-hover-shadow);
+    }
+    .score-card__label {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+    }
+    .score-card__value {
+        font-family: 'Outfit', sans-serif;
+        font-size: 28px;
+        font-weight: 900;
+        color: var(--text-primary);
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+    }
+    .table-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:p-8 max-w-[1440px] mx-auto w-full">
+
+    <!-- ═══ HEADER ═══ -->
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 gap-4">
+        <div>
+            <h2 class="font-h1 text-xl sm:text-2xl font-black text-theme-primary leading-tight">Payments</h2>
+            <p class="text-xs text-theme-secondary mt-1">Payment Breakdown by Method</p>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+            <!-- Filter Tabs -->
+            <div class="flex bg-theme-input p-1 rounded-[12px] border border-theme-input h-[38px] backdrop-blur-md">
+                <a href="?filter=today" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'today' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-theme-secondary hover:text-theme-primary{% endif %}">Today</a>
+                <a href="?filter=week" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'week' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-theme-secondary hover:text-theme-primary{% endif %}">7 Days</a>
+                <a href="?filter=month" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'month' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-theme-secondary hover:text-theme-primary{% endif %}">30 Days</a>
+                <a href="?filter=all" class="px-4 h-full flex items-center text-xs font-bold rounded-[8px] transition-all {% if time_filter == 'all' %}bg-amber-700 dark:bg-secondary text-white !important{% else %}text-theme-secondary hover:text-theme-primary{% endif %}">All Time</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SUMMARY CARDS ═══ -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div class="score-card">
+            <div class="score-card__label text-emerald-500">Total Cash Received</div>
+            <div class="score-card__value">{{ total_cash }}</div>
+        </div>
+        <div class="score-card">
+            <div class="score-card__label text-blue-500">Total UPI / QR Received</div>
+            <div class="score-card__value">{{ total_upi }}</div>
+        </div>
+    </div>
+
+    <!-- ═══ TABLES ═══ -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Cash Orders Table -->
+        <div class="table-card flex flex-col h-[500px]">
+            <div class="p-5 border-b border-theme-input bg-emerald-500/10">
+                <h3 class="font-h1 text-lg font-bold text-emerald-600 dark:text-emerald-400">Cash Orders</h3>
+            </div>
+            <div class="flex-1 overflow-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 z-10 bg-emerald-500 text-white shadow-sm">
+                        <tr>
+                            <th class="py-3 px-4 text-xs uppercase tracking-wider font-bold">Order ID</th>
+                            <th class="py-3 px-4 text-xs uppercase tracking-wider font-bold">Customer</th>
+                            <th class="py-3 px-4 text-xs uppercase tracking-wider font-bold">Date</th>
+                            <th class="py-3 px-4 text-xs uppercase tracking-wider font-bold text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-theme-input text-sm">
+                        {% for order in cash_orders %}
+                        <tr class="hover:bg-theme-input/50 transition-colors">
+                            <td class="py-3 px-4 font-bold text-theme-primary">{{ order.id }}</td>
+                            <td class="py-3 px-4 text-theme-secondary">{{ order.name }}</td>
+                            <td class="py-3 px-4 text-theme-secondary text-xs">{{ order.date|date:"d M, Y" }}</td>
+                            <td class="py-3 px-4 font-bold text-emerald-500 dark:text-emerald-400 text-right">{{ order.amount }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-8 text-center text-theme-muted italic">No cash payments in this period.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- UPI Orders Table -->
+        <div class="table-card flex flex-col h-[500px]">
+            <div class="p-5 border-b border-theme-input bg-blue-500/10">
+                <h3 class="font-h1 text-lg font-bold text-blue-600 dark:text-blue-400">UPI / QR Orders</h3>
+            </div>
+            <div class="flex-1 overflow-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 z-10 bg-blue-500 text-white shadow-sm">
+                        <tr>
+                            <th class="py-3 px-4 text-xs uppercase tracking-wider font-bold">Order ID</th>
+                            <th class="py-3 px-4 text-xs uppercase tracking-wider font-bold">Customer</th>
+                            <th class="py-3 px-4 text-xs uppercase tracking-wider font-bold">Date</th>
+                            <th class="py-3 px-4 text-xs uppercase tracking-wider font-bold text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-theme-input text-sm">
+                        {% for order in upi_orders %}
+                        <tr class="hover:bg-theme-input/50 transition-colors">
+                            <td class="py-3 px-4 font-bold text-theme-primary">{{ order.id }}</td>
+                            <td class="py-3 px-4 text-theme-secondary">{{ order.name }}</td>
+                            <td class="py-3 px-4 text-theme-secondary text-xs">{{ order.date|date:"d M, Y" }}</td>
+                            <td class="py-3 px-4 font-bold text-blue-500 dark:text-blue-400 text-right">{{ order.amount }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-8 text-center text-theme-muted italic">No UPI payments in this period.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
