@@ -36,10 +36,16 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'true').lower() in {'1', 'true', 'yes', 'on'}
 
+def _clean_host(value):
+    # Strips whitespace and a stray leading BOM, which can silently sneak into
+    # env var values pasted from Windows tools and breaks exact host matching.
+    return value.strip().lstrip('﻿').strip()
+
+
 ALLOWED_HOSTS = [
-    host.strip()
+    _clean_host(host)
     for host in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',')
-    if host.strip()
+    if _clean_host(host)
 ]
 
 # Render (and most PaaS hosts) terminate TLS at the proxy and forward plain HTTP,
