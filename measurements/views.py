@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from measurements.models import Measurement, CustomGarmentCategory, CustomGarmentParameter, get_all_garment_categories, get_all_garment_parameters
@@ -41,8 +41,10 @@ def measurement_profile(request):
                 customer.city = customer_city
             customer.save()
         else:
-            # Look up customer by BOTH phone and name to reuse
-            customer = Customer.objects.filter(phone=customer_phone, full_name=customer_name).first()
+            # Phone number is the reliable identity for repeat customers - match on
+            # that alone so the same person under a slightly different spelling of
+            # their name doesn't end up with a second, disconnected record.
+            customer = Customer.objects.filter(phone=customer_phone).first()
             if not customer:
                 customer = Customer.objects.create(
                     phone=customer_phone,
@@ -51,9 +53,16 @@ def measurement_profile(request):
                 )
                 created = True
             else:
+                if customer.full_name != customer_name:
+                    messages.info(
+                        request,
+                        f'Found an existing customer with this phone number, saved as "{customer.full_name}". '
+                        f'Updated their name to "{customer_name}".'
+                    )
+                    customer.full_name = customer_name
                 if customer_city:
                     customer.city = customer_city
-                    customer.save(update_fields=['city'])
+                customer.save(update_fields=['full_name', 'city', 'updated_at'])
 
         # 2. Extract selected garments to bill
         selected_to_bill = request.POST.getlist('bill_garment') # list of block IDs like "1", "2"

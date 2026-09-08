@@ -246,9 +246,11 @@
                                 <a href="{% url 'order_detail' order.id %}" class="text-slate-500 dark:text-white/40 hover:text-white transition-colors" title="Update Order">
                                     <span class="material-symbols-outlined text-xl" translate="no">edit</span>
                                 </a>
+                                {% if request.user.is_superuser %}
                                 <button type="button" onclick="openListDeleteModal('{{ order.id }}', '{{ order.order_number }}', '{{ order.customer.full_name|escapejs }}')" class="text-red-400/60 hover:text-red-400 transition-colors" title="Delete Order">
                                     <span class="material-symbols-outlined text-xl notranslate" translate="no">delete_forever</span>
                                 </button>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -320,8 +322,8 @@
                     </div>
                 </div>
                 
-                <div class="flex justify-between items-end">
-                    <div class="space-y-1">
+                <div class="flex flex-wrap justify-between items-end gap-3">
+                    <div class="space-y-1 min-w-0">
                         <div class="flex items-center gap-4 text-[11px] font-medium">
                             <div class="flex items-center gap-1 text-amber-700 dark:text-secondary">
                                 <span class="material-symbols-outlined text-[14px]">local_shipping</span>
@@ -332,7 +334,7 @@
                                 Ret: {{ order.return_date|date:"M d, Y" }}
                             </div>
                         </div>
-                        <div class="flex items-center justify-between w-full mt-1.5 gap-2">
+                        <div class="flex flex-wrap items-center gap-2 mt-1.5">
                             <div>
                                 <div class="font-bold text-lg text-slate-900 dark:text-white" id="order-amount-mobile-{{ order.id }}">₹{{ order.grand_total }}</div>
                             </div>
@@ -359,14 +361,16 @@
                             </span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 ml-auto shrink-0">
                         <a href="{% url 'order_detail' order.id %}" class="flex items-center gap-1.5 px-4 py-2 btn-premium text-xs">
                             <span class="material-symbols-outlined text-[16px]">manage_history</span>
                             Manage
                         </a>
+                        {% if request.user.is_superuser %}
                         <button type="button" onclick="openListDeleteModal('{{ order.id }}', '{{ order.order_number }}', '{{ order.customer.full_name|escapejs }}')" class="flex items-center gap-1 px-3 py-2 rounded-[12px] text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-all" title="Delete">
                             <span class="material-symbols-outlined text-[16px] notranslate" translate="no">delete_forever</span>
                         </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>

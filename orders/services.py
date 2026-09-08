@@ -110,6 +110,20 @@ def order_date(value, default):
     return parsed
 
 
+def _recalculate_order_totals(order):
+    subtotal = sum(i.total_amount for i in order.items.all())
+    order.subtotal = subtotal
+
+    if order.is_buy_back:
+        order.deposit_amount = (subtotal / Decimal('2')).quantize(MONEY)
+        order.final_amount = (subtotal - order.deposit_amount - order.discount_amount).quantize(MONEY)
+    else:
+        order.final_amount = (subtotal - order.discount_amount).quantize(MONEY)
+
+    order.grand_total = (order.final_amount - order.advance_paid).quantize(MONEY)
+    order.save(update_fields=['subtotal', 'deposit_amount', 'final_amount', 'grand_total', 'updated_at'])
+
+
 def salesperson_from_post(post_data):
     salesperson_id = post_data.get('salesperson')
     if not salesperson_id:
@@ -374,20 +388,7 @@ def update_order_item_from_post(item, post_data):
         
     if item_changed:
         item.save(update_fields=item_changed)
-        
-        # Recalculate order totals
-        order = item.order
-        subtotal = sum(i.total_amount for i in order.items.all())
-        order.subtotal = subtotal
-        
-        if order.is_buy_back:
-            order.deposit_amount = (subtotal / Decimal('2')).quantize(MONEY)
-            order.final_amount = (subtotal - order.deposit_amount - order.discount_amount).quantize(MONEY)
-        else:
-            order.final_amount = (subtotal - order.discount_amount).quantize(MONEY)
-            
-        order.grand_total = (order.final_amount - order.advance_paid).quantize(MONEY)
-        order.save(update_fields=['subtotal', 'deposit_amount', 'final_amount', 'grand_total', 'updated_at'])
+        _recalculate_order_totals(item.order)
 
     # Update associated Measurement
     if item.measurement:
@@ -445,5 +446,68 @@ def update_order_item_from_post(item, post_data):
             
         if m_changed:
             measurement.save(update_fields=['notes', 'values', 'is_sample_product', 'updated_at'])
-            
+
     return item
+
+
+@transaction.atomic
+def add_order_item_from_post(order, post_data, customer):
+    description = (post_data.get('description') or '').strip()
+    if not description:
+        raise ValidationError('Description is required.')
+
+    try:
+        quantity = int(post_data.get('quantity') or 1)
+    except ValueError:
+        raise ValidationError('Quantity must be a whole number.')
+    if quantity < 1:
+        raise ValidationError('Quantity must be at least 1.')
+
+    rate = money(post_data.get('rate'))
+    if rate <= 0:
+        raise ValidationError('Rate must be greater than 0.')
+
+    garment_category = post_data.get('garment_category') or ''
+    all_categories = dict(get_all_garment_categories()).keys()
+    if garment_category and garment_category not in all_categories:
+        raise ValidationError('Invalid garment category selected.')
+
+    measurement = None
+    if garment_category:
+        measurement = Measurement.objects.filter(
+            customer=customer,
+            garment_category=garment_category,
+        ).order_by('-updated_at').first()
+
+    item = OrderItem.objects.create(
+        order=order,
+        garment_category=garment_category or None,
+        measurement=measurement,
+        description=description,
+        quantity=quantity,
+        rate=rate,
+        total_amount=(Decimal(quantity) * rate).quantize(MONEY),
+    )
+    _recalculate_order_totals(order)
+    return item
+
+
+@transaction.atomic
+def remove_order_item(order, item):
+    if order.items.count() <= 1:
+        raise ValidationError('An order must have at least one item. Delete the whole order instead if it should be removed entirely.')
+    item.delete()
+    _recalculate_order_totals(order)
+
+
+@transaction.atomic
+def correct_order_payment(order, new_advance_paid):
+    new_amount = money(new_advance_paid)
+    if new_amount > order.final_amount:
+        raise ValidationError('Advance paid cannot exceed the final order amount.')
+
+    old_amount = order.advance_paid
+    order.advance_paid = new_amount
+    order.grand_total = (order.final_amount - order.advance_paid).quantize(MONEY)
+    order.save(update_fields=['advance_paid', 'grand_total', 'updated_at'])
+    return old_amount, new_amount

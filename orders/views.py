@@ -13,7 +13,15 @@ from customers.models import Customer
 from salesperson.models import Salesperson
 from django.core.paginator import Paginator
 from .models import Order, OrderItem, OrderStatus, OrderType
-from .services import create_order_from_post, update_order_from_post, update_order_info_from_post, update_order_item_from_post
+from .services import (
+    create_order_from_post,
+    update_order_from_post,
+    update_order_info_from_post,
+    update_order_item_from_post,
+    add_order_item_from_post,
+    remove_order_item,
+    correct_order_payment,
+)
 
 @login_required
 def order_create(request):
@@ -279,7 +287,7 @@ def order_detail(request, order_id):
         
     items = order.items.all()
     
-    from measurements.models import get_all_garment_parameters
+    from measurements.models import get_all_garment_parameters, get_all_garment_categories
     context = {
         'order': order,
         'items': items,
@@ -287,6 +295,7 @@ def order_detail(request, order_id):
         'balance_due': order.balance_due,
         'salespeople': Salesperson.objects.filter(is_active=True),
         'garment_parameters': get_all_garment_parameters(),
+        'garment_categories': get_all_garment_categories(),
     }
     return render(request, 'orders/order_detail.html', context)
 
@@ -369,6 +378,9 @@ def delivery_schedule(request):
 @login_required
 def order_delete(request, order_id):
     order = get_object_or_404(Order, id=order_id)
+    if not request.user.is_superuser:
+        messages.error(request, 'Only the shop owner can permanently delete an order.')
+        return redirect('order_detail', order_id=order_id)
     if request.method == 'POST':
         order_number = order.order_number
         customer_name = order.customer.full_name
@@ -377,6 +389,47 @@ def order_delete(request, order_id):
         return redirect('order_list')
     # If GET, just redirect back (no GET-based deletion)
     return redirect('order_detail', order_id=order_id)
+
+
+@login_required
+def order_item_add(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == 'POST':
+        try:
+            add_order_item_from_post(order, request.POST, order.customer)
+            messages.success(request, 'Item added to order.')
+        except ValidationError as exc:
+            messages.error(request, '; '.join(exc.messages))
+    return redirect('order_detail', order_id=order.id)
+
+
+@login_required
+def order_item_delete(request, order_id, item_id):
+    order = get_object_or_404(Order, id=order_id)
+    item = get_object_or_404(OrderItem, id=item_id, order=order)
+    if request.method == 'POST':
+        try:
+            description = item.description
+            remove_order_item(order, item)
+            messages.success(request, f'Item "{description}" removed from order.')
+        except ValidationError as exc:
+            messages.error(request, '; '.join(exc.messages))
+    return redirect('order_detail', order_id=order.id)
+
+
+@login_required
+def order_correct_payment(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if not request.user.is_superuser:
+        messages.error(request, 'Only the shop owner can correct a recorded payment.')
+        return redirect('order_detail', order_id=order_id)
+    if request.method == 'POST':
+        try:
+            old_amount, new_amount = correct_order_payment(order, request.POST.get('corrected_advance_paid'))
+            messages.success(request, f'Advance paid corrected from ₹{old_amount} to ₹{new_amount}.')
+        except ValidationError as exc:
+            messages.error(request, '; '.join(exc.messages))
+    return redirect('order_detail', order_id=order.id)
 
 @login_required
 def order_edit_info(request, order_id):
