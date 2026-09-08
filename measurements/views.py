@@ -41,10 +41,12 @@ def measurement_profile(request):
                 customer.city = customer_city
             customer.save()
         else:
-            # Phone number is the reliable identity for repeat customers - match on
-            # that alone so the same person under a slightly different spelling of
-            # their name doesn't end up with a second, disconnected record.
-            customer = Customer.objects.filter(phone=customer_phone).first()
+            # Match on phone + a case-insensitive name so "Amit Shah" and "amit shah"
+            # reuse the same record. Deliberately NOT matching on phone alone: two
+            # different family members can share one household phone number, so a
+            # different name under the same phone is treated as a different customer
+            # rather than silently merged into an existing one.
+            customer = Customer.objects.filter(phone=customer_phone, full_name__iexact=customer_name).first()
             if not customer:
                 customer = Customer.objects.create(
                     phone=customer_phone,
@@ -54,11 +56,6 @@ def measurement_profile(request):
                 created = True
             else:
                 if customer.full_name != customer_name:
-                    messages.info(
-                        request,
-                        f'Found an existing customer with this phone number, saved as "{customer.full_name}". '
-                        f'Updated their name to "{customer_name}".'
-                    )
                     customer.full_name = customer_name
                 if customer_city:
                     customer.city = customer_city
