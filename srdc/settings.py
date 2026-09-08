@@ -42,6 +42,16 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+# Render (and most PaaS hosts) terminate TLS at the proxy and forward plain HTTP,
+# so Django needs to be told the original request was HTTPS for CSRF/cookies to work.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = [
+    f'https://{host}'
+    for host in ALLOWED_HOSTS
+    if host not in {'localhost', '127.0.0.1', '0.0.0.0'} and not host.replace('.', '').isdigit()
+]
+
 
 # Application definition
 
